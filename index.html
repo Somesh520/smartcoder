@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode Local (Final UI)</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --card-bg: #262626;
+            --accent: #ffa116; 
+            --border: #444;
+            --success: #2ecc71;
+            --error: #e74c3c;
+            --info: #888;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--card-bg);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 { margin: 0; font-size: 18px; font-weight: 600; color: white; }
+        h1 span { color: var(--accent); }
+
+        /* LAYOUT */
+        .view-section { display: none; flex-grow: 1; height: 100%; overflow: hidden; }
+        #listView { display: block; padding: 20px; overflow-y: auto; }
+        #problemView { display: none; flex-direction: row; }
+
+        /* TABLE */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #333; }
+        th { background: #333; position: sticky; top: 0; color: #aaa; }
+        tr:hover { background: #2a2a2a; cursor: pointer; }
+
+        /* SPLIT PANELS */
+        .panel { flex: 1; display: flex; flex-direction: column; border-right: 1px solid var(--border); overflow: hidden; }
+        .left-panel { flex: 0.8; padding: 20px; overflow-y: auto; }
+        .right-panel { flex: 1.2; background: #1e1e1e; }
+
+        /* DESCRIPTION */
+        .desc-content { font-size: 14px; line-height: 1.6; }
+        .desc-content pre { background: #333; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        .desc-content code { background: #444; padding: 2px 5px; border-radius: 3px; font-family: monospace; }
+
+        /* EDITOR */
+        .editor-wrapper { flex: 2; position: relative; display: flex; flex-direction: column; }
+        textarea.code-editor {
+            flex: 1;
+            width: 100%;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+        }
+
+        /* CONSOLE AREA */
+        .console-box {
+            flex: 1;
+            background: #262626;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            min-height: 250px;
+            max-height: 50%;
+        }
+
+        .console-header {
+            padding: 8px 15px;
+            background: #333;
+            font-size: 12px;
+            font-weight: bold;
+            color: #ccc;
+            border-bottom: 1px solid #444;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .console-content {
+            flex: 1;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 13px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        /* CONTROLS */
+        .action-bar {
+            padding: 10px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input.test-input {
+            flex: 1;
+            background: #333;
+            border: 1px solid #555;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        button { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .btn-run { background: #e0e0e0; color: black; }
+        .btn-run:hover { background: #fff; }
+        .btn-submit { background: var(--success); color: white; }
+        .btn-submit:hover { opacity: 0.9; }
+        .btn-back { background: transparent; color: #aaa; border: 1px solid #555; }
+
+        /* RESULT STYLES */
+        .result-header { font-size: 16px; font-weight: bold; margin-bottom: 10px; }
+        .res-green { color: var(--success); }
+        .res-red { color: var(--error); }
+        
+        .result-block {
+            background: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .lbl { color: #888; font-size: 11px; margin-bottom: 4px; display: block; }
+        .val { color: #e0e0e0; font-family: monospace; font-size: 14px; }
+        .stdout { color: #aaa; font-style: italic; }
+
+        .badge { padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; }
+        .easy { background: rgba(0,184,163,0.15); color: rgb(0,184,163); }
+        .medium { background: rgba(255,192,30,0.15); color: rgb(255,192,30); }
+        .hard { background: rgba(255,55,95,0.15); color: rgb(255,55,95); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>LeetCode <span>Local</span></h1>
+        <div id="connectionStatus" style="font-size: 12px; color: #aaa;">Server: Checking...</div>
+    </header>
+
+    <div id="listView" class="view-section" style="display: block;">
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <button onclick="fetchProblems()" class="btn-back">Refresh List</button>
+            <input type="text" id="searchInput" onkeyup="filterList()" placeholder="Search problems..." style="flex:1; background: #333; border:1px solid #444; color:white; padding:8px; border-radius:4px;">
+        </div>
+        <div id="loadingList" style="color: #888;">Loading problems...</div>
+        <table id="problemsTable" style="display:none;">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">ID</th>
+                    <th>Title</th>
+                    <th style="width: 100px;">Difficulty</th>
+                    <th style="width: 80px;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div id="problemView" class="view-section">
+        <div class="panel left-panel">
+            <button class="btn-back" onclick="showList()" style="width: fit-content; margin-bottom: 15px;">&larr; Problem List</button>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <h2 id="pTitle" style="margin: 0; font-size: 20px;">Title</h2>
+                <span id="pDiff" class="badge">Diff</span>
+            </div>
+            <hr style="border-color: #333; width: 100%; margin-bottom: 15px;">
+            <div id="pDesc" class="desc-content"></div>
+        </div>
+
+        <div class="panel right-panel">
+            <div class="editor-wrapper">
+                <div style="background: #252526; padding: 5px 15px; font-size: 12px; color: #aaa; border-bottom: 1px solid #333;">
+                    C++ Solution
+                </div>
+                <textarea id="codeEditor" class="code-editor" spellcheck="false"></textarea>
+            </div>
+
+            <div class="console-box">
+                <div class="console-header">
+                    <span>Test Result / Console</span>
+                    <button onclick="document.getElementById('consoleContent').innerHTML='Ready.'" style="background:none; border:none; color:#888; cursor:pointer; font-size:10px;">Clear</button>
+                </div>
+                <div id="consoleContent" class="console-content">Ready to run code.</div>
+                
+                <div class="action-bar">
+                    <input type="text" id="customInput" class="test-input" placeholder="Test Case Input (e.g. [2,7,11,15]\n9)">
+                    <button id="runBtn" class="btn-run" onclick="handleAction('run')">Run Code</button>
+                    <button id="submitBtn" class="btn-submit" onclick="handleAction('submit')">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const BASE_URL = "http://localhost:3000";
+    let allProblemsData = [];
+    let currentProblem = {};
+
+    // --- 1. NAVIGATION ---
+    function showList() {
+        document.getElementById('listView').style.display = 'block';
+        document.getElementById('problemView').style.display = 'none';
+    }
+
+    function showProblem(problem) {
+        if (!problem.slug) return alert("Problem data corrupt (No Slug).");
+        currentProblem = problem;
+        document.getElementById('listView').style.display = 'none';
+        document.getElementById('problemView').style.display = 'flex';
+        loadProblemDetails(problem.id);
+    }
+
+    // --- 2. FETCH LIST ---
+    async function fetchProblems() {
+        const tbody = document.getElementById('tableBody');
+        const loading = document.getElementById('loadingList');
+        const table = document.getElementById('problemsTable');
+        const status = document.getElementById('connectionStatus');
+
+        tbody.innerHTML = "";
+        loading.style.display = 'block';
+        table.style.display = 'none';
+
+        try {
+            const res = await fetch(`${BASE_URL}/problems?t=${Date.now()}`);
+            if(!res.ok) throw new Error("Server Error");
+            const data = await res.json();
+            status.innerText = "Server: Connected";
+            status.style.color = "var(--success)";
+            
+            let problems = [];
+            // Parse Logic
+            if (data.stat_status_pairs) {
+                problems = data.stat_status_pairs.map(p => ({
+                    id: p.stat.question_id,
+                    title: p.stat.question__title,
+                    slug: p.stat.question__title_slug,
+                    difficulty: p.difficulty ? (p.difficulty.level === 1 ? 'Easy' : p.difficulty.level === 2 ? 'Medium' : 'Hard') : 'Medium'
+                }));
+            } else if (Array.isArray(data)) {
+                problems = data.map(p => ({
+                    id: p.frontendQuestionId || p.questionId || p.id,
+                    title: p.title || p.questionTitle,
+                    slug: p.title_slug || p.titleSlug || p.slug || p.question__title_slug,
+                    difficulty: p.difficulty || "Medium"
+                }));
+            }
+
+            allProblemsData = problems.filter(p => p.slug && p.title);
+            renderTable(allProblemsData);
+            loading.style.display = 'none';
+            table.style.display = 'table';
+
+        } catch (err) {
+            loading.innerText = "Connection Failed. Is 'node server.js' running?";
+            status.innerText = "Server: Disconnected";
+            status.style.color = "var(--error)";
+        }
+    }
+
+    function renderTable(data) {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = "";
+        data.slice(0, 100).forEach(p => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${p.id}</td>
+                <td>${p.title}</td>
+                <td><span class="badge ${String(p.difficulty).toLowerCase()}">${p.difficulty}</span></td>
+                <td><span style="color:var(--accent); font-size:12px;">Solve &rarr;</span></td>
+            `;
+            tr.onclick = () => showProblem(p);
+            tbody.appendChild(tr);
+        });
+    }
+
+    function filterList() {
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = allProblemsData.filter(p => 
+            String(p.title).toLowerCase().includes(term) || String(p.id).includes(term)
+        );
+        renderTable(filtered);
+    }
+
+    // --- 3. LOAD DETAILS ---
+    async function loadProblemDetails(id) {
+        const titleEl = document.getElementById('pTitle');
+        const descEl = document.getElementById('pDesc');
+        const diffEl = document.getElementById('pDiff');
+        const editor = document.getElementById('codeEditor');
+        const runBtn = document.getElementById('runBtn');
+        
+        runBtn.disabled = true;
+        titleEl.innerText = `${currentProblem.id}. ${currentProblem.title}`;
+        diffEl.innerText = currentProblem.difficulty;
+        diffEl.className = `badge ${currentProblem.difficulty.toLowerCase()}`;
+        descEl.innerHTML = "Loading details...";
+
+        try {
+            const res = await fetch(`${BASE_URL}/problem/${id}`);
+            const json = await res.json();
+            const data = json.data?.question || json;
+
+            descEl.innerHTML = data.content || data.questionHtml || "No description.";
+            
+            if(data.titleSlug || data.slug) currentProblem.slug = data.titleSlug || data.slug;
+
+            if(data.codeSnippets) {
+                const cpp = data.codeSnippets.find(s => s.langSlug === 'cpp');
+                editor.value = cpp ? cpp.code : "// No C++ snippet found.";
+            } else {
+                editor.value = "class Solution {\npublic:\n    // Write code here\n};";
+            }
+            runBtn.disabled = false;
+
+        } catch (err) {
+            descEl.innerText = "Error loading details.";
+        }
+    }
+
+    // --- 4. ACTION HANDLER ---
+    async function handleAction(type) {
+        const btn = type === 'run' ? document.getElementById('runBtn') : document.getElementById('submitBtn');
+        const consoleDiv = document.getElementById('consoleContent');
+        const code = document.getElementById('codeEditor').value;
+        const customInput = document.getElementById('customInput').value;
+
+        if(!currentProblem.slug) return alert("Slug missing!");
+
+        btn.disabled = true;
+        btn.innerText = "Running...";
+        consoleDiv.innerHTML = `<span style="color:#888;">Sending code to LeetCode...</span>`;
+
+        try {
+            const endpoint = type === 'run' ? '/run' : '/submit';
+            const res = await fetch(`${BASE_URL}${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    slug: currentProblem.slug,
+                    question_id: currentProblem.id,
+                    lang: 'cpp',
+                    typed_code: code,
+                    data_input: customInput
+                })
+            });
+            const data = await res.json();
+            if(data.error) throw new Error(data.error);
+
+            const trackId = data.interpret_id || data.submission_id;
+            consoleDiv.innerHTML += `<br><span style="color:#888;">Processing (ID: ${trackId})...</span>`;
+            
+            pollResult(trackId, btn);
+        } catch (err) {
+            consoleDiv.innerHTML = `<span style="color:var(--error);">Error: ${err.message}</span>`;
+            btn.disabled = false;
+            btn.innerText = type === 'run' ? "Run Code" : "Submit";
+        }
+    }
+
+    function pollResult(id, btn) {
+        const consoleDiv = document.getElementById('consoleContent');
+        let attempts = 0;
+        const interval = setInterval(async () => {
+            attempts++;
+            if(attempts > 20) { 
+                clearInterval(interval); 
+                btn.disabled = false; 
+                btn.innerText = "Retry"; 
+                consoleDiv.innerHTML += `<br><span style="color:var(--error);">Timeout: Server took too long.</span>`;
+                return; 
+            }
+            
+            try {
+                // Send slug for correct headers
+                const res = await fetch(`${BASE_URL}/poll/${id}?slug=${currentProblem.slug}`);
+                const data = await res.json();
+                
+                if(data.state === 'SUCCESS') {
+                    clearInterval(interval);
+                    btn.disabled = false;
+                    btn.innerText = btn.id === 'runBtn' ? "Run Code" : "Submit";
+                    renderOutput(data);
+                } else {
+                    consoleDiv.innerHTML += `<span style="color:#555;">.</span>`;
+                }
+            } catch(e) {}
+        }, 1000);
+    }
+
+    // --- 5. RENDER OUTPUT (THE FIX) ---
+    function renderOutput(data) {
+        const consoleDiv = document.getElementById('consoleContent');
+        
+        // Helper to show arrays correctly
+        const formatVal = (val) => {
+            if (Array.isArray(val)) {
+                return val.map(v => {
+                    try { return (typeof v === 'string' && (v.startsWith('[') || v.startsWith('{'))) ? v : JSON.stringify(v); }
+                    catch { return v; }
+                }).join(', ');
+            }
+            if (typeof val === 'object') return JSON.stringify(val);
+            return val !== undefined ? val : "null";
+        };
+
+        let html = "";
+
+        // --- RUN CODE CASE ---
+        if (data.run_success) {
+            const isCorrect = data.correct_answer === true;
+            const statusText = isCorrect ? "Accepted" : "Wrong Answer";
+            const statusClass = isCorrect ? "res-green" : "res-red";
+
+            html += `<div class="result-header ${statusClass}">${statusText}</div>`;
+            
+            // Input
+            let inputShow = data.input_formatted;
+            if(!inputShow) inputShow = document.getElementById('customInput').value || "Default";
+            
+            html += `<div class="result-block"><span class="lbl">Input</span><div class="val">${inputShow}</div></div>`;
+
+            // Output vs Expected
+            let myOut = Array.isArray(data.code_answer) ? data.code_answer[0] : data.code_answer;
+            let expOut = Array.isArray(data.expected_code_answer) ? data.expected_code_answer[0] : data.expected_code_answer;
+            
+            html += `<div class="result-block"><span class="lbl">Output</span><div class="val">${myOut}</div></div>`;
+            html += `<div class="result-block"><span class="lbl">Expected</span><div class="val">${expOut}</div></div>`;
+
+            // Stdout (cout)
+            if (data.std_output_list && data.std_output_list.length > 0) {
+                const stdout = data.std_output_list.filter(s => s !== "").join('\n');
+                if (stdout.trim().length > 0) {
+                    html += `<div class="result-block"><span class="lbl">Std Out (cout)</span><div class="val stdout">${stdout}</div></div>`;
+                }
+            }
+
+        // --- RUNTIME ERROR ---
+        } else if (data.run_success === false) {
+            html += `<div class="result-header res-red">Runtime Error</div>`;
+            html += `<div class="result-block"><div class="val" style="color:#ff8888;">${data.full_runtime_error || data.compile_error}</div></div>`;
+        
+        // --- SUBMISSION CASE ---
+        } else {
+            if (data.status_msg === "Accepted") {
+                html += `<div class="result-header res-green">Submission Accepted</div>`;
+                html += `<div class="result-block"><span class="lbl">Metrics</span><div class="val">Runtime: ${data.status_runtime} | Memory: ${data.status_memory}</div></div>`;
+            } else {
+                html += `<div class="result-header res-red">${data.status_msg}</div>`;
+                html += `<div class="result-block"><span class="lbl">Last Input</span><div class="val">${formatVal(data.last_testcase)}</div></div>`;
+                html += `<div class="result-block"><span class="lbl">Output</span><div class="val">${formatVal(data.code_output)}</div></div>`;
+                html += `<div class="result-block"><span class="lbl">Expected</span><div class="val">${formatVal(data.expected_output)}</div></div>`;
+            }
+        }
+
+        consoleDiv.innerHTML = html;
+    }
+
+    fetchProblems();
+</script>
+</body>
+</html>
