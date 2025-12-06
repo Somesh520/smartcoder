@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            width: 300px; /* Thoda wider kiya taaki ghutan na ho */
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            background-color: #f8f9fa;
+        }
+        h3 {
+            margin-top: 0;
+            color: #ffa116; /* LeetCode Orange */
+            margin-bottom: 5px;
+        }
+        p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        button {
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            margin-bottom: 10px;
+            transition: opacity 0.2s;
+        }
+        button:hover {
+            opacity: 0.85;
+        }
+        
+        /* Sync Button (Green) */
+        #syncBtn {
+            background: #2ecc71;
+            color: white;
+        }
+
+        /* Clear Button (Red/Outline) */
+        #clearBtn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        #status {
+            margin-top: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            min-height: 18px; /* Layout shift rokne ke liye */
+        }
+    </style>
+</head>
+<body>
+    <h3>LeetCode Sync</h3>
+    <p>Open <b>localhost:3000</b> (or similar) first.</p>
+
+    <button id="syncBtn">🔄 Sync Current Account</button>
+
+    <button id="clearBtn">❌ Disconnect / Clear Data</button>
+
+    <div id="status"></div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
