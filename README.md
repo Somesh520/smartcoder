@@ -48,7 +48,7 @@ Ye extension aapke LeetCode account ko local server se jodega.
 1.  Chrome Browser kholo aur URL bar me likho: `chrome://extensions/`
 2.  Top-right corner me **"Developer mode"** ko **ON** kar do.
 3.  **"Load unpacked"** button par click karo.
-4.  Is project ka folder select karo (jahan `manifest.json` wali file hai).
+4.  Is project ka folder select karo leetcode-sync-ext .
 5.  Ab aapko chrome me **LeetCode Sync** ka icon dikh jayega.
 
 ---
