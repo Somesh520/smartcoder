@@ -21,7 +21,7 @@
         * { box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
             background-color: var(--bg-body);
             color: var(--text-primary);
             margin: 0;
@@ -60,7 +60,7 @@
         /* MAIN LAYOUT */
         .workspace { display: flex; height: calc(100vh - 50px); }
         
-        /* LEFT PANEL (Description) */
+        /* LEFT PANEL */
         .left-panel {
             flex: 1;
             border-right: 1px solid var(--border-color);
@@ -73,19 +73,16 @@
         .panel-header {
             padding: 10px 15px;
             border-bottom: 1px solid var(--border-color);
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-secondary);
+            font-size: 13px; font-weight: 500; color: var(--text-secondary);
             background: var(--bg-panel);
-            display: flex; justify-content: space-between; align-items: center;
         }
 
         .problem-content { padding: 20px; overflow-y: auto; flex: 1; line-height: 1.6; font-size: 14px; }
-        .problem-content h1, .problem-content h2 { margin-top: 0; font-size: 18px; color: white; }
+        .problem-content h1 { font-size: 18px; color: white; margin-top: 0; }
         .problem-content pre { background: #333; padding: 10px; border-radius: 5px; overflow-x: auto; color: #ccc; }
-        .problem-content code { background: #3a3a3a; padding: 2px 5px; border-radius: 3px; font-family: 'Menlo', monospace; font-size: 13px; }
+        .problem-content code { background: #3a3a3a; padding: 2px 5px; border-radius: 3px; font-family: monospace; font-size: 13px; }
 
-        /* RIGHT PANEL (Editor + Console) */
+        /* RIGHT PANEL */
         .right-panel {
             flex: 1.5;
             display: flex;
@@ -128,86 +125,41 @@
         .btn-submit:disabled, .btn-run:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* CODE EDITOR */
-        .code-area {
-            flex: 1;
-            position: relative;
-            display: flex;
-        }
+        .code-area { flex: 1; position: relative; display: flex; }
         .line-numbers {
-            width: 40px;
-            background: var(--bg-editor);
-            border-right: 1px solid #333;
-            color: #555;
-            text-align: right;
-            padding: 15px 5px;
-            font-family: 'Menlo', 'Consolas', monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            user-select: none;
+            width: 40px; background: var(--bg-editor); border-right: 1px solid #333;
+            color: #555; text-align: right; padding: 15px 5px;
+            font-family: monospace; font-size: 14px; line-height: 1.5; user-select: none;
         }
         #codeEditor {
-            flex: 1;
-            background: var(--bg-editor);
-            color: #d4d4d4;
-            border: none;
-            padding: 15px;
-            font-family: 'Menlo', 'Consolas', monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            resize: none;
-            outline: none;
-            white-space: pre;
+            flex: 1; background: var(--bg-editor); color: #d4d4d4; border: none;
+            padding: 15px; font-family: monospace; font-size: 14px;
+            line-height: 1.5; resize: none; outline: none; white-space: pre;
         }
 
         /* CONSOLE DRAWER */
         .console-drawer {
-            height: 40px; /* Collapsed state */
-            background: var(--bg-panel);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            transition: height 0.3s ease;
-            overflow: hidden;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            z-index: 10;
+            height: 40px; background: var(--bg-panel); border-top: 1px solid var(--border-color);
+            display: flex; flex-direction: column; transition: height 0.3s ease;
+            overflow: hidden; position: absolute; bottom: 0; width: 100%; z-index: 10;
         }
-        .console-drawer.expanded { height: 300px; }
+        .console-drawer.expanded { height: 350px; }
 
         .console-header {
-            height: 40px;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
-            cursor: pointer;
-            background: #2a2a2a;
-            border-bottom: 1px solid var(--border-color);
+            height: 40px; min-height: 40px; display: flex; align-items: center;
+            justify-content: space-between; padding: 0 15px; cursor: pointer;
+            background: #2a2a2a; border-bottom: 1px solid var(--border-color);
         }
         .console-header:hover { background: #333; }
         .console-title { font-size: 13px; font-weight: 500; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; }
 
-        .console-body {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-            background: var(--bg-panel);
-        }
+        .console-body { flex: 1; padding: 15px; overflow-y: auto; background: var(--bg-panel); }
 
         /* INPUT AREA */
         .input-section label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 5px; }
         .custom-input {
-            width: 100%;
-            background: #333;
-            border: 1px solid #444;
-            color: #eee;
-            border-radius: 4px;
-            padding: 10px;
-            font-family: monospace;
-            resize: none;
-            outline: none;
+            width: 100%; background: #333; border: 1px solid #444; color: #eee;
+            border-radius: 4px; padding: 10px; font-family: monospace; resize: none; outline: none;
         }
         .custom-input:focus { border-color: var(--accent-yellow); }
 
@@ -220,31 +172,38 @@
         .stat-pill { background: #333; padding: 5px 10px; border-radius: 15px; font-size: 12px; color: #ccc; }
         .stat-pill span { font-weight: bold; color: white; }
 
-        .testcase-result {
-            background: #333;
-            border-radius: 6px;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-left: 4px solid transparent;
+        /* TABS STYLES */
+        .tabs-wrapper { display: flex; gap: 8px; margin-bottom: 15px; padding-bottom: 10px; overflow-x: auto; }
+        .tab-btn {
+            background: #333; border: 1px solid transparent; color: #999;
+            padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px;
+            display: flex; align-items: center; gap: 8px; transition: all 0.2s; white-space: nowrap;
         }
-        .tc-pass { border-left-color: var(--accent-green); }
-        .tc-fail { border-left-color: var(--accent-red); }
+        .tab-btn:hover { background: #3a3a3a; color: #fff; }
+        .tab-btn.active { background: #444; color: white; font-weight: 500; border-color: #555; }
 
-        .kv-pair { margin-bottom: 5px; }
-        .key { font-size: 11px; color: #888; display: block; }
-        .val { font-family: monospace; font-size: 13px; color: #eee; background: #222; padding: 2px 6px; border-radius: 3px; display: inline-block; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+        .dot-green { background: var(--accent-green); }
+        .dot-red { background: var(--accent-red); }
 
-        /* LIST VIEW (Overlays everything) */
-        #listView {
-            position: absolute;
-            top: 50px; left: 0; width: 100%; height: calc(100vh - 50px);
-            background: var(--bg-body);
-            z-index: 100;
-            padding: 20px;
-            overflow-y: auto;
+        .case-content { display: none; }
+        .case-content.active { display: block; }
+
+        .result-block { margin-bottom: 15px; }
+        .result-label { font-size: 12px; color: #888; margin-bottom: 6px; display: block; }
+        .result-value {
+            background: #333; padding: 12px; border-radius: 6px;
+            font-family: monospace; font-size: 14px; color: #e0e0e0;
+            white-space: pre-wrap; border: 1px solid #444;
         }
         
-        /* TABLES */
+        .diff-error { color: var(--accent-red); background: rgba(239, 71, 67, 0.1); border-color: rgba(239, 71, 67, 0.3); }
+
+        /* LIST VIEW */
+        #listView {
+            position: absolute; top: 50px; left: 0; width: 100%; height: calc(100vh - 50px);
+            background: var(--bg-body); z-index: 100; padding: 20px; overflow-y: auto;
+        }
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; color: var(--text-secondary); padding: 10px; border-bottom: 1px solid #333; font-weight: 500; }
         td { padding: 12px 10px; border-bottom: 1px solid #333; font-size: 14px; }
@@ -254,14 +213,12 @@
         .medium { background: rgba(255, 192, 30, 0.15); color: rgb(255, 192, 30); }
         .hard { background: rgba(255, 55, 95, 0.15); color: rgb(255, 55, 95); }
 
-        /* SPINNER */
         .spinner {
             border: 3px solid #333; border-top: 3px solid var(--text-secondary);
             border-radius: 50%; width: 20px; height: 20px;
             animation: spin 1s linear infinite; display: inline-block;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
     </style>
 </head>
 <body>
@@ -279,7 +236,7 @@
     <div id="listView">
         <div style="max-width: 1000px; margin: 0 auto;">
             <div style="display:flex; gap:15px; margin-bottom:20px;">
-                <input type="text" id="searchInput" onkeyup="filterList()" placeholder="Search questions..." style="flex:1; background:#262626; border:1px solid #333; padding:10px; color:white; border-radius:4px; outline:none;">
+                <input type="text" id="searchInput" onkeyup="filterList()" placeholder="Search..." style="flex:1; background:#262626; border:1px solid #333; padding:10px; color:white; border-radius:4px; outline:none;">
                 <button onclick="fetchProblems()" class="btn-action" style="background:#333; color:white;">Refresh</button>
             </div>
             <div id="loadingList" style="text-align:center; margin-top:50px; color:#666;">Loading...</div>
@@ -291,22 +248,16 @@
     </div>
 
     <div id="problemView" class="workspace" style="display:none;">
-        
         <div class="left-panel">
-            <div class="panel-header">
-                <span id="pTitle">Description</span>
-            </div>
+            <div class="panel-header"><span id="pTitle">Description</span></div>
             <div id="pDesc" class="problem-content"></div>
         </div>
 
         <div class="right-panel">
-            
             <div class="editor-toolbar">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <span style="font-size:12px; color:#666;">Language:</span>
-                    <select id="languageSelect" class="lang-select" onchange="changeLanguage()">
-                        <option value="cpp">C++</option>
-                    </select>
+                    <select id="languageSelect" class="lang-select" onchange="changeLanguage()"><option value="cpp">C++</option></select>
                 </div>
                 <div class="action-buttons">
                     <button id="runBtn" class="btn-action btn-run" onclick="handleAction('run')">
@@ -334,22 +285,17 @@
                 
                 <div class="console-body">
                     <div id="loadingSpinner" style="display:none; text-align:center; padding:20px;">
-                        <div class="spinner"></div>
-                        <div style="margin-top:10px; font-size:12px; color:#888;">Running Code...</div>
+                        <div class="spinner"></div><div style="margin-top:10px; font-size:12px; color:#888;">Running Code...</div>
                     </div>
-
                     <div id="inputSection">
                         <div class="input-section">
                             <label>Testcase (Stdin)</label>
                             <textarea id="customInput" class="custom-input" rows="4"></textarea>
                         </div>
                     </div>
-
-                    <div id="resultSection" style="display:none;">
-                        </div>
+                    <div id="resultSection" style="display:none;"></div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -363,16 +309,12 @@
         'cpp': 'class Solution {\npublic:\n    // Write C++ code here\n};',
         'java': 'class Solution {\n    public void solve() {\n        // Write Java code here\n    }\n}',
         'python': 'class Solution(object):\n    def solve(self):\n        # Write Python code here\n        pass',
-        'python3': 'class Solution:\n    def solve(self):\n        # Write Python3 code here\n        pass',
-        'c': 'void solve() {\n    // Write C code here\n}',
         'javascript': 'var solve = function() {\n    // Write JS code here\n};'
     };
 
-    // --- TOGGLE CONSOLE ---
     function toggleConsole(forceOpen = false) {
         const drawer = document.getElementById('consoleDrawer');
         const chevron = document.getElementById('chevron');
-        
         if (forceOpen || !drawer.classList.contains('expanded')) {
             drawer.classList.add('expanded');
             chevron.style.transform = "rotate(180deg)";
@@ -382,14 +324,18 @@
         }
     }
 
-    // --- 1. FETCH & LIST ---
+    window.switchTab = function(index) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.case-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(`tab-btn-${index}`).classList.add('active');
+        document.getElementById(`case-content-${index}`).classList.add('active');
+    }
+
     async function fetchProblems() {
         document.getElementById('listView').style.display = 'block';
         document.getElementById('problemView').style.display = 'none';
-        
         const loading = document.getElementById('loadingList');
         const table = document.getElementById('problemsTable');
-        
         loading.style.display = 'block';
         table.style.display = 'none';
 
@@ -397,7 +343,6 @@
             const res = await fetch(`${BASE_URL}/problems?t=${Date.now()}`);
             if(!res.ok) throw new Error("Backend connection failed");
             const data = await res.json();
-            
             let problems = [];
             if (data.stat_status_pairs) {
                 problems = data.stat_status_pairs.map(p => ({
@@ -414,12 +359,10 @@
                     difficulty: p.difficulty || "Medium"
                 }));
             }
-
             allProblemsData = problems.filter(p => p.slug && p.title);
             renderTable(allProblemsData);
             loading.style.display = 'none';
             table.style.display = 'table';
-
         } catch (e) { 
             loading.innerText = "Connection Failed. Ensure server.js is running.";
             console.error(e); 
@@ -449,16 +392,12 @@
         renderTable(filtered);
     }
 
-    // --- 2. LOAD PROBLEM ---
     async function loadProblem(problem) {
         currentProblem = problem;
         document.getElementById('listView').style.display = 'none';
         document.getElementById('problemView').style.display = 'flex';
-        
         document.getElementById('pTitle').innerText = `${problem.id}. ${problem.title}`;
         document.getElementById('pDesc').innerHTML = `<div style="padding:20px; color:#888;">Loading details...</div>`;
-        
-        // Reset Console
         document.getElementById('inputSection').style.display = 'block';
         document.getElementById('resultSection').style.display = 'none';
         document.getElementById('consoleDrawer').classList.remove('expanded');
@@ -467,15 +406,10 @@
             const res = await fetch(`${BASE_URL}/problem/${problem.id}`);
             const json = await res.json();
             const data = json.data?.question || json;
-            
-            // Description
             document.getElementById('pDesc').innerHTML = data.content || data.questionHtml || "No Description";
-            
-            // Snippets
             availableSnippets = data.codeSnippets || [];
             const select = document.getElementById('languageSelect');
             select.innerHTML = "";
-            
             if(availableSnippets.length > 0) {
                 availableSnippets.forEach(s => {
                     let opt = document.createElement('option');
@@ -488,12 +422,9 @@
                 select.innerHTML = `<option value="cpp">C++</option><option value="java">Java</option><option value="python3">Python3</option>`;
             }
             changeLanguage();
-            
-            // Input
             if (data.exampleTestcases) {
                 document.getElementById('customInput').value = data.exampleTestcases;
             }
-
         } catch(e) { console.error(e); }
     }
 
@@ -503,7 +434,6 @@
         document.getElementById('codeEditor').value = snip ? snip.code : (DEFAULT_TEMPLATES[lang] || `// Write ${lang} code`);
     }
 
-    // --- 3. RUN / SUBMIT ---
     async function handleAction(type) {
         const btn = document.getElementById(type === 'run' ? 'runBtn' : 'submitBtn');
         const code = document.getElementById('codeEditor').value;
@@ -518,7 +448,6 @@
             return;
         }
 
-        // UI Updates
         toggleConsole(true);
         document.getElementById('inputSection').style.display = 'none';
         document.getElementById('resultSection').style.display = 'none';
@@ -541,10 +470,8 @@
             });
             const data = await res.json();
             if(data.error) throw new Error(data.error);
-            
             const id = data.interpret_id || data.submission_id;
             pollResult(id, btn, type);
-
         } catch(e) {
             renderError(e.message);
             btn.disabled = false;
@@ -555,96 +482,107 @@
         const userSession = localStorage.getItem('user_session');
         const userCsrf = localStorage.getItem('user_csrf');
         let attempts = 0;
-
         const interval = setInterval(async () => {
             attempts++;
             if(attempts > 20) { 
-                clearInterval(interval); 
-                btn.disabled = false; 
-                renderError("Timeout: Server took too long.");
-                return; 
+                clearInterval(interval); btn.disabled = false; renderError("Timeout: Server took too long."); return; 
             }
-
             try {
                 const res = await fetch(`${BASE_URL}/poll/${id}`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ slug: currentProblem.slug, auth_session: userSession, auth_csrf: userCsrf })
                 });
                 const data = await res.json();
-                
                 if(data.state === 'SUCCESS') {
-                    clearInterval(interval);
-                    btn.disabled = false;
-                    renderOutput(data);
+                    clearInterval(interval); btn.disabled = false; renderOutput(data);
                 }
             } catch(e) {}
         }, 1000);
     }
 
-    // --- 4. RENDER RESULTS ---
+    // --- MAIN RENDER LOGIC ---
     function renderOutput(data) {
         document.getElementById('loadingSpinner').style.display = 'none';
         const resSection = document.getElementById('resultSection');
         resSection.style.display = 'block';
-        
         let html = "";
 
-        // COMPILE ERROR
+        // 1. ERROR
         if (!data.run_success) {
-            html = `
-                <div class="result-status status-error">Compile Error</div>
+            html = `<div class="result-status status-error">Compile Error</div>
                 <pre style="color:#ff8888; background:#333; padding:10px; border-radius:5px;">${data.full_runtime_error || data.compile_error}</pre>
-                <button onclick="showInput()" class="btn-action" style="margin-top:10px; background:#444; color:white;">Back to Input</button>
-            `;
+                <button onclick="showInput()" class="btn-action" style="margin-top:10px; background:#444; color:white;">Back to Input</button>`;
             resSection.innerHTML = html;
             return;
         }
 
-        // SUBMIT (ACCEPTED/WRONG)
-        if(data.submission_id && !data.interpret_id) {
+        // Check if "Run Code" (ID contains 'runcode') vs "Submit"
+        const isRunCode = data.submission_id && data.submission_id.toString().includes("runcode");
+
+        // 2. SUBMIT (Full Stats)
+        if (!isRunCode && data.submission_id) {
             const isAcc = data.status_msg === 'Accepted';
             const colorClass = isAcc ? 'status-accepted' : 'status-error';
-            
             html += `<div class="result-status ${colorClass}">${data.status_msg}</div>`;
             
             if (isAcc) {
-                html += `
-                <div class="stats-row">
-                    <div class="stat-pill">Runtime: <span>${data.status_runtime}</span> (Beats ${parseFloat(data.runtime_percentile).toFixed(1)}%)</div>
-                    <div class="stat-pill">Memory: <span>${data.status_memory}</span> (Beats ${parseFloat(data.memory_percentile).toFixed(1)}%)</div>
-                </div>`;
+                const runBeat = data.runtime_percentile ? parseFloat(data.runtime_percentile).toFixed(2) : "0.00";
+                const memBeat = data.memory_percentile ? parseFloat(data.memory_percentile).toFixed(2) : "0.00";
+                const runTime = data.status_runtime || "N/A";
+                const memUse = data.status_memory || "N/A";
+                html += `<div class="stats-row"><div class="stat-pill">Runtime: <span>${runTime}</span> (Beats ${runBeat}%)</div><div class="stat-pill">Memory: <span>${memUse}</span> (Beats ${memBeat}%)</div></div>`;
             } else {
-                html += `<div style="margin-bottom:10px; color:#aaa;">${data.total_correct} / ${data.total_testcases} testcases passed</div>`;
-                html += `
-                    <div class="testcase-result tc-fail">
-                        <div class="kv-pair"><span class="key">Last Input</span><div class="val">${data.last_testcase}</div></div>
-                        <div class="kv-pair"><span class="key">Output</span><div class="val">${data.code_output}</div></div>
-                        <div class="kv-pair"><span class="key">Expected</span><div class="val">${data.expected_output}</div></div>
-                    </div>
-                `;
+                html += `<div style="margin-bottom:10px; color:#aaa;">${data.total_correct} / ${data.total_testcases} testcases passed</div>
+                     <div class="testcase-result tc-fail">
+                        <div class="result-block"><span class="result-label">Last Input</span><div class="result-value">${data.last_testcase}</div></div>
+                        <div class="result-block"><span class="result-label">Output</span><div class="result-value diff-error">${data.code_output}</div></div>
+                        <div class="result-block"><span class="result-label">Expected</span><div class="result-value">${data.expected_output}</div></div>
+                    </div>`;
             }
         } 
-        // RUN CODE (TESTCASES)
+        
+        // 3. RUN CODE (Tabs Only, NO Stats)
         else {
             const passed = data.correct_answer === true;
             html += `<div class="result-status ${passed ? 'status-accepted' : 'status-error'}">${passed ? 'Accepted' : 'Wrong Answer'}</div>`;
             
             let myOut = data.code_answer || [];
             let expOut = data.expected_code_answer || [];
-            let inputs = (data.input_formatted || document.getElementById('customInput').value).split('\n');
+            let inputs = data.input_formatted || document.getElementById('customInput').value.split('\n');
+            let compareRes = data.compare_result || "";
+            let count = data.total_testcases || myOut.length;
 
-            for(let i=0; i < myOut.length; i++) {
-                let isPass = myOut[i] === expOut[i];
-                html += `
-                    <div class="testcase-result ${isPass ? 'tc-pass' : 'tc-fail'}">
-                        <div style="font-weight:bold; font-size:12px; margin-bottom:5px; color:#fff;">Case ${i+1}</div>
-                        <div class="kv-pair"><span class="key">Input</span><div class="val">${inputs[i] || 'Hidden'}</div></div>
-                        <div class="kv-pair"><span class="key">Output</span><div class="val">${myOut[i]}</div></div>
-                        <div class="kv-pair"><span class="key">Expected</span><div class="val">${expOut[i]}</div></div>
-                    </div>
-                `;
+            let firstFailIndex = 0;
+            for(let i=0; i<count; i++) {
+                if(compareRes[i] === '0') { firstFailIndex = i; break; }
             }
+
+            html += `<div class="tabs-wrapper">`;
+            for(let i=0; i < count; i++) {
+                let isPass = (compareRes[i] === '1');
+                let dotClass = isPass ? 'dot-green' : 'dot-red';
+                let activeClass = (i === firstFailIndex) ? 'active' : '';
+                html += `<button id="tab-btn-${i}" class="tab-btn ${activeClass}" onclick="switchTab(${i})"><span class="dot ${dotClass}"></span> Case ${i+1}</button>`;
+            }
+            html += `</div>`;
+
+            for(let i=0; i < count; i++) {
+                let activeClass = (i === firstFailIndex) ? 'active' : '';
+                let curInput = inputs[i] || "Hidden";
+                let isPass = (compareRes[i] === '1');
+                let valClass = isPass ? '' : 'diff-error';
+
+                html += `<div id="case-content-${i}" class="case-content ${activeClass}">
+                         <div class="result-block"><span class="result-label">Input</span><div class="result-value">${curInput}</div></div>
+                         <div class="result-block"><span class="result-label">Output</span><div class="result-value ${valClass}">${myOut[i]}</div></div>
+                         <div class="result-block"><span class="result-label">Expected</span><div class="result-value">${expOut[i]}</div></div>
+                    </div>`;
+            }
+        }
+
+        if(data.std_output_list && data.std_output_list.length) {
+             let out = data.std_output_list.filter(x=>x).join('\n');
+             if(out.trim()) html += `<div style="margin-top:20px; border-top:1px solid #444; padding-top:10px;"><span class="result-label">Stdout</span><div class="result-value">${out}</div></div>`;
         }
 
         html += `<button onclick="showInput()" class="btn-action" style="margin-top:15px; background:#444; color:white;">Edit Testcase</button>`;
@@ -663,7 +601,6 @@
         document.getElementById('resultSection').style.display = 'none';
     }
 
-    // Init
     fetchProblems();
 </script>
 </body>
