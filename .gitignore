@@ -1,0 +1,9 @@
+node_modules
+.DS_Store
+dist
+.env
+.idea
+.vscode
+coverage
+*.log
+leetcode-sync-extension.zip
