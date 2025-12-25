@@ -8,13 +8,15 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: [
-            "http://localhost:5173",
-            "http://localhost:5174",
-            process.env.CLIENT_URL,
-            "https://smartcoder.vercel.app"
-        ].filter(Boolean),
-        methods: ["GET", "POST"]
+        origin: (origin, callback) => {
+            if (!origin || origin.includes('localhost') || origin.endsWith('.vercel.app') || origin === process.env.CLIENT_URL) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        methods: ["GET", "POST"],
+        credentials: true
     }
 });
 
@@ -22,15 +24,25 @@ const PORT = 3000;
 
 // Basic Middleware
 // Basic Middleware
-const ALLOWED_ORIGINS = [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    process.env.CLIENT_URL, // Production Frontend URL
-    'https://smartcoder.vercel.app' // Fallback Vercel URL
-].filter(Boolean);
+// Basic Middleware
+const allowedOrigin = (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (
+        origin.includes('localhost') ||
+        origin.endsWith('.vercel.app') ||
+        origin === process.env.CLIENT_URL
+    ) {
+        callback(null, true);
+    } else {
+        console.log("Blocked CORS for:", origin);
+        callback(new Error('Not allowed by CORS'));
+    }
+};
 
 app.use(cors({
-    origin: ALLOWED_ORIGINS,
+    origin: allowedOrigin,
     credentials: true
 }));
 app.use(express.json());
