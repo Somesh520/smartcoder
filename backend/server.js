@@ -258,6 +258,11 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit('voiceStatus', { userId: socket.id, status });
     });
 
+    // CALL REJECTED
+    socket.on('callRejected', ({ roomId, username }) => {
+        socket.to(roomId).emit('callRejected', { username });
+    });
+
     // --- TIMEOUT TRACKING ---
     const disconnectTimeouts = {}; // { socketId: timeoutRef }
 

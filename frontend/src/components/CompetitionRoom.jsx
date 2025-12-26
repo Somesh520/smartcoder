@@ -114,35 +114,9 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
             }
         };
 
-        // ... (rest of socket handlers)
-
-        const handleSignal = async ({ signal, senderId }) => {
-            // ... (existing signal logic, unchanged)
-            if (signal.type === 'offer') {
-                if (peersRef.current[senderId]) {
-                    peersRef.current[senderId].close();
-                    delete peersRef.current[senderId];
-                }
-                const newPeer = createPeer(senderId, localStreamRef.current, false);
-                await newPeer.setRemoteDescription(new RTCSessionDescription(signal));
-                const answer = await newPeer.createAnswer();
-                await newPeer.setLocalDescription(answer);
-                socket.emit('voiceSignal', { roomId, signal: newPeer.localDescription, targetId: senderId });
-                // setOpponentStatus('online'); // REMOVED: Rely on explicit 'voiceStatus'
-            } else if (signal.type === 'answer') {
-                const peer = peersRef.current[senderId];
-                if (peer) {
-                    await peer.setRemoteDescription(new RTCSessionDescription(signal));
-                }
-                // setOpponentStatus('online'); // REMOVED: Rely on explicit 'voiceStatus'
-            } else if (signal.candidate) {
-                const peer = peersRef.current[senderId];
-                if (peer) {
-                    try {
-                        await peer.addIceCandidate(new RTCIceCandidate(signal.candidate));
-                    } catch (e) { console.warn("ICE Error", e); }
-                }
-            }
+        const handleCallRejected = ({ username }) => {
+            setIsCalling(false); // Stop calling state
+            showToast(`Called Ignored by ${username}`, 'error');
         };
 
         socket.on('playerLeft', handlePlayerLeft);
@@ -150,6 +124,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
         socket.on('voiceSignal', handleSignal);
         socket.on('incomingCall', handleIncomingCall);
         socket.on('voiceStatus', handleVoiceStatus);
+        socket.on('callRejected', handleCallRejected);
 
         return () => {
             socket.off('playerLeft', handlePlayerLeft);
@@ -157,6 +132,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
             socket.off('voiceSignal', handleSignal);
             socket.off('incomingCall', handleIncomingCall);
             socket.off('voiceStatus', handleVoiceStatus);
+            socket.off('callRejected', handleCallRejected);
         };
     }, [socket, username, roomId, isMicOn]);
 
@@ -374,11 +350,15 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
     if (roomState.status === 'waiting') {
         const userCount = roomState.users.length;
         return (
-            <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'white', background: '#111' }}>
-                <h2 style={{ fontSize: '24px', marginBottom: '20px' }}>{userCount === 1 ? "Waiting for Opponent..." : "Opponent Found! Starting Battle..."}</h2>
-                <div style={{ color: '#666' }}>Room ID: {roomId}</div>
-                <div style={{ marginTop: '10px', color: '#888', fontSize: '14px' }}>{roomState.users.map(u => u.username).join(" vs ")}</div>
-                {userCount === 2 && <div style={{ marginTop: '20px', color: 'var(--accent-green)' }}>Preparing Problem...</div>}
+            <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 9999 }}>
+                <ThreeLoadingScreen text={userCount === 1 ? "SEARCHING FOR OPPONENT..." : "OPPONENT FOUND! PREPARING BATTLE..."} />
+                <div style={{
+                    position: 'absolute', bottom: '100px', left: '50%', transform: 'translateX(-50%)',
+                    textAlign: 'center', color: '#666', fontFamily: 'monospace'
+                }}>
+                    <div>Room ID: {roomId}</div>
+                    <div style={{ marginTop: '10px', fontSize: '14px' }}>{roomState.users.map(u => u.username).join(" vs ")}</div>
+                </div>
             </div>
         );
     }
@@ -442,7 +422,10 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
 
                     <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
                         <button onClick={toggleMic} style={{ flex: 1, background: 'white', color: '#22c55e', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '14px' }}>ACCEPT</button>
-                        <button onClick={() => setIncomingCall(false)} style={{ background: 'rgba(0,0,0,0.2)', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer' }}>Ignore</button>
+                        <button onClick={() => {
+                            setIncomingCall(false);
+                            socket.emit('callRejected', { roomId, username });
+                        }} style={{ background: 'rgba(0,0,0,0.2)', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer' }}>Ignore</button>
                     </div>
                     <style>{`@keyframes bounce { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.05); } }`}</style>
                 </div>
@@ -555,10 +538,21 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                         <Trophy color="#eab308" size={18} /> Leaderboard
                     </div>
                     {roomState?.users?.sort((a, b) => b.score - a.score).map((u, i) => (
-                        <div key={u.id} style={{ padding: '8px', background: u.id === socket.id ? '#27272a' : 'transparent', marginBottom: '5px', borderRadius: '6px', border: u.status === 'completed' ? '1px solid #22c55e' : '1px solid transparent', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div key={u.id} style={{
+                            padding: '10px',
+                            background: u.id === socket.id ? 'rgba(34, 197, 94, 0.1)' : 'transparent',
+                            marginBottom: '5px',
+                            borderRadius: '6px',
+                            border: u.id === socket.id ? '1px solid #22c55e' : (u.status === 'completed' ? '1px solid #22c55e' : '1px solid transparent'),
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between'
+                        }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span style={{ fontSize: '12px', color: '#71717a' }}>#{i + 1}</span>
-                                <span style={{ color: 'white', fontSize: '14px' }}>{u.username}</span>
+                                <span style={{ fontSize: '12px', color: u.id === socket.id ? '#22c55e' : '#71717a' }}>#{i + 1}</span>
+                                <span style={{ color: 'white', fontSize: '14px', fontWeight: u.id === socket.id ? 'bold' : 'normal' }}>
+                                    {u.username} {u.id === socket.id && <span style={{ fontSize: '10px', opacity: 0.6 }}>(You)</span>}
+                                </span>
                             </div>
                             <div style={{ fontSize: '13px', fontWeight: 'bold', color: u.status === 'completed' ? '#22c55e' : '#71717a' }}>{u.score} TC</div>
                         </div>
