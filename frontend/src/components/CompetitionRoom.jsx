@@ -99,9 +99,9 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                 }
             }
 
-            if (status === 'offline' && isMicOn) {
-                endCall(true);
-                showToast("Opponent ended the call", 'info'); // REPLACED ALERT
+            if (status === 'offline') {
+                if (isMicOn) endCall(true); // Only execute cleanup if we were active
+                showToast("Opponent ended the call", 'info');
             }
         };
 
