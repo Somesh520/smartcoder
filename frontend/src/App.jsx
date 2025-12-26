@@ -137,14 +137,21 @@ function App() {
   };
 
   const handleBackToLobby = () => {
-    if (roomId) socket.emit('leaveRoom', { roomId });
+    try {
+      if (roomId && socket.connected) {
+        socket.emit('leaveRoom', { roomId });
+      }
+    } catch (e) {
+      console.error("Leave Emit Failed:", e);
+    }
 
     // Clear Session
     sessionStorage.removeItem('active_room_id');
     sessionStorage.removeItem('active_username');
 
-    setView('list');
+    // Force State Reset
     setRoomId("");
+    setView('list');
   }
 
   const joinRoom = (rid, uname, topic, diff) => {

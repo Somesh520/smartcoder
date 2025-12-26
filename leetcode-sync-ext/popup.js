@@ -1,13 +1,21 @@
 // Helper function to get current tab safely
-async function getLocalhostTab() {
+async function getAppTab() {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
     const currentTab = tabs[0];
 
-    // Check agar tab localhost ya local IP hai
-    if (!currentTab || (!currentTab.url.includes("localhost") && !currentTab.url.includes("127.0.0.1"))) {
-        return null;
+    // Allow Localhost OR Vercel deployments
+    if (!currentTab) return null;
+
+    const url = currentTab.url;
+    if (
+        url.includes("localhost") ||
+        url.includes("127.0.0.1") ||
+        url.includes(".vercel.app") ||
+        url.includes("onrender.com")
+    ) {
+        return currentTab;
     }
-    return currentTab;
+    return null;
 }
 
 // === 1. SYNC FUNCTION ===
@@ -18,9 +26,9 @@ document.getElementById('syncBtn').addEventListener('click', async () => {
 
     try {
         // Step A: Check Active Tab
-        const currentTab = await getLocalhostTab();
+        const currentTab = await getAppTab();
         if (!currentTab) {
-            status.innerText = "❌ Error: Please open a Localhost tab!";
+            status.innerText = "Error: Open App Tab!";
             status.style.color = "red";
             return;
         }
@@ -105,9 +113,9 @@ document.getElementById('clearBtn').addEventListener('click', async () => {
     status.innerText = "Clearing data...";
 
     try {
-        const currentTab = await getLocalhostTab();
+        const currentTab = await getAppTab();
         if (!currentTab) {
-            status.innerText = "Error: Open Localhost!";
+            status.innerText = "Error: Open App Tab!";
             status.style.color = "red";
             return;
         }

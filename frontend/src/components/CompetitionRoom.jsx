@@ -200,12 +200,17 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
     // --- MEDIA LOGIC (Cleanup) ---
 
     // --- MEDIA LOGIC (Cleanup) ---
+    // --- MEDIA LOGIC (Cleanup) ---
     useEffect(() => {
         return () => {
-            if (localStreamRef.current) {
-                localStreamRef.current.getTracks().forEach(track => track.stop());
+            try {
+                if (localStreamRef.current) {
+                    localStreamRef.current.getTracks().forEach(track => track.stop());
+                }
+                Object.values(peersRef.current).forEach(p => p.close());
+            } catch (e) {
+                console.warn("Cleanup Error:", e);
             }
-            Object.values(peersRef.current).forEach(p => p.close());
         };
     }, []);
 
@@ -358,7 +363,25 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
             )}
 
             {showLeaveConfirm && (
-                <Modal title="Leave Battle?" actions={<><button onClick={() => setShowLeaveConfirm(false)} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid #444', color: '#ccc', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button><button onClick={onBack} style={{ padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}>Yes, Surrender</button></>}>
+                <Modal title="Leave Battle?" actions={
+                    <>
+                        <button
+                            onClick={() => setShowLeaveConfirm(false)}
+                            style={{ padding: '10px 20px', background: 'transparent', border: '1px solid #444', color: '#ccc', borderRadius: '6px', cursor: 'pointer' }}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={() => {
+                                setShowLeaveConfirm(false);
+                                onBack(); // Trigger App level leave
+                            }}
+                            style={{ padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
+                        >
+                            Yes, Surrender
+                        </button>
+                    </>
+                }>
                     <p>Are you sure? This counts as a forfeit.</p>
                 </Modal>
             )}
