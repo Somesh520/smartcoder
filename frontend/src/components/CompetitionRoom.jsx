@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Workspace from './Workspace';
 import { Users, Trophy, MessageSquare, Mic, MicOff, Send, Phone, PhoneIncoming, PhoneOff } from 'lucide-react';
-import ThreeLoadingScreen from './ThreeLoadingScreen';
+import LoadingScreen from './LoadingScreen';
 
 const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
     // --- RENDER HELPERS ---
-    if (!roomState) return <ThreeLoadingScreen text="SYNCHRONIZING BATTLEFIELD..." />;
+    if (!roomState) return <LoadingScreen text="SYNCHRONIZING BATTLEFIELD..." />;
     const [problem, setProblem] = useState(null);
     const [winnerModal, setWinnerModal] = useState(null);
     const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
