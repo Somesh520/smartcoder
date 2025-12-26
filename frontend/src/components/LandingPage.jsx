@@ -5,35 +5,39 @@ const LandingPage = ({ onGetStarted }) => {
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 50);
+        const handleScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
     const scrollToSection = (id) => {
         const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (el) {
+            // Native offset calculation
+            const y = el.getBoundingClientRect().top + window.pageYOffset - 80;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+        }
     };
 
     return (
         <div style={{
             minHeight: '100vh',
-            width: '100vw',
+            width: '100%',
             background: '#050505',
             color: 'white',
             fontFamily: "'Inter', sans-serif",
-            overflowX: 'hidden'
+            // Removed fixed height/overflow to use native window scroll
         }}>
             {/* NAVBAR */}
             <nav style={{
                 position: 'fixed', top: 0, left: 0, right: 0,
-                padding: '20px 60px',
+                padding: '15px 40px',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                background: scrolled ? 'rgba(5, 5, 5, 0.8)' : 'transparent',
-                backdropFilter: scrolled ? 'blur(20px)' : 'none',
+                background: scrolled ? 'rgba(5, 5, 5, 0.95)' : 'transparent', // Solid background on scroll for performance
                 borderBottom: scrolled ? '1px solid rgba(255,255,255,0.05)' : 'none',
-                transition: 'all 0.3s ease',
-                zIndex: 100
+                transition: 'background 0.2s ease', // Faster transition
+                zIndex: 100,
+                height: '70px'
             }}>
                 <div
                     onClick={() => scrollToSection('hero')}
