@@ -67,6 +67,13 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
     useEffect(() => {
         const handlePlayerLeft = ({ winner }) => {
             if (winner === username) setWinnerModal(winner);
+
+            // If they left, the call definitely ended.
+            // Force cleanup and notify if we were in a call or just strictly show it.
+            if (opponentStatus === 'online' || isMicOn) {
+                endCall(false); // Don't emit 'offline' back, they are gone.
+                showToast("Opponent left the match (Call Ended)", 'info');
+            }
         };
 
         const handleChat = (msg) => {
@@ -102,6 +109,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
             if (status === 'offline') {
                 if (isMicOn) endCall(true); // Only execute cleanup if we were active
                 showToast("Opponent ended the call", 'info');
+                console.log("Opponent ended the call");
             }
         };
 
