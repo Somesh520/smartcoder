@@ -388,11 +388,24 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
 
     if (roomState.status === 'waiting') {
         const userCount = roomState.users.length;
+        const copyLink = () => {
+            const url = `${window.location.origin}?room=${roomId}`;
+            navigator.clipboard.writeText(url);
+            alert("Invite Link Copied! Share it with your friend.");
+        };
+
         return (
             <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'white', background: '#111' }}>
                 <h2 style={{ fontSize: '24px', marginBottom: '20px' }}>{userCount === 1 ? "Waiting for Opponent..." : "Opponent Found! Starting Battle..."}</h2>
-                <div style={{ color: '#666' }}>Room ID: {roomId}</div>
-                <div style={{ marginTop: '10px', color: '#888', fontSize: '14px' }}>{roomState.users.map(u => u.username).join(" vs ")}</div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#27272a', padding: '10px 20px', borderRadius: '8px', border: '1px solid #3f3f46' }}>
+                    <div style={{ color: '#aaa', fontFamily: 'monospace', fontSize: '16px', letterSpacing: '2px' }}>{roomId}</div>
+                    <button onClick={copyLink} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', fontWeight: 'bold' }}>
+                        <Users size={14} /> Copy Link
+                    </button>
+                </div>
+
+                <div style={{ marginTop: '20px', color: '#888', fontSize: '14px' }}>{roomState.users.map(u => u.username).join(" vs ")}</div>
                 {userCount === 2 && <div style={{ marginTop: '20px', color: 'var(--accent-green)' }}>Preparing Problem...</div>}
             </div>
         );

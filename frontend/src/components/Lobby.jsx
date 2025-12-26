@@ -25,6 +25,16 @@ const Lobby = ({ onJoin, onPracticeSolo }) => {
         onJoin(joinRoomId.toUpperCase(), username, null, null);
     };
 
+    // Auto-detect Room ID from URL
+    React.useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const roomParam = params.get('room');
+        if (roomParam) {
+            setMode('join');
+            setJoinRoomId(roomParam);
+        }
+    }, []);
+
     return (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%)' }}>
             <div style={{
