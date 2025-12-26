@@ -350,15 +350,11 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
     if (roomState.status === 'waiting') {
         const userCount = roomState.users.length;
         return (
-            <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 9999 }}>
-                <ThreeLoadingScreen text={userCount === 1 ? "SEARCHING FOR OPPONENT..." : "OPPONENT FOUND! PREPARING BATTLE..."} />
-                <div style={{
-                    position: 'absolute', bottom: '100px', left: '50%', transform: 'translateX(-50%)',
-                    textAlign: 'center', color: '#666', fontFamily: 'monospace'
-                }}>
-                    <div>Room ID: {roomId}</div>
-                    <div style={{ marginTop: '10px', fontSize: '14px' }}>{roomState.users.map(u => u.username).join(" vs ")}</div>
-                </div>
+            <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'white', background: '#111' }}>
+                <h2 style={{ fontSize: '24px', marginBottom: '20px' }}>{userCount === 1 ? "Waiting for Opponent..." : "Opponent Found! Starting Battle..."}</h2>
+                <div style={{ color: '#666' }}>Room ID: {roomId}</div>
+                <div style={{ marginTop: '10px', color: '#888', fontSize: '14px' }}>{roomState.users.map(u => u.username).join(" vs ")}</div>
+                {userCount === 2 && <div style={{ marginTop: '20px', color: 'var(--accent-green)' }}>Preparing Problem...</div>}
             </div>
         );
     }
