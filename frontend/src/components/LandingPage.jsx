@@ -1,168 +1,212 @@
-import React, { useEffect } from 'react';
-import { Code2, Swords, Zap, Trophy, TrendingUp, Users, Terminal, Github, Twitter, Linkedin } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Code2, Swords, Zap, Trophy, TrendingUp, Users, Terminal, Github, Twitter, Linkedin, ChevronRight, Play } from 'lucide-react';
 
 const LandingPage = ({ onGetStarted }) => {
+    const [scrolled, setScrolled] = useState(false);
 
-    // Smooth Scroll Helper
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 50);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     const scrollToSection = (id) => {
         const el = document.getElementById(id);
-        if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
     return (
         <div style={{
-            height: '100vh',
+            minHeight: '100vh',
             width: '100vw',
-            background: '#09090b',
+            background: '#050505',
             color: 'white',
             fontFamily: "'Inter', sans-serif",
-            overflowY: 'auto',
-            scrollBehavior: 'smooth'
+            overflowX: 'hidden'
         }}>
             {/* NAVBAR */}
             <nav style={{
                 position: 'fixed', top: 0, left: 0, right: 0,
-                padding: '20px 40px',
+                padding: '20px 60px',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                background: 'rgba(9, 9, 11, 0.9)', // Solid-ish background for performance (removed blur)
-                borderBottom: '1px solid rgba(255,255,255,0.05)',
+                background: scrolled ? 'rgba(5, 5, 5, 0.8)' : 'transparent',
+                backdropFilter: scrolled ? 'blur(20px)' : 'none',
+                borderBottom: scrolled ? '1px solid rgba(255,255,255,0.05)' : 'none',
+                transition: 'all 0.3s ease',
                 zIndex: 100
             }}>
-                <div style={{ fontWeight: 800, fontSize: '20px', letterSpacing: '-1px', cursor: 'pointer' }} onClick={() => scrollToSection('hero')}>
-                    <span style={{ color: '#22c55e' }}>Algo</span>Duel.
+                <div
+                    onClick={() => scrollToSection('hero')}
+                    style={{ fontWeight: 800, fontSize: '24px', letterSpacing: '-1px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
+                    <div style={{ width: '20px', height: '20px', background: '#22c55e', borderRadius: '6px', transform: 'rotate(45deg)' }} />
+                    <span style={{ color: 'white' }}>AlgoDuel</span>
                 </div>
-                <div style={{ display: 'flex', gap: '30px', fontSize: '14px', fontWeight: 500, color: '#a1a1aa' }}>
-                    <button onClick={() => scrollToSection('purpose')} style={navLinkStyle}>Purpose</button>
+
+                <div style={{ display: 'flex', gap: '40px', fontSize: '15px', fontWeight: 500, color: '#a1a1aa' }}>
+                    <button onClick={() => scrollToSection('purpose')} style={navLinkStyle}>Mission</button>
                     <button onClick={() => scrollToSection('workflow')} style={navLinkStyle}>How it Works</button>
-                    <button onClick={() => scrollToSection('about')} style={navLinkStyle}>About Us</button>
+                    <button onClick={() => scrollToSection('about')} style={navLinkStyle}>Creators</button>
                 </div>
+
                 <button
                     onClick={onGetStarted}
                     style={{
-                        padding: '8px 20px', fontSize: '13px', fontWeight: 600,
-                        background: '#22c55e', color: 'black', border: 'none', borderRadius: '8px', cursor: 'pointer',
-                        transition: 'transform 0.1s'
+                        padding: '12px 24px', fontSize: '14px', fontWeight: 600,
+                        background: 'white', color: 'black', border: 'none', borderRadius: '100px', cursor: 'pointer',
+                        transition: 'transform 0.2s',
+                        display: 'flex', alignItems: 'center', gap: '6px'
                     }}
+                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 >
-                    Play Now
+                    Start Coding <ChevronRight size={16} />
                 </button>
             </nav>
 
             {/* HERO SECTION */}
             <section id="hero" style={{
                 minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                position: 'relative', overflow: 'hidden'
+                position: 'relative', overflow: 'hidden', paddingTop: '80px'
             }}>
-                {/* Optimized Background (Reduced Blurs) */}
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: 'linear-gradient(#1f1f23 1px, transparent 1px), linear-gradient(90deg, #1f1f23 1px, transparent 1px)', backgroundSize: '40px 40px', opacity: 0.05, zIndex: 0 }} />
+                {/* Clean Background */}
+                <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle at 50% 50%, #22c55e 0%, transparent 40%)', opacity: 0.15, filter: 'blur(120px)', pointerEvents: 'none' }} />
 
-                {/* Single optimized glow blob */}
-                <div style={{ position: 'absolute', top: '10%', left: '50%', transform: 'translateX(-50%)', width: '300px', height: '300px', background: '#22c55e', filter: 'blur(100px)', opacity: 0.1, borderRadius: '50%', pointerEvents: 'none' }} />
-
-                <div style={{ zIndex: 10, textAlign: 'center', marginTop: '60px', padding: '0 20px' }}>
+                <div style={{ zIndex: 10, textAlign: 'center', padding: '0 20px', maxWidth: '1000px' }}>
                     <div style={{
-                        display: 'inline-flex', alignItems: 'center', gap: '10px',
-                        background: 'rgba(39, 39, 42, 0.5)', border: '1px solid #3f3f46',
-                        padding: '8px 16px', borderRadius: '100px', marginBottom: '30px',
+                        display: 'inline-flex', alignItems: 'center', gap: '8px',
+                        padding: '8px 16px', borderRadius: '100px',
+                        background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                        marginBottom: '40px', fontSize: '13px', color: '#a1a1aa', fontWeight: 500
                     }}>
-                        <span style={{ display: 'flex', width: '8px', height: '8px', background: '#22c55e', borderRadius: '50%', boxShadow: '0 0 10px #22c55e' }} />
-                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#d4d4d8', letterSpacing: '0.5px' }}>LIVE MULTIPLAYER CODING</span>
+                        <span style={{ width: '6px', height: '6px', background: '#22c55e', borderRadius: '50%' }} />
+                        Real-time 1v1 Coding Battles
                     </div>
 
                     <h1 style={{
-                        fontSize: 'clamp(50px, 8vw, 90px)', fontWeight: '900', margin: '0',
-                        lineHeight: '1.1', letterSpacing: '-3px',
-                        background: 'linear-gradient(to bottom right, #ffffff 40%, #94a3b8 100%)',
+                        fontSize: 'clamp(60px, 8vw, 110px)', fontWeight: '900', margin: '0',
+                        lineHeight: '0.95', letterSpacing: '-4px',
+                        background: 'linear-gradient(180deg, #fff 0%, #71717a 100%)',
                         WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                        marginBottom: '30px'
                     }}>
-                        ALGO DUEL
+                        CODE. COMPETE.<br />CONQUER.
                     </h1>
 
-                    <p style={{ fontSize: '18px', color: '#a1a1aa', maxWidth: '600px', margin: '24px auto 40px', lineHeight: '1.6' }}>
-                        The ultimate 1v1 coding arena. Battle friends, solve algorithms, and master data structures in real-time.
+                    <p style={{ fontSize: '20px', color: '#a1a1aa', maxWidth: '600px', margin: '0 auto 50px', lineHeight: '1.6', fontWeight: 400 }}>
+                        The most immersive competitive programming platform. Challenge friends to live algorithm duels in a synchronized IDE.
                     </p>
 
-                    <button
-                        onClick={onGetStarted}
-                        style={{
-                            padding: '18px 40px', fontSize: '18px', fontWeight: '700',
-                            background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-                            color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', gap: '10px', margin: '0 auto',
-                            boxShadow: '0 0 0 4px rgba(34, 197, 94, 0.2)'
-                        }}
-                    >
-                        <Zap fill="white" size={20} /> ENTER THE ARENA
-                    </button>
-
-                    {/* Features Row */}
-                    <div style={{ marginTop: '80px', display: 'flex', justifyContent: 'center', gap: '40px', flexWrap: 'wrap', opacity: 0.9 }}>
-                        <Feature icon={<Swords color="#ef4444" />} text="1v1 Battles" />
-                        <Feature icon={<Code2 color="#3b82f6" />} text="Real-time IDE" />
-                        <Feature icon={<Trophy color="#eab308" />} text="Global Rank" />
+                    <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
+                        <button
+                            onClick={onGetStarted}
+                            style={{
+                                padding: '20px 50px', fontSize: '18px', fontWeight: '700',
+                                background: '#22c55e', color: 'black', border: 'none', borderRadius: '16px',
+                                cursor: 'pointer', transition: 'all 0.2s',
+                                display: 'flex', alignItems: 'center', gap: '10px'
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 20px 40px -10px rgba(34, 197, 94, 0.5)'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+                        >
+                            <Play fill="black" size={20} /> Enter Arena
+                        </button>
                     </div>
+                </div>
+
+                {/* Floating Stats / Elements */}
+                <div style={{ marginTop: '100px', display: 'flex', gap: '80px', opacity: 0.5, filter: 'grayscale(100%)' }}>
+                    <div style={statStyle}><strong>10K+</strong> Battles</div>
+                    <div style={statStyle}><strong>50+</strong> Problems</div>
+                    <div style={statStyle}><strong>0ms</strong> Latency</div>
                 </div>
             </section>
 
-            {/* PURPOSE SECTION */}
+            {/* PURPOSE SECTION (Bento Grid) */}
             <section id="purpose" style={sectionStyle}>
-                <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
-                    <h2 style={sectionTitleStyle}>Why Algo Duel?</h2>
-                    <p style={{ color: '#a1a1aa', fontSize: '18px', lineHeight: '1.8', maxWidth: '700px', margin: '0 auto 60px' }}>
-                        Coding interviews are stressful. Solo practice is boring.
-                        <span style={{ color: 'white', fontWeight: 600 }}> Algo Duel</span> simulates high-pressure environments to help you master DSA faster.
-                    </p>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-                        <Card icon={<Terminal color="#3b82f6" size={32} />} title="Real-Time IDE" desc="Synchronized code execution with instant feedback. It's like Google Docs for code." />
-                        <Card icon={<Users color="#ef4444" size={32} />} title="Voice Chat" desc="Discuss approaches live. In real interviews, communication matters as much as code." />
-                        <Card icon={<TrendingUp color="#eab308" size={32} />} title="Skill Growth" desc="Turning practice into a game makes you consistent. Consistency is the key to mastery." />
+                <div style={containerStyle}>
+                    <h2 style={sectionTitleStyle}>Reinventing Practice.</h2>
+                    <p style={sectionDescStyle}>Use pressure to your advantage. AlgoDuel turns anxiety into adrenaline.</p>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginTop: '60px' }}>
+                        <BentoCard
+                            icon={<Terminal size={40} color="#3b82f6" />}
+                            title="Shared IDE"
+                            desc="Real-time synchronized editor. See every keystroke your opponent types."
+                            colSpan={2}
+                        />
+                        <BentoCard
+                            icon={<Users size={40} color="#ef4444" />}
+                            title="Voice Chat"
+                            desc="Communication is key. Built-in low latency voice channels."
+                            colSpan={1}
+                        />
+                        <BentoCard
+                            icon={<TrendingUp size={40} color="#eab308" />}
+                            title="Analytics"
+                            desc="Track your win rate and improve."
+                            colSpan={1}
+                        />
+                        <BentoCard
+                            icon={<Zap size={40} color="#22c55e" />}
+                            title="Instant Feedback"
+                            desc="Run test cases instantly. Visualize execution. Debug faster."
+                            colSpan={2}
+                        />
                     </div>
                 </div>
             </section>
 
             {/* WORKFLOW SECTION */}
-            <section id="workflow" style={{ ...sectionStyle, background: '#0c0c0e' }}>
-                <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-                    <h2 style={{ ...sectionTitleStyle, textAlign: 'center' }}>How It Works</h2>
-                    <div style={{ marginTop: '60px', display: 'flex', flexDirection: 'column', gap: '30px' }}>
-                        <Step number="01" title="Create a Room" desc="Start a new lobby. Select your topic (Arrays, DP, Graphs) and difficulty." />
-                        <Step number="02" title="Invite a Friend" desc="Share your unique room link. They join instantly without sign-up." />
-                        <Step number="03" title="Battle Begins" desc="Both players get the same problem. The timer starts. Talk via voice chat!" />
-                        <Step number="04" title="Write & Run" desc="Write solution in the shared IDE. Run test cases to verify logic." />
-                        <Step number="05" title="Submit & Win" desc="Pass all hidden test cases first to trigger the victory screen." />
+            <section id="workflow" style={{ ...sectionStyle, background: '#0a0a0c' }}>
+                <div style={containerStyle}>
+                    <h2 style={sectionTitleStyle}>How It Works</h2>
+                    <div style={{ marginTop: '80px', position: 'relative' }}>
+                        {/* Vertical Line */}
+                        <div style={{ position: 'absolute', left: '24px', top: '0', bottom: '0', width: '2px', background: '#27272a' }} />
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '60px' }}>
+                            <TimelineStep number="01" title="Create Lobby" desc="Start a room. Pick your topic (DP, Trees, Arrays)." />
+                            <TimelineStep number="02" title="Share Link" desc="Send the unique invite link to a peer." />
+                            <TimelineStep number="03" title="Code & Communicate" desc="Solve the problem while explaining your approach." />
+                            <TimelineStep number="04" title="Victory" desc="Pass all test cases first to climb the leaderboard." />
+                        </div>
                     </div>
                 </div>
             </section>
 
             {/* ABOUT US SECTION */}
-            <section id="about" style={{ ...sectionStyle, paddingBottom: '100px' }}>
-                <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
-                    <h2 style={sectionTitleStyle}>About Us</h2>
-                    <p style={{ color: '#a1a1aa', fontSize: '16px', lineHeight: '1.6', marginBottom: '40px' }}>
-                        Algo Duel is a passion project built to redefine interview prep.
-                    </p>
+            <section id="about" style={{ ...sectionStyle, paddingBottom: '160px' }}>
+                <div style={{ ...containerStyle, textAlign: 'center' }}>
+                    <h2 style={sectionTitleStyle}>Built by Developers.</h2>
+                    <p style={{ ...sectionDescStyle, margin: '0 auto 80px' }}>We built the tool we wished we had during our interview prep.</p>
 
-                    <div style={{ background: '#18181b', padding: '30px', borderRadius: '24px', border: '1px solid #27272a', textAlign: 'center' }}>
-                        <div style={{ width: '80px', height: '80px', background: '#27272a', borderRadius: '50%', margin: '0 auto 15px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', fontWeight: 'bold', color: '#52525b' }}>
-                            ST
-                        </div>
-                        <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '5px', color: 'white' }}>Somesh Tiwari</h3>
-                        <p style={{ color: '#22c55e', fontSize: '13px', fontWeight: 600, marginBottom: '20px' }}>Creator</p>
+                    <div style={{
+                        background: 'linear-gradient(145deg, #18181b, #09090b)',
+                        padding: '60px', borderRadius: '32px',
+                        border: '1px solid rgba(255,255,255,0.05)',
+                        display: 'inline-block', maxWidth: '500px', width: '100%',
+                        position: 'relative', overflow: 'hidden'
+                    }}>
+                        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(90deg, transparent, #22c55e, transparent)' }} />
 
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
-                            <a href="https://github.com/Somesh520" target="_blank" rel="noreferrer" style={socialBtnStyle}><Github size={18} /></a>
-                            <a href="#" style={socialBtnStyle}><Twitter size={18} /></a>
-                            <a href="#" style={socialBtnStyle}><Linkedin size={18} /></a>
+                        <div style={{ fontSize: '80px', color: '#3f3f46', marginBottom: '20px' }}>👨‍💻</div>
+                        <h3 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px', color: 'white' }}>Somesh Tiwari</h3>
+                        <p style={{ color: '#22c55e', fontSize: '16px', fontWeight: 600, marginBottom: '30px' }}>Lead Engineer</p>
+
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+                            <SocialLink icon={<Github size={24} />} href="https://github.com/Somesh520" />
+                            <SocialLink icon={<Twitter size={24} />} href="#" />
+                            <SocialLink icon={<Linkedin size={24} />} href="#" />
                         </div>
                     </div>
                 </div>
             </section>
 
             {/* FOOTER */}
-            <footer style={{ padding: '40px', textAlign: 'center', borderTop: '1px solid #1f1f23', color: '#52525b', fontSize: '13px' }}>
-                © 2024 Algo Duel. Built by Somesh.
+            <footer style={{ padding: '60px 0', borderTop: '1px solid #1f1f23', textAlign: 'center', color: '#52525b', fontSize: '14px' }}>
+                <div style={{ marginBottom: '20px', fontWeight: 700, fontSize: '20px', color: 'white' }}>AlgoDuel.</div>
+                © 2024. All rights reserved.
             </footer>
         </div>
     );
@@ -172,49 +216,57 @@ const LandingPage = ({ onGetStarted }) => {
 
 const navLinkStyle = {
     background: 'transparent', border: 'none', color: '#a1a1aa',
-    cursor: 'pointer', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s'
+    cursor: 'pointer', fontSize: '15px', fontWeight: 500, transition: 'color 0.2s', padding: '0 10px'
 };
 
-const sectionStyle = {
-    padding: '120px 20px',
-    borderTop: '1px solid #1f1f23'
-};
+const sectionStyle = { padding: '160px 20px' };
+const containerStyle = { maxWidth: '1200px', margin: '0 auto' };
+const sectionTitleStyle = { fontSize: '56px', fontWeight: 800, marginBottom: '20px', letterSpacing: '-2px', lineHeight: '1.1' };
+const sectionDescStyle = { fontSize: '20px', color: '#a1a1aa', maxWidth: '600px', lineHeight: '1.6' };
+const statStyle = { fontSize: '18px', color: '#71717a' };
 
-const sectionTitleStyle = {
-    fontSize: '40px', fontWeight: 800, marginBottom: '20px', letterSpacing: '-1px'
-};
-
-const Card = ({ icon, title, desc }) => (
-    <div style={{ background: '#121214', padding: '30px', borderRadius: '16px', border: '1px solid #27272a', textAlign: 'left', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
-        <div style={{ marginBottom: '15px' }}>{icon}</div>
-        <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px', color: 'white' }}>{title}</h3>
-        <p style={{ fontSize: '14px', color: '#71717a', lineHeight: '1.5' }}>{desc}</p>
+const BentoCard = ({ icon, title, desc, colSpan }) => (
+    <div style={{
+        gridColumn: `span ${colSpan}`,
+        background: '#121214', padding: '40px', borderRadius: '24px',
+        border: '1px solid #27272a', display: 'flex', flexDirection: 'column',
+        justifyContent: 'space-between', minHeight: '300px',
+        transition: 'transform 0.3s', cursor: 'default'
+    }}
+        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+    >
+        <div style={{ background: 'rgba(255,255,255,0.05)', width: 'fit-content', padding: '16px', borderRadius: '16px' }}>{icon}</div>
+        <div>
+            <h3 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '12px', color: 'white' }}>{title}</h3>
+            <p style={{ fontSize: '16px', color: '#a1a1aa', lineHeight: '1.6', margin: 0 }}>{desc}</p>
+        </div>
     </div>
 );
 
-const Step = ({ number, title, desc }) => (
-    <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', background: '#111', padding: '20px', borderRadius: '12px', border: '1px solid #222' }}>
-        <div style={{ fontSize: '14px', fontWeight: 800, color: '#22c55e', background: 'rgba(34, 197, 94, 0.1)', padding: '4px 8px', borderRadius: '4px' }}>
+const TimelineStep = ({ number, title, desc }) => (
+    <div style={{ display: 'flex', gap: '40px', alignItems: 'center', position: 'relative', paddingLeft: '24px' }}>
+        <div style={{
+            width: '48px', height: '48px', borderRadius: '50%', background: '#09090b',
+            border: '2px solid #22c55e', color: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 800, fontSize: '16px', zIndex: 10
+        }}>
             {number}
         </div>
         <div>
-            <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 5px 0', color: '#e4e4e7' }}>{title}</h3>
-            <p style={{ fontSize: '14px', color: '#a1a1aa', margin: 0, lineHeight: '1.5' }}>{desc}</p>
+            <h3 style={{ fontSize: '24px', fontWeight: 700, margin: '0 0 8px 0', color: 'white' }}>{title}</h3>
+            <p style={{ fontSize: '17px', color: '#a1a1aa', margin: 0 }}>{desc}</p>
         </div>
     </div>
 );
 
-const Feature = ({ icon, text }) => (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-        <div style={{ background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
-            {icon}
-        </div>
-        <span style={{ fontSize: '14px', fontWeight: 500, color: '#d4d4d8' }}>{text}</span>
-    </div>
+const SocialLink = ({ icon, href }) => (
+    <a href={href} target="_blank" rel="noreferrer" style={{
+        color: '#a1a1aa', padding: '12px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)',
+        transition: 'all 0.2s', display: 'flex'
+    }}>
+        {icon}
+    </a>
 );
-
-const socialBtnStyle = {
-    color: '#a1a1aa', padding: '8px', borderRadius: '8px', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.2s', textDecoration: 'none'
-};
 
 export default LandingPage;
