@@ -36,144 +36,102 @@ const Lobby = ({ onJoin, onPracticeSolo }) => {
     }, []);
 
     return (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%)' }}>
-            <div style={{
-                background: '#18181b',
-                border: '1px solid #27272a',
-                borderRadius: '16px',
-                padding: '0',
-                width: '420px',
-                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                overflow: 'hidden'
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+            <div className="glass-panel animate-scale-in" style={{
+                width: '100%', maxWidth: '440px',
+                padding: '40px', borderRadius: '24px',
+                boxShadow: '0 40px 80px -20px rgba(0,0,0,0.6)'
             }}>
-                {/* Header Section */}
-                <div style={{ padding: '30px 30px 20px 30px', textAlign: 'center', borderBottom: '1px solid #27272a', background: '#202024' }}>
-                    <h1 style={{ fontSize: '28px', fontWeight: '800', background: 'linear-gradient(to right, #4ade80, #3b82f6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0, letterSpacing: '-0.5px' }}>
-                        Code Battle ⚔️
+                <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                    <h1 style={{ fontSize: '36px', fontWeight: 800, margin: '0 0 10px 0', color: 'white', letterSpacing: '-1px' }}>
+                        {mode === 'create' ? 'Create Lobby' : 'Join Lobby'}
                     </h1>
-                    <p style={{ color: '#71717a', fontSize: '13px', marginTop: '5px' }}>Multiplayer Competitive Coding</p>
-
-                    {/* TABS */}
-                    <div style={{ display: 'flex', background: '#121214', padding: '4px', borderRadius: '8px', marginTop: '20px' }}>
-                        <button
-                            onClick={() => setMode('create')}
-                            style={{ flex: 1, padding: '8px', borderRadius: '6px', border: 'none', background: mode === 'create' ? '#27272a' : 'transparent', color: mode === 'create' ? 'white' : '#71717a', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: '0.2s' }}
-                        >
-                            Create Room
-                        </button>
-                        <button
-                            onClick={() => setMode('join')}
-                            style={{ flex: 1, padding: '8px', borderRadius: '6px', border: 'none', background: mode === 'join' ? '#27272a' : 'transparent', color: mode === 'join' ? 'white' : '#71717a', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: '0.2s' }}
-                        >
-                            Join Room
-                        </button>
-                    </div>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '15px' }}>
+                        {mode === 'create' ? 'Configure your battle settings.' : 'Enter a room code to spectate or play.'}
+                    </p>
                 </div>
 
-                <div style={{ padding: '30px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-
-                    {/* USERNAME INPUT (Common) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     <div>
-                        <label style={{ display: 'block', fontSize: '11px', color: '#a1a1aa', marginBottom: '6px', fontWeight: 'bold', letterSpacing: '0.5px' }}>YOUR ALIAS</label>
+                        <label style={labelStyle}>USERNAME</label>
                         <input
-                            type="text"
+                            placeholder="Enter your gamertag..."
                             value={username}
-                            onChange={e => setUsername(e.target.value)}
-                            style={{ width: '100%', padding: '12px', background: '#27272a', border: '1px solid #3f3f46', borderRadius: '8px', color: 'white', fontSize: '14px', outline: 'none', transition: 'border-color 0.2s' }}
-                            placeholder="Enter username"
+                            onChange={(e) => setUsername(e.target.value)}
+                            style={inputStyle}
                         />
                     </div>
 
                     {mode === 'create' ? (
-                        <>
-                            {/* CREATE MODE: Topic & Difficulty */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '11px', color: '#a1a1aa', marginBottom: '6px', fontWeight: 'bold' }}>TOPIC</label>
-                                    <select
-                                        value={topic} onChange={e => setTopic(e.target.value)}
-                                        style={{ width: '100%', padding: '12px', background: '#27272a', border: '1px solid #3f3f46', borderRadius: '8px', color: 'white', fontSize: '14px', appearance: 'none', cursor: 'pointer' }}
-                                    >
-                                        <option value="all">Random</option>
-                                        <option value="array">Arrays</option>
-                                        <option value="string">Strings</option>
-                                        <option value="tree">Trees</option>
-                                        <option value="dynamic">DP</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '11px', color: '#a1a1aa', marginBottom: '6px', fontWeight: 'bold' }}>DIFFICULTY</label>
-                                    <select
-                                        value={difficulty} onChange={e => setDifficulty(e.target.value)}
-                                        style={{ width: '100%', padding: '12px', background: '#27272a', border: '1px solid #3f3f46', borderRadius: '8px', color: 'white', fontSize: '14px', appearance: 'none', cursor: 'pointer' }}
-                                    >
-                                        <option value="Easy">Easy</option>
-                                        <option value="Medium">Medium</option>
-                                        <option value="Hard">Hard</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <button
-                                onClick={handleCreate}
-                                style={{
-                                    marginTop: '10px', width: '100%', padding: '14px',
-                                    background: 'linear-gradient(to right, #22c55e, #16a34a)',
-                                    color: 'white', border: 'none', borderRadius: '8px',
-                                    cursor: 'pointer', fontWeight: '700', fontSize: '15px',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                                    boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)'
-                                }}
-                            >
-                                <Plus size={18} /> Create & Join
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            {/* JOIN MODE: Room ID Input */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                             <div>
-                                <label style={{ display: 'block', fontSize: '11px', color: '#a1a1aa', marginBottom: '6px', fontWeight: 'bold' }}>ROOM CODE</label>
-                                <input
-                                    type="text"
-                                    value={joinRoomId}
-                                    onChange={e => setJoinRoomId(e.target.value)}
-                                    style={{ width: '100%', padding: '12px', background: '#27272a', border: '1px solid #3f3f46', borderRadius: '8px', color: 'white', fontSize: '14px', outline: 'none', letterSpacing: '2px', textTransform: 'uppercase', fontFamily: 'monospace' }}
-                                    placeholder="Enter 6-char code"
-                                    maxLength={8}
-                                />
+                                <label style={labelStyle}>TOPIC</label>
+                                <select value={topic} onChange={e => setTopic(e.target.value)} style={inputStyle}>
+                                    <option value="all">Random</option>
+                                    <option value="array">Arrays</option>
+                                    <option value="string">Strings</option>
+                                    <option value="tree">Trees</option>
+                                    <option value="dynamic">DP</option>
+                                </select>
                             </div>
-
-                            <button
-                                onClick={handleJoin}
-                                disabled={!joinRoomId}
-                                style={{
-                                    marginTop: '10px', width: '100%', padding: '14px',
-                                    background: joinRoomId ? '#3b82f6' : '#27272a',
-                                    color: joinRoomId ? 'white' : '#52525b',
-                                    border: 'none', borderRadius: '8px',
-                                    cursor: joinRoomId ? 'pointer' : 'not-allowed',
-                                    fontWeight: '700', fontSize: '15px',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                                    transition: '0.2s'
-                                }}
-                            >
-                                <Zap size={18} /> Join Battle
-                            </button>
-                        </>
+                            <div>
+                                <label style={labelStyle}>DIFFICULTY</label>
+                                <select value={difficulty} onChange={e => setDifficulty(e.target.value)} style={inputStyle}>
+                                    <option value="Easy">Easy</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Hard">Hard</option>
+                                </select>
+                            </div>
+                        </div>
+                    ) : (
+                        <div>
+                            <label style={labelStyle}>ROOM ID</label>
+                            <input
+                                placeholder="e.g. X9Y2Z1"
+                                value={joinRoomId}
+                                onChange={(e) => setJoinRoomId(e.target.value)}
+                                style={{ ...inputStyle, fontFamily: 'monospace', letterSpacing: '2px', textTransform: 'uppercase' }}
+                            />
+                        </div>
                     )}
 
-                    <div style={{ textAlign: 'center', marginTop: '10px' }}>
+                    <button
+                        onClick={mode === 'create' ? handleCreate : handleJoin}
+                        className="btn-primary"
+                        style={{ width: '100%', padding: '16px', fontSize: '16px', marginTop: '10px' }}
+                    >
+                        {mode === 'create' ? 'Launch Room' : 'Join Now'}
+                    </button>
+
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                        <button
+                            onClick={() => setMode(mode === 'create' ? 'join' : 'create')}
+                            style={{ flex: 1, padding: '12px', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)', borderRadius: '10px', cursor: 'pointer', fontSize: '13px', fontWeight: 500 }}
+                        >
+                            {mode === 'create' ? 'Join Instead' : 'Create Instead'}
+                        </button>
                         <button
                             onClick={onPracticeSolo}
-                            style={{ background: 'transparent', border: 'none', color: '#71717a', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline' }}
+                            style={{ flex: 1, padding: '12px', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)', borderRadius: '10px', cursor: 'pointer', fontSize: '13px', fontWeight: 500 }}
                         >
-                            Or practice solo problem solving
+                            Practice Solo
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     );
+};
+
+const labelStyle = {
+    display: 'block', marginBottom: '8px', fontSize: '11px', fontWeight: 700,
+    color: 'var(--text-secondary)', letterSpacing: '0.5px'
+};
+
+const inputStyle = {
+    width: '100%', padding: '14px', background: 'var(--bg-body)',
+    border: '1px solid var(--border-subtle)', borderRadius: '12px',
+    color: 'white', fontSize: '15px', outline: 'none', transition: 'border 0.2s'
 };
 
 export default Lobby;

@@ -14,59 +14,65 @@ const Header = ({ onShowProblemList, onGoDetail, currentView }) => {
     };
 
     return (
-        <header style={{
-            height: '60px',
-            background: '#18181b',
-            borderBottom: '1px solid #27272a',
+        <header className="glass-panel" style={{
+            height: '64px',
             display: 'flex',
             alignItems: 'center',
-            padding: '0 25px',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            padding: '0 30px',
+            position: 'sticky',
+            top: 0,
+            zIndex: 50,
+            borderBottom: '1px solid var(--border-subtle)'
         }}>
             <div
                 className="brand"
-                style={{ fontWeight: 700, fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px', color: 'white', cursor: isInBattle ? 'not-allowed' : 'pointer', opacity: isInBattle ? 0.7 : 1 }}
+                style={{ fontWeight: 800, fontSize: '20px', display: 'flex', alignItems: 'center', gap: '10px', color: 'white', cursor: isInBattle ? 'not-allowed' : 'pointer', opacity: isInBattle ? 0.7 : 1 }}
                 onClick={() => handleNav(onGoDetail)}
             >
-                <Code2 size={24} color="#eab308" />
-                <span>LeetCode <span style={{ color: '#a1a1aa', fontWeight: 400 }}>Battle</span></span>
+                <div style={{ width: '28px', height: '28px', background: 'var(--accent-green)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 10px var(--accent-green-glow)' }}>
+                    <Code2 size={16} color="black" />
+                </div>
+                <span>AlgoDuel</span>
             </div>
 
-            <div style={{ display: 'flex', gap: '15px' }}>
+            <div style={{ display: 'flex', gap: '12px' }}>
                 <button
                     onClick={() => handleNav(onGoDetail)}
                     style={{
                         background: 'transparent',
-                        border: '1px solid #3f3f46',
-                        color: isInBattle ? '#52525b' : 'white',
+                        border: '1px solid var(--border-subtle)',
+                        color: isInBattle ? 'var(--text-muted)' : 'var(--text-secondary)',
                         cursor: isInBattle ? 'not-allowed' : 'pointer',
-                        fontSize: '14px',
+                        fontSize: '13px',
                         padding: '8px 16px',
-                        borderRadius: '6px',
+                        borderRadius: '8px',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '6px',
+                        gap: '8px',
                         fontWeight: 500,
-                        transition: 'background 0.2s'
+                        transition: 'all 0.2s'
                     }}
                 >
-                    <Swords size={16} color={isInBattle ? '#52525b' : '#4ade80'} />
-                    Multiplayer Lobby
+                    <Swords size={14} color={isInBattle ? '#52525b' : '#4ade80'} />
+                    Lobby
                 </button>
 
                 <button
                     onClick={() => handleNav(onShowProblemList)}
                     style={{
-                        background: 'transparent',
+                        background: currentView === 'list' ? 'var(--bg-hover)' : 'transparent',
                         border: 'none',
-                        color: isInBattle ? '#52525b' : '#a1a1aa',
+                        color: isInBattle ? 'var(--text-muted)' : (currentView === 'list' ? 'white' : 'var(--text-secondary)'),
                         cursor: isInBattle ? 'not-allowed' : 'pointer',
-                        fontSize: '14px',
+                        fontSize: '13px',
                         padding: '8px 16px',
-                        fontWeight: 500
+                        borderRadius: '8px',
+                        fontWeight: 500,
+                        transition: 'all 0.2s'
                     }}
                 >
-                    Problem List
+                    Problems
                 </button>
             </div>
         </header>
