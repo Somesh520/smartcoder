@@ -128,13 +128,13 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                 const answer = await newPeer.createAnswer();
                 await newPeer.setLocalDescription(answer);
                 socket.emit('voiceSignal', { roomId, signal: newPeer.localDescription, targetId: senderId });
-                setOpponentStatus('online');
+                // setOpponentStatus('online'); // REMOVED: Rely on explicit 'voiceStatus'
             } else if (signal.type === 'answer') {
                 const peer = peersRef.current[senderId];
                 if (peer) {
                     await peer.setRemoteDescription(new RTCSessionDescription(signal));
                 }
-                setOpponentStatus('online');
+                // setOpponentStatus('online'); // REMOVED: Rely on explicit 'voiceStatus'
             } else if (signal.candidate) {
                 const peer = peersRef.current[senderId];
                 if (peer) {
