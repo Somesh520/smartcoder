@@ -107,9 +107,9 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
             }
 
             if (status === 'offline') {
-                if (isMicOn) endCall(true); // Only execute cleanup if we were active
+                if (isMicOn) endCall(false); // Stop local stream, don't echo
                 showToast("Opponent ended the call", 'info');
-                console.log("Opponent ended the call");
+                setMessages(prev => [...prev, { username: "System", message: "📞 Opponent ended the call" }]);
             }
         };
 
@@ -567,21 +567,27 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                 {/* Chat Messages Area */}
                 <div style={{ flex: 1, overflowY: 'auto', padding: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {messages.map((m, idx) => (
-                        <div key={idx} style={{ alignSelf: m.username === username ? 'flex-end' : 'flex-start', maxWidth: '85%' }}>
-                            {m.username !== username && <div style={{ fontSize: '10px', color: '#71717a', marginBottom: '2px', marginLeft: '4px' }}>{m.username}</div>}
-                            <div style={{
-                                padding: '8px 12px',
-                                borderRadius: '12px',
-                                borderTopRightRadius: m.username === username ? '2px' : '12px',
-                                borderTopLeftRadius: m.username !== username ? '2px' : '12px',
-                                background: m.username === username ? '#2563eb' : '#3f3f46',
-                                color: 'white',
-                                fontSize: '13px',
-                                wordBreak: 'break-word'
-                            }}>
+                        m.username === 'System' ? (
+                            <div key={idx} style={{ textAlign: 'center', margin: '10px 0', fontSize: '12px', color: '#71717a', fontStyle: 'italic' }}>
                                 {m.message}
                             </div>
-                        </div>
+                        ) : (
+                            <div key={idx} style={{ alignSelf: m.username === username ? 'flex-end' : 'flex-start', maxWidth: '85%' }}>
+                                {m.username !== username && <div style={{ fontSize: '10px', color: '#71717a', marginBottom: '2px', marginLeft: '4px' }}>{m.username}</div>}
+                                <div style={{
+                                    padding: '8px 12px',
+                                    borderRadius: '12px',
+                                    borderTopRightRadius: m.username === username ? '2px' : '12px',
+                                    borderTopLeftRadius: m.username !== username ? '2px' : '12px',
+                                    background: m.username === username ? '#2563eb' : '#3f3f46',
+                                    color: 'white',
+                                    fontSize: '13px',
+                                    wordBreak: 'break-word'
+                                }}>
+                                    {m.message}
+                                </div>
+                            </div>
+                        )
                     ))}
                 </div>
 
