@@ -108,14 +108,16 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
             }
 
             if (status === 'offline') {
-                if (isMicOn) endCall(true); // EMIT BACK: Confirm we are also dropping, so initiator updates UI
+                if (isMicOn) {
+                    endCall(true); // EMIT BACK: Confirm we are also dropping, so initiator updates UI
 
-                // Lookup username
-                const quitter = roomStateRef.current?.users?.find(u => u.id === userId);
-                const name = quitter ? quitter.username : "Opponent";
+                    // Lookup username (only notify if we were actually in a call)
+                    const quitter = roomStateRef.current?.users?.find(u => u.id === userId);
+                    const name = quitter ? quitter.username : "Opponent";
 
-                showToast(`📞 ${name} ended the call`, 'info');
-                setMessages(prev => [...prev, { username: "System", message: `📞 ${name} ended the call` }]);
+                    showToast(`📞 ${name} ended the call`, 'info');
+                    setMessages(prev => [...prev, { username: "System", message: `📞 ${name} ended the call` }]);
+                }
             }
         };
 
