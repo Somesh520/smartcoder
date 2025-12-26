@@ -5,6 +5,7 @@ import Workspace from './components/Workspace';
 import Lobby from './components/Lobby';
 import CompetitionRoom from './components/CompetitionRoom';
 import ConnectLeetCode from './components/ConnectLeetCode'; // Import Guide Page
+import LandingPage from './components/LandingPage';
 import { fetchProblems } from './api';
 import { io } from 'socket.io-client';
 
@@ -24,7 +25,7 @@ socket.on("connect_error", (err) => {
 });
 
 function App() {
-  const [view, setView] = useState('lobby'); // Default to Lobby (Allowed for browsing)
+  const [view, setView] = useState('landing'); // Default to Landing Page
   const [currentProblem, setCurrentProblem] = useState(null);
   const [userInfo, setUserInfo] = useState({ loggedIn: false });
 
@@ -71,6 +72,7 @@ function App() {
     loadProblems();
 
     // 🔄 RECONNECT LOGIC: Check session storage for active room
+    // If active room exists, bypass landing page
     const savedRoom = sessionStorage.getItem('active_room_id');
     const savedUser = sessionStorage.getItem('active_username');
 
@@ -111,7 +113,7 @@ function App() {
       console.error("Socket Error:", msg);
       alert(msg);
 
-      // Reset State -> Lobby
+      // Reset State -> Lobby (skip landing on error to allow quick retry)
       sessionStorage.removeItem('active_room_id');
       sessionStorage.removeItem('active_username');
       setRoomId("");
@@ -174,6 +176,11 @@ function App() {
   // If not connected, show the guide page
   if (view === 'connect') {
     return <ConnectLeetCode onCheckConnection={checkLogin} />;
+  }
+
+  // New Landing Page View
+  if (view === 'landing') {
+    return <LandingPage onGetStarted={() => setView('lobby')} />;
   }
 
   return (
