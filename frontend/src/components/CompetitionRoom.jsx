@@ -71,6 +71,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
             // If they left, the call definitely ended.
             // Force cleanup and notify if we were in a call or just strictly show it.
             if (opponentStatus === 'online' || isMicOn) {
+                setOpponentStatus('offline'); // FIXED: Ensure UI updates to "Call" not "Join"
                 endCall(false); // Don't emit 'offline' back, they are gone.
                 showToast("Opponent left the match (Call Ended)", 'info');
             }
