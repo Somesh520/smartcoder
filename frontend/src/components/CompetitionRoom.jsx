@@ -114,6 +114,36 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
             }
         };
 
+        const handleSignal = async ({ signal, senderId }) => {
+            if (userId === socket.id) return;
+            // console.log("Received Signal:", signal.type); 
+
+            if (signal.type === 'offer') {
+                if (peersRef.current[senderId]) {
+                    peersRef.current[senderId].close();
+                    delete peersRef.current[senderId];
+                }
+                const newPeer = createPeer(senderId, localStreamRef.current, false);
+                await newPeer.setRemoteDescription(new RTCSessionDescription(signal));
+                const answer = await newPeer.createAnswer();
+                await newPeer.setLocalDescription(answer);
+                socket.emit('voiceSignal', { roomId, signal: newPeer.localDescription, targetId: senderId });
+
+            } else if (signal.type === 'answer') {
+                const peer = peersRef.current[senderId];
+                if (peer) {
+                    await peer.setRemoteDescription(new RTCSessionDescription(signal));
+                }
+
+            } else if (signal.candidate) {
+                const peer = peersRef.current[senderId];
+                if (peer) {
+                    try {
+                        await peer.addIceCandidate(new RTCIceCandidate(signal.candidate));
+                    } catch (e) { console.warn("ICE Error", e); }
+                }
+            }
+        };
         const handleCallRejected = ({ username }) => {
             setIsCalling(false); // Stop calling state
             showToast(`Called Ignored by ${username}`, 'error');
