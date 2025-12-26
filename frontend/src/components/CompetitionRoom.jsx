@@ -317,6 +317,8 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
     const toggleMic = async () => {
         if (isMicOn) {
             endCall(true);
+            showToast("You ended the call", 'info');
+            setMessages(prev => [...prev, { username: "System", message: "📞 You ended the call" }]);
         } else {
             startCall();
         }
