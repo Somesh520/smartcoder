@@ -182,10 +182,7 @@ function App() {
   }
 
   // --- PUBLIC PAGES ---
-  if (view === 'landing') return <LandingPage onNavigate={setView} onGetStarted={() => setView('lobby')} />;
-  if (view === 'purpose') return <PurposePage onNavigate={setView} onGetStarted={() => setView('lobby')} />;
-  if (view === 'workflow') return <WorkflowPage onNavigate={setView} onGetStarted={() => setView('lobby')} />;
-  if (view === 'about') return <AboutPage onNavigate={setView} onGetStarted={() => setView('lobby')} />;
+  if (view === 'landing') return <LandingPage onGetStarted={() => setView('lobby')} />;
 
   return (
     <div className="app-container" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
