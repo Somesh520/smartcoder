@@ -6,6 +6,9 @@ import Lobby from './components/Lobby';
 import CompetitionRoom from './components/CompetitionRoom';
 import ConnectLeetCode from './components/ConnectLeetCode'; // Import Guide Page
 import LandingPage from './components/LandingPage';
+import PurposePage from './components/PurposePage';
+import WorkflowPage from './components/WorkflowPage';
+import AboutPage from './components/AboutPage';
 import { fetchProblems } from './api';
 import { io } from 'socket.io-client';
 
@@ -178,10 +181,11 @@ function App() {
     return <ConnectLeetCode onCheckConnection={checkLogin} />;
   }
 
-  // New Landing Page View
-  if (view === 'landing') {
-    return <LandingPage onGetStarted={() => setView('lobby')} />;
-  }
+  // --- PUBLIC PAGES ---
+  if (view === 'landing') return <LandingPage onNavigate={setView} onGetStarted={() => setView('lobby')} />;
+  if (view === 'purpose') return <PurposePage onNavigate={setView} onGetStarted={() => setView('lobby')} />;
+  if (view === 'workflow') return <WorkflowPage onNavigate={setView} onGetStarted={() => setView('lobby')} />;
+  if (view === 'about') return <AboutPage onNavigate={setView} onGetStarted={() => setView('lobby')} />;
 
   return (
     <div className="app-container" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
