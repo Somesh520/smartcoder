@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Workspace from './Workspace';
-import { Users, Trophy, MessageSquare, Mic, MicOff, Send, Phone, PhoneIncoming, PhoneOff } from 'lucide-react';
+import { Users, Trophy, MessageSquare, Mic, MicOff, Send, Phone, PhoneIncoming, PhoneOff, Sword } from 'lucide-react';
 import LoadingScreen from './LoadingScreen';
 
 const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
@@ -417,305 +417,386 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
     // --- RENDER HELPERS ---
     if (!roomState) return <LoadingScreen text="SYNCHRONIZING BATTLEFIELD..." />;
 
-    if (roomState.status === 'waiting' || roomState.status === 'starting') {
-        const userCount = roomState.users.length;
-        const copyLink = () => {
-            const url = `${window.location.origin}?room=${roomId}`;
-            navigator.clipboard.writeText(url);
-            alert("Invite Link Copied! Share it with your friend.");
-        };
-
-        return (
-            <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'white', background: '#111' }}>
-                <h2 style={{ fontSize: '24px', marginBottom: '20px' }}>{userCount === 1 ? "Waiting for Opponent..." : "Opponent Found! Starting Battle..."}</h2>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#27272a', padding: '10px 20px', borderRadius: '8px', border: '1px solid #3f3f46' }}>
-                    <div style={{ color: '#aaa', fontFamily: 'monospace', fontSize: '16px', letterSpacing: '2px' }}>{roomId}</div>
-                    <button onClick={copyLink} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', fontWeight: 'bold' }}>
-                        <Users size={14} /> Copy Link
-                    </button>
-                </div>
-
-                <div style={{ marginTop: '20px', color: '#888', fontSize: '14px' }}>{roomState.users.map(u => u.username).join(" vs ")}</div>
-                {userCount === 2 && <div style={{ marginTop: '20px', color: 'var(--accent-green)' }}>Preparing Problem...</div>}
-            </div>
-        );
-    }
-
-    const Modal = ({ title, children, actions }) => (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-            <div style={{ background: '#18181b', border: '1px solid #333', padding: '30px', borderRadius: '12px', width: '400px', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
-                <h2 style={{ marginTop: 0, fontSize: '24px', color: 'white' }}>{title}</h2>
-                <div style={{ color: '#a1a1aa', margin: '15px 0' }}>{children}</div>
-                <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '25px' }}>{actions}</div>
-            </div>
-        </div>
-    );
-
-    if (!problem) return null;
+    // Helper to determine if we should show the VS/Waiting Overlay
+    const showOverlay = roomState.status === 'waiting' || roomState.status === 'starting';
 
     return (
-        <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
-            {/* INVISIBLE AUDIO ELEMENT FOR REMOTE STREAM */}
+        <div style={{ height: '100vh', width: '100vw', position: 'relative', overflow: 'hidden', background: '#09090b' }}>
+
+            {/* INVISIBLE AUDIO ELEMENT FOR REMOTE STREAM (Keep this always mounted) */}
             <audio ref={remoteAudioRef} autoPlay playsInline style={{ display: 'none' }} />
 
-            {/* MODALS */}
-            {winnerModal && (
-                <Modal title="🏆 VICTORY!" actions={<button onClick={onBack} style={{ padding: '10px 20px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}>Return to Lobby</button>}>
-                    <div style={{ fontSize: '40px', marginBottom: '10px' }}>👑</div>
-                    <p>Your opponent fled the battlefield!</p>
-                </Modal>
-            )}
+            {/* WAITING / VS OVERLAY (Absolute Positioned) */}
+            {showOverlay && (
+                <div style={{
+                    position: 'absolute', inset: 0, zIndex: 50, background: '#09090b',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    transition: 'opacity 0.5s ease-out',
+                    // If we are starting, we want this to stay visible until the very end, effectively covering the loading workspace
+                }}>
+                    {(() => {
+                        const userCount = roomState.users.length;
+                        const opponent = roomState.users.find(u => u.username !== username);
+                        const isStarting = roomState.status === 'starting' || userCount === 2;
 
-            {showLeaveConfirm && (
-                <Modal title="Leave Battle?" actions={
-                    <>
-                        <button
-                            onClick={() => setShowLeaveConfirm(false)}
-                            style={{ padding: '10px 20px', background: 'transparent', border: '1px solid #444', color: '#ccc', borderRadius: '6px', cursor: 'pointer' }}
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={() => {
-                                setShowLeaveConfirm(false);
-                                onBack(); // Trigger App level leave
-                            }}
-                            style={{ padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
-                        >
-                            Yes, Surrender
-                        </button>
-                    </>
-                }>
-                    <p>Are you sure? This counts as a forfeit.</p>
-                </Modal>
-            )}
+                        const copyLink = () => {
+                            const url = `${window.location.origin}?room=${roomId}`;
+                            navigator.clipboard.writeText(url);
+                            showToast("Invite Link Copied!", 'info');
+                        };
 
-            {incomingCall && (
-                <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', padding: '20px 30px', background: '#22c55e', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', color: 'white', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.3)', zIndex: 2000, animation: 'bounce 1s infinite' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <PhoneIncoming size={32} />
-                        <span style={{ fontSize: '20px', fontWeight: 700 }}>Incoming Call...</span>
-                    </div>
-                    <div style={{ fontSize: '14px', opacity: 0.9 }}>Opponent wants to speak</div>
+                        return (
+                            <>
+                                {/* Background Grid & Glow */}
+                                <div style={{ position: 'absolute', inset: 0, opacity: 0.2, background: 'radial-gradient(circle at center, #1e293b 0%, #000 100%)' }} />
+                                <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(#1f1f23 1px, transparent 1px), linear-gradient(90deg, #1f1f23 1px, transparent 1px)', backgroundSize: '40px 40px', opacity: 0.1 }} />
 
-                    <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
-                        <button onClick={toggleMic} style={{ flex: 1, background: 'white', color: '#22c55e', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '14px' }}>ACCEPT</button>
-                        <button onClick={() => {
-                            setIncomingCall(false);
-                            socket.emit('callRejected', { roomId, username });
-                        }} style={{ background: 'rgba(0,0,0,0.2)', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer' }}>Ignore</button>
-                    </div>
-                    <style>{`@keyframes bounce { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.05); } }`}</style>
-                </div>
-            )}
-
-            {/* SIDEBAR */}
-            <div style={{ width: '300px', background: '#18181b', borderRight: '1px solid #27272a', display: 'flex', flexDirection: 'column' }}>
-
-                {/* VOICE CONTROL HEADER */}
-                <div style={{ padding: '15px', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #3f3f46' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        {/* Status Ring / Voice Visualizer */}
-                        <div style={{ position: 'relative', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {/* BACK RING (Remote Volume) */}
-                            {opponentStatus === 'online' && (
+                                {/* VS Badge */}
                                 <div style={{
-                                    position: 'absolute',
-                                    width: '100%', height: '100%', borderRadius: '50%',
-                                    background: '#22c55e',
-                                    opacity: 0.3,
-                                    transform: `scale(${1 + (remoteVolume / 50)})`,
-                                    transition: 'transform 0.05s ease-out'
-                                }}></div>
-                            )}
-
-                            {/* FRONT RING (Local Volume) */}
-                            <div style={{
-                                width: '10px', height: '10px', borderRadius: '50%',
-                                background: isMicOn ? '#22c55e' : (opponentStatus === 'online' ? '#f59e0b' : '#71717a'),
-                                boxShadow: isMicOn ? `0 0 ${10 + localVolume}px #22c55e` : 'none',
-                                transition: 'box-shadow 0.05s ease-out',
-                                zIndex: 2
-                            }}></div>
-                        </div>
-
-
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span style={{ fontSize: '13px', fontWeight: 600, color: 'white' }}>Voice Chat</span>
-                            <span style={{ fontSize: '10px', color: '#a1a1aa' }}>
-                                {isMicOn ? 'Call Active' : (opponentStatus === 'online' ? 'Opponent Live' : 'Not Connected')}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                        {/* 1. NOT CONNECTED & NOT CALLING -> SHOW 'CALL' or 'JOIN' */}
-                        {!isMicOn && !isCalling && (
-                            <button
-                                onClick={opponentStatus === 'online' ? toggleMic : requestCall}
-                                style={{
-                                    background: opponentStatus === 'online' ? '#22c55e' : '#3f3f46',
-                                    border: 'none',
-                                    borderRadius: '6px', // Rectangular for text
-                                    padding: '0 12px',
-                                    height: '36px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '6px',
-                                    cursor: 'pointer',
-                                    transition: '0.2s',
-                                    color: 'white',
-                                    fontWeight: 600,
-                                    fontSize: '13px'
-                                }}
-                            >
-                                {opponentStatus === 'online' ? <PhoneIncoming size={16} /> : <Phone size={16} />}
-                                {opponentStatus === 'online' ? "Join Call" : "Call"}
-                            </button>
-                        )}
-
-                        {/* 2. CALLING (Waiting) -> SHOW 'CANCEL' */}
-                        {isCalling && (
-                            <button
-                                onClick={() => setIsCalling(false)}
-                                style={{
-                                    background: '#eab308',
-                                    border: 'none',
-                                    borderRadius: '6px',
-                                    padding: '0 12px',
-                                    height: '36px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '6px',
-                                    cursor: 'pointer',
-                                    color: 'white',
-                                    fontWeight: 600,
-                                    fontSize: '13px'
-                                }}
-                            >
-                                <span>Calling...</span>
-                                <span style={{ fontSize: '10px', opacity: 0.8 }}>(Cancel)</span>
-                            </button>
-                        )}
-
-                        {/* 3. CONNECTED -> SHOW 'END CALL' */}
-                        {isMicOn && (
-                            <button onClick={toggleMic} style={{ background: '#ef4444', border: 'none', borderRadius: '6px', padding: '0 12px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer', transition: '0.2s', color: 'white', fontWeight: 600, fontSize: '13px' }} title="End Call">
-                                <PhoneOff size={16} />
-                                End Call
-                            </button>
-                        )}
-                    </div>
-                </div>
-
-                {/* Leaderboard Section */}
-                <div style={{ padding: '15px', borderBottom: '1px solid #27272a', flexShrink: 0 }}>
-                    <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', color: '#fff', marginBottom: '10px' }}>
-                        <Trophy color="#eab308" size={18} /> Leaderboard
-                    </div>
-                    {roomState?.users?.sort((a, b) => b.score - a.score).map((u, i) => (
-                        <div key={u.id} style={{
-                            padding: '10px',
-                            background: u.id === socket.id ? 'rgba(34, 197, 94, 0.1)' : 'transparent',
-                            marginBottom: '5px',
-                            borderRadius: '6px',
-                            border: u.id === socket.id ? '1px solid #22c55e' : (u.status === 'completed' ? '1px solid #22c55e' : '1px solid transparent'),
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between'
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span style={{ fontSize: '12px', color: u.id === socket.id ? '#22c55e' : '#71717a' }}>#{i + 1}</span>
-                                <span style={{ color: 'white', fontSize: '14px', fontWeight: u.id === socket.id ? 'bold' : 'normal' }}>
-                                    {u.username} {u.id === socket.id && <span style={{ fontSize: '10px', opacity: 0.6 }}>(You)</span>}
-                                </span>
-                            </div>
-                            <div style={{ fontSize: '13px', fontWeight: 'bold', color: u.status === 'completed' ? '#22c55e' : '#71717a' }}>{u.score} TC</div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Chat Messages Area */}
-                <div style={{ flex: 1, overflowY: 'auto', padding: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {messages.map((m, idx) => (
-                        m.username === 'System' ? (
-                            <div key={idx} style={{ textAlign: 'center', margin: '10px 0', fontSize: '12px', color: '#71717a', fontStyle: 'italic' }}>
-                                {m.message}
-                            </div>
-                        ) : (
-                            <div key={idx} style={{ alignSelf: m.username === username ? 'flex-end' : 'flex-start', maxWidth: '85%' }}>
-                                {m.username !== username && <div style={{ fontSize: '10px', color: '#71717a', marginBottom: '2px', marginLeft: '4px' }}>{m.username}</div>}
-                                <div style={{
-                                    padding: '8px 12px',
-                                    borderRadius: '12px',
-                                    borderTopRightRadius: m.username === username ? '2px' : '12px',
-                                    borderTopLeftRadius: m.username !== username ? '2px' : '12px',
-                                    background: m.username === username ? '#2563eb' : '#3f3f46',
-                                    color: 'white',
-                                    fontSize: '13px',
-                                    wordBreak: 'break-word'
+                                    position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)',
+                                    zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'center'
                                 }}>
-                                    {m.message}
+                                    <div style={{
+                                        width: '80px', height: '80px', borderRadius: '50%', background: '#000',
+                                        border: '4px solid #f59e0b', boxShadow: '0 0 30px #f59e0b',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        fontSize: '32px', fontWeight: 900, color: '#f59e0b', fontStyle: 'italic',
+                                        animation: isStarting ? 'pulse-fast 0.5s infinite' : 'none'
+                                    }}>
+                                        VS
+                                    </div>
+                                </div>
+
+                                {/* Main Content */}
+                                <div style={{ display: 'flex', width: '100%', maxWidth: '1000px', height: '400px', alignItems: 'center', justifyContent: 'space-between', zIndex: 10, padding: '0 40px' }}>
+
+                                    {/* PLAYER 1 (YOU) */}
+                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'slideInLeft 0.5s ease-out' }}>
+                                        <div style={{ width: '120px', height: '120px', borderRadius: '50%', background: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 40px rgba(34, 197, 94, 0.4)', marginBottom: '24px', border: '4px solid #fff' }}>
+                                            <Users size={60} color="white" />
+                                        </div>
+                                        <h2 style={{ fontSize: '32px', fontWeight: 800, color: 'white', marginBottom: '8px' }}>{username}</h2>
+                                        <div style={{ padding: '6px 16px', background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', borderRadius: '20px', fontSize: '14px', fontWeight: 700, border: '1px solid rgba(34, 197, 94, 0.3)' }}>READY</div>
+                                    </div>
+
+                                    {/* PLAYER 2 */}
+                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'slideInRight 0.5s ease-out' }}>
+                                        {opponent ? (
+                                            <>
+                                                <div style={{ width: '120px', height: '120px', borderRadius: '50%', background: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 40px rgba(239, 68, 68, 0.4)', marginBottom: '24px', border: '4px solid #fff' }}>
+                                                    <Sword size={60} color="white" />
+                                                </div>
+                                                <h2 style={{ fontSize: '32px', fontWeight: 800, color: 'white', marginBottom: '8px' }}>{opponent.username}</h2>
+                                                <div style={{ padding: '6px 16px', background: 'rgba(239, 68, 68, 0.15)', color: '#f87171', borderRadius: '20px', fontSize: '14px', fontWeight: 700, border: '1px solid rgba(239, 68, 68, 0.3)' }}>CONNECTED</div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div style={{ width: '120px', height: '120px', borderRadius: '50%', border: '4px dashed #52525b', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px', animation: 'spin-slow 10s linear infinite' }}>
+                                                    <div style={{ width: '100%', height: '100%', borderRadius: '50%', animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite', opacity: 0.1, background: 'white' }}></div>
+                                                </div>
+                                                <h2 style={{ fontSize: '24px', fontWeight: 600, color: '#71717a', marginBottom: '8px', fontStyle: 'italic' }}>Searching...</h2>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Footer */}
+                                <div style={{ zIndex: 10, marginTop: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+                                    {isStarting ? (
+                                        <div style={{ fontSize: '24px', fontWeight: 800, color: '#fbbf24', animation: 'pulse 1s infinite' }}>
+                                            BATTLE STARTING IN 3...
+                                        </div>
+                                    ) : (
+                                        <div style={{ background: '#18181b', padding: '16px 24px', borderRadius: '16px', border: '1px solid #27272a', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)' }}>
+                                            <div style={{ color: '#a1a1aa', fontSize: '13px', fontWeight: 500 }}>INVITE A FRIEND</div>
+                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                                <div style={{ background: '#27272a', padding: '10px 16px', borderRadius: '8px', fontFamily: 'monospace', color: 'white', letterSpacing: '1px', border: '1px solid #3f3f46' }}>{roomId}</div>
+                                                <button onClick={copyLink} style={{ background: '#2563eb', border: 'none', borderRadius: '8px', padding: '0 20px', color: 'white', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <Users size={16} /> COPY
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <style>{`
+                                     @keyframes slideInLeft { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
+                                     @keyframes slideInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+                                     @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                                     @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+                                     @keyframes pulse-fast { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.1); } }
+                                 `}</style>
+                            </>
+                        );
+                    })()}
+                </div>
+            )}
+
+            {/* MAIN GAME UI (Mounted Underneath) */}
+            {problem ? (
+                <div style={{
+                    display: 'flex', height: '100%',
+                    // This is the key: We keep it mounted, but maybe hidden or z-index lower.
+                    // Actually, let's keep it visible but covered by the absolute overlay above.
+                    // This ensures it renders/fetches.
+                }}>
+
+                    {/* MODALS */}
+                    {winnerModal && (
+                        <Modal title="🏆 VICTORY!" actions={<button onClick={onBack} style={{ padding: '10px 20px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}>Return to Lobby</button>}>
+                            <div style={{ fontSize: '40px', marginBottom: '10px' }}>👑</div>
+                            <p>Your opponent fled the battlefield!</p>
+                        </Modal>
+                    )}
+
+                    {showLeaveConfirm && (
+                        <Modal title="Leave Battle?" actions={
+                            <>
+                                <button onClick={() => setShowLeaveConfirm(false)} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid #444', color: '#ccc', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
+                                <button onClick={() => { setShowLeaveConfirm(false); onBack(); }} style={{ padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}>Yes, Surrender</button>
+                            </>
+                        }>
+                            <p>Are you sure? This counts as a forfeit.</p>
+                        </Modal>
+                    )}
+
+                    {incomingCall && (
+                        <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', padding: '20px 30px', background: '#22c55e', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', color: 'white', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.3)', zIndex: 2000, animation: 'bounce 1s infinite' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <PhoneIncoming size={32} />
+                                <span style={{ fontSize: '20px', fontWeight: 700 }}>Incoming Call...</span>
+                            </div>
+                            <div style={{ fontSize: '14px', opacity: 0.9 }}>Opponent wants to speak</div>
+
+                            <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+                                <button onClick={toggleMic} style={{ flex: 1, background: 'white', color: '#22c55e', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '14px' }}>ACCEPT</button>
+                                <button onClick={() => {
+                                    setIncomingCall(false);
+                                    socket.emit('callRejected', { roomId, username });
+                                }} style={{ background: 'rgba(0,0,0,0.2)', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer' }}>Ignore</button>
+                            </div>
+                            <style>{`@keyframes bounce { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.05); } }`}</style>
+                        </div>
+                    )}
+
+                    {/* SIDEBAR */}
+                    <div style={{ width: '300px', background: '#18181b', borderRight: '1px solid #27272a', display: 'flex', flexDirection: 'column' }}>
+
+                        {/* VOICE CONTROL HEADER */}
+                        <div style={{ padding: '15px', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #3f3f46' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                {/* Status Ring / Voice Visualizer */}
+                                <div style={{ position: 'relative', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    {/* BACK RING (Remote Volume) */}
+                                    {opponentStatus === 'online' && (
+                                        <div style={{
+                                            position: 'absolute',
+                                            width: '100%', height: '100%', borderRadius: '50%',
+                                            background: '#22c55e',
+                                            opacity: 0.3,
+                                            transform: `scale(${1 + (remoteVolume / 50)})`,
+                                            transition: 'transform 0.05s ease-out'
+                                        }}></div>
+                                    )}
+
+                                    {/* FRONT RING (Local Volume) */}
+                                    <div style={{
+                                        width: '10px', height: '10px', borderRadius: '50%',
+                                        background: isMicOn ? '#22c55e' : (opponentStatus === 'online' ? '#f59e0b' : '#71717a'),
+                                        boxShadow: isMicOn ? `0 0 ${10 + localVolume}px #22c55e` : 'none',
+                                        transition: 'box-shadow 0.05s ease-out',
+                                        zIndex: 2
+                                    }}></div>
+                                </div>
+
+
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <span style={{ fontSize: '13px', fontWeight: 600, color: 'white' }}>Voice Chat</span>
+                                    <span style={{ fontSize: '10px', color: '#a1a1aa' }}>
+                                        {isMicOn ? 'Call Active' : (opponentStatus === 'online' ? 'Opponent Live' : 'Not Connected')}
+                                    </span>
                                 </div>
                             </div>
-                        )
-                    ))}
-                </div>
 
-                {/* Chat Input */}
-                <div style={{ padding: '15px', borderTop: '1px solid #27272a' }}>
-                    <div style={{ display: 'flex', gap: '8px', background: '#27272a', padding: '5px', borderRadius: '8px', border: '1px solid #3f3f46' }}>
-                        <input
-                            type="text"
-                            value={chatInput}
-                            onChange={e => setChatInput(e.target.value)}
-                            onKeyDown={e => e.key === 'Enter' && sendChat()}
-                            placeholder="Type a message..."
-                            style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', fontSize: '13px', padding: '8px', outline: 'none' }}
-                        />
-                        <button onClick={sendChat} style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '0 8px', display: 'flex', alignItems: 'center' }}>
-                            <Send size={16} color={chatInput ? '#2563eb' : '#52525b'} />
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                {/* 1. NOT CONNECTED & NOT CALLING -> SHOW 'CALL' or 'JOIN' */}
+                                {!isMicOn && !isCalling && (
+                                    <button
+                                        onClick={opponentStatus === 'online' ? toggleMic : requestCall}
+                                        style={{
+                                            background: opponentStatus === 'online' ? '#22c55e' : '#3f3f46',
+                                            border: 'none',
+                                            borderRadius: '6px', // Rectangular for text
+                                            padding: '0 12px',
+                                            height: '36px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '6px',
+                                            cursor: 'pointer',
+                                            transition: '0.2s',
+                                            color: 'white',
+                                            fontWeight: 600,
+                                            fontSize: '13px'
+                                        }}
+                                    >
+                                        {opponentStatus === 'online' ? <PhoneIncoming size={16} /> : <Phone size={16} />}
+                                        {opponentStatus === 'online' ? "Join Call" : "Call"}
+                                    </button>
+                                )}
+
+                                {/* 2. CALLING (Waiting) -> SHOW 'CANCEL' */}
+                                {isCalling && (
+                                    <button
+                                        onClick={() => setIsCalling(false)}
+                                        style={{
+                                            background: '#eab308',
+                                            border: 'none',
+                                            borderRadius: '6px',
+                                            padding: '0 12px',
+                                            height: '36px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '6px',
+                                            cursor: 'pointer',
+                                            color: 'white',
+                                            fontWeight: 600,
+                                            fontSize: '13px'
+                                        }}
+                                    >
+                                        <span>Calling...</span>
+                                        <span style={{ fontSize: '10px', opacity: 0.8 }}>(Cancel)</span>
+                                    </button>
+                                )}
+
+                                {/* 3. CONNECTED -> SHOW 'END CALL' */}
+                                {isMicOn && (
+                                    <button onClick={toggleMic} style={{ background: '#ef4444', border: 'none', borderRadius: '6px', padding: '0 12px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer', transition: '0.2s', color: 'white', fontWeight: 600, fontSize: '13px' }} title="End Call">
+                                        <PhoneOff size={16} />
+                                        End Call
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Leaderboard Section */}
+                        <div style={{ padding: '15px', borderBottom: '1px solid #27272a', flexShrink: 0 }}>
+                            <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', color: '#fff', marginBottom: '10px' }}>
+                                <Trophy color="#eab308" size={18} /> Leaderboard
+                            </div>
+                            {roomState?.users?.sort((a, b) => b.score - a.score).map((u, i) => (
+                                <div key={u.id} style={{
+                                    padding: '10px',
+                                    background: u.id === socket.id ? 'rgba(34, 197, 94, 0.1)' : 'transparent',
+                                    marginBottom: '5px',
+                                    borderRadius: '6px',
+                                    border: u.id === socket.id ? '1px solid #22c55e' : (u.status === 'completed' ? '1px solid #22c55e' : '1px solid transparent'),
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span style={{ fontSize: '12px', color: u.id === socket.id ? '#22c55e' : '#71717a' }}>#{i + 1}</span>
+                                        <span style={{ color: 'white', fontSize: '14px', fontWeight: u.id === socket.id ? 'bold' : 'normal' }}>
+                                            {u.username} {u.id === socket.id && <span style={{ fontSize: '10px', opacity: 0.6 }}>(You)</span>}
+                                        </span>
+                                    </div>
+                                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: u.status === 'completed' ? '#22c55e' : '#71717a' }}>{u.score} TC</div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Chat Messages Area */}
+                        <div style={{ flex: 1, overflowY: 'auto', padding: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {messages.map((m, idx) => (
+                                m.username === 'System' ? (
+                                    <div key={idx} style={{ textAlign: 'center', margin: '10px 0', fontSize: '12px', color: '#71717a', fontStyle: 'italic' }}>
+                                        {m.message}
+                                    </div>
+                                ) : (
+                                    <div key={idx} style={{ alignSelf: m.username === username ? 'flex-end' : 'flex-start', maxWidth: '85%' }}>
+                                        {m.username !== username && <div style={{ fontSize: '10px', color: '#71717a', marginBottom: '2px', marginLeft: '4px' }}>{m.username}</div>}
+                                        <div style={{
+                                            padding: '8px 12px',
+                                            borderRadius: '12px',
+                                            borderTopRightRadius: m.username === username ? '2px' : '12px',
+                                            borderTopLeftRadius: m.username !== username ? '2px' : '12px',
+                                            background: m.username === username ? '#2563eb' : '#3f3f46',
+                                            color: 'white',
+                                            fontSize: '13px',
+                                            wordBreak: 'break-word'
+                                        }}>
+                                            {m.message}
+                                        </div>
+                                    </div>
+                                )
+                            ))}
+                        </div>
+
+                        {/* Chat Input */}
+                        <div style={{ padding: '15px', borderTop: '1px solid #27272a' }}>
+                            <div style={{ display: 'flex', gap: '8px', background: '#27272a', padding: '5px', borderRadius: '8px', border: '1px solid #3f3f46' }}>
+                                <input
+                                    type="text"
+                                    value={chatInput}
+                                    onChange={e => setChatInput(e.target.value)}
+                                    onKeyDown={e => e.key === 'Enter' && sendChat()}
+                                    placeholder="Type a message..."
+                                    style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', fontSize: '13px', padding: '8px', outline: 'none' }}
+                                />
+                                <button onClick={sendChat} style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '0 8px', display: 'flex', alignItems: 'center' }}>
+                                    <Send size={16} color={chatInput ? '#2563eb' : '#52525b'} />
+                                </button>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => setShowLeaveConfirm(true)}
+                            style={{ margin: '15px', padding: '10px', background: '#27272a', color: '#ef4444', border: '1px solid #3f3f46', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, transition: 'background 0.2s', marginTop: '0px' }}
+                            onMouseEnter={e => e.target.style.background = '#3f3f46'}
+                            onMouseLeave={e => e.target.style.background = '#27272a'}
+                        >
+                            Leave Room
                         </button>
                     </div>
+
+                    {/* MAIN WORKSPACE */}
+                    <div style={{ flex: 1, position: 'relative' }}>
+                        <Workspace
+                            problem={problem}
+                            roomId={roomId}
+                            onBack={() => setShowLeaveConfirm(true)}
+                            onSubmissionSuccess={(res) => {
+                                socket.emit('submitUpdate', {
+                                    roomId,
+                                    passedInfo: {
+                                        passed: true,
+                                        testcases: res.total_testcases || 10
+                                    }
+                                });
+                            }}
+                        />
+
+                        {/* DEBUG FOOTER */}
+                        <div style={{ position: 'absolute', bottom: '5px', right: '5px', background: 'rgba(0,0,0,0.5)', color: '#555', fontSize: '9px', padding: '2px 5px', pointerEvents: 'none' }}>
+                            Room: {roomId} | Socket: {socket.id} | Mic: {isMicOn ? 'ON' : 'OFF'}
+                        </div>
+                    </div>
                 </div>
-
-                <button
-                    onClick={() => setShowLeaveConfirm(true)}
-                    style={{ margin: '15px', padding: '10px', background: '#27272a', color: '#ef4444', border: '1px solid #3f3f46', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, transition: 'background 0.2s', marginTop: '0px' }}
-                    onMouseEnter={e => e.target.style.background = '#3f3f46'}
-                    onMouseLeave={e => e.target.style.background = '#27272a'}
-                >
-                    Leave Room
-                </button>
-            </div>
-
-            {/* MAIN WORKSPACE */}
-            <div style={{ flex: 1, position: 'relative' }}>
-                <Workspace
-                    problem={problem}
-                    roomId={roomId}
-                    onBack={() => setShowLeaveConfirm(true)}
-                    onSubmissionSuccess={(res) => {
-                        socket.emit('submitUpdate', {
-                            roomId,
-                            passedInfo: {
-                                passed: true,
-                                testcases: res.total_testcases || 10
-                            }
-                        });
-                    }}
-                />
-
-                {/* DEBUG FOOTER */}
-                <div style={{ position: 'absolute', bottom: '5px', right: '5px', background: 'rgba(0,0,0,0.5)', color: '#555', fontSize: '9px', padding: '2px 5px', pointerEvents: 'none' }}>
-                    Room: {roomId} | Socket: {socket.id} | Mic: {isMicOn ? 'ON' : 'OFF'}
-                </div>
-            </div>
+            ) : null}
         </div>
     );
 };
+
+const Modal = ({ title, children, actions }) => (
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+        <div style={{ background: '#18181b', border: '1px solid #333', padding: '30px', borderRadius: '12px', width: '400px', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+            <h2 style={{ marginTop: 0, fontSize: '24px', color: 'white' }}>{title}</h2>
+            <div style={{ color: '#a1a1aa', margin: '15px 0' }}>{children}</div>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '25px' }}>{actions}</div>
+        </div>
+    </div>
+);
 
 export default CompetitionRoom;
