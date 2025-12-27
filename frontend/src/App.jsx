@@ -50,6 +50,14 @@ function MainApp({ initialRoom }) {
     }
   };
 
+  // Toast State
+  const [toast, setToast] = useState({ show: false, message: '', type: 'error' });
+
+  const showToast = (message, type = 'error') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000);
+  };
+
   const checkLogin = () => {
     const session = localStorage.getItem('user_session');
     if (session && session !== "undefined") {
@@ -57,7 +65,7 @@ function MainApp({ initialRoom }) {
       navigate('/app');
     } else {
       setUserInfo({ loggedIn: false });
-      alert("Session not found! Please ensure extension is synced.");
+      showToast("Session not found! Please ensure extension is synced.", "error");
     }
   };
 
@@ -197,6 +205,20 @@ function MainApp({ initialRoom }) {
           </>
         } />
       </Routes>
+
+      {/* Global Toast Notification */}
+      {toast.show && (
+        <div style={{
+          position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999,
+          background: toast.type === 'error' ? '#ef4444' : '#22c55e',
+          color: 'white', padding: '16px 24px', borderRadius: '12px',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+          display: 'flex', alignItems: 'center', gap: '12px',
+          animation: 'slideIn 0.3s ease-out', fontWeight: 600, fontSize: '14px'
+        }}>
+          {toast.type === 'error' ? '⚠️' : '✅'} {toast.message}
+        </div>
+      )}
     </div>
   );
 }

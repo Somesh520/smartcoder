@@ -28,40 +28,40 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                     <ShieldAlert size={64} color="#eab308" />
                 </div>
 
-                <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '10px' }}>Action Required</h1>
+                <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '10px' }}>One-Time Setup Required</h1>
                 <p style={{ color: '#a1a1aa', marginBottom: '30px', lineHeight: '1.6' }}>
-                    To participate in competitions, you need to sync your LeetCode account. We use a secure extension to fetch problems and verify submissions.
+                    Unlike other platforms, we verify your submissions in <b>Real-Time</b> securely. <br />
+                    To do this, we need a tiny bridge between AlgoDuel and LeetCode.
                 </p>
 
                 {/* Steps */}
-                {/* Steps */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', textAlign: 'left', marginBottom: '30px' }}>
 
-                    {/* Step 1: Manual Install Instructions */}
+                    {/* Step 1: Install Instructions */}
                     <div style={{ background: '#3f3f46', padding: '15px', borderRadius: '8px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                             <div style={{ background: '#2563eb', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px' }}>1</div>
-                            <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#60a5fa' }}>Install Extension</div>
+                            <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#60a5fa' }}>Download & Load Extension</div>
                         </div>
 
                         <a href="/leetcode-sync-ext.zip" download="leetcode-sync-ext.zip" style={{
                             textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                            background: '#27272a', padding: '10px', borderRadius: '6px', color: 'white', fontSize: '13px',
-                            fontWeight: '600', marginBottom: '12px', border: '1px solid #52525b', transition: 'background 0.2s'
+                            background: '#27272a', padding: '12px', borderRadius: '8px', color: 'white', fontSize: '14px',
+                            fontWeight: '600', marginBottom: '15px', border: '1px solid #52525b', transition: 'background 0.2s',
+                            boxShadow: '0 4px 6px rgba(0,0,0,0.2)'
                         }}
                             onMouseEnter={e => e.currentTarget.style.background = '#3f3f46'}
                             onMouseLeave={e => e.currentTarget.style.background = '#27272a'}
                         >
-                            <Download size={16} /> Download Extension (ZIP)
+                            <Download size={18} /> Click here to Download Extension (ZIP)
                         </a>
 
-                        <ul style={{ fontSize: '13px', color: '#e4e4e7', paddingLeft: '20px', margin: 0, lineHeight: '1.5' }}>
-                            <li>Unzip the downloaded file.</li>
-                            <li>Open Chrome and go to <code style={{ background: '#18181b', padding: '2px 4px', borderRadius: '4px' }}>chrome://extensions</code></li>
-                            <li>Toggle <b>"Developer mode"</b> (top-right) to <b>ON</b>.</li>
-                            <li>Click <b>"Load unpacked"</b> button.</li>
-                            <li>Select the unzipped <code style={{ background: '#18181b', padding: '2px 4px', borderRadius: '4px' }}>leetcode-sync-ext</code> folder.</li>
-                        </ul>
+                        <div style={{ fontSize: '13px', color: '#e4e4e7', lineHeight: '1.6' }}>
+                            <div style={{ marginBottom: '4px' }}>👉 <b>Unzip</b> the downloaded file.</div>
+                            <div style={{ marginBottom: '4px' }}>👉 Go to <code style={{ background: '#18181b', padding: '2px 6px', borderRadius: '4px', border: '1px solid #52525b' }}>chrome://extensions</code></div>
+                            <div style={{ marginBottom: '4px' }}>👉 Turn on <b>Developer mode</b> (top-right).</div>
+                            <div>👉 Click <b>Load unpacked</b> & select the unzipped folder.</div>
+                        </div>
                     </div>
 
                     {/* Step 2 */}
