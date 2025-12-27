@@ -99,6 +99,7 @@ function MainApp({ initialRoom }) {
     }
 
     socket.on('roomUpdate', (state) => {
+      console.log("📥 App: Received roomUpdate:", state);
       setRoomState(state);
     });
 

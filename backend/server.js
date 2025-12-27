@@ -210,6 +210,7 @@ io.on('connection', (socket) => {
                 console.log("Room Problem Set:", rooms[roomId].problem);
 
                 rooms[roomId].status = 'active';
+                rooms[roomId].startTime = Date.now(); // TRACK START TIME
                 io.to(roomId).emit('gameActive', rooms[roomId]);
             } catch (e) {
                 console.error("Failed to fetch problem for room", e);
@@ -226,6 +227,20 @@ io.on('connection', (socket) => {
             if (user) {
                 user.status = passedInfo.passed ? 'completed' : 'attempting';
                 user.score = passedInfo.testcases; // Simplified score
+
+                // WIN CONDITION: First to pass becomes the winner
+                // Modified: Allow win if room is NOT already finished (looser check for 'active' to support testing)
+                if (passedInfo.passed && room.status !== 'finished') {
+                    console.log(`[GAME] Winner by Solution: ${user.username}`);
+                    room.status = 'finished';
+                    room.winner = user.username;
+
+                    // CALCULATE TIMES
+                    const endTime = Date.now();
+                    const duration = endTime - (room.startTime || endTime);
+                    user.timeTaken = duration; // Store duration in ms
+                }
+
                 io.to(roomId).emit('roomUpdate', room);
             }
         }
@@ -333,16 +348,10 @@ io.on('connection', (socket) => {
             user.id = socket.id;
             socket.join(roomId);
 
-            // Helper: Send updated state
-            socket.emit('roomUpdate', {
-                roomId,
-                users: room.users,
-                problem: room.problem,
-                status: room.status, // Ensure status is sent
-                messages: room.messages
-            });
+            // Broadcast updated state to ENTIRE room (not just rejoining user)
+            io.to(roomId).emit('roomUpdate', room);
 
-            // Notify others that user is back (implied by room update, or expicit message)
+            console.log(`[REJOIN] Successfully rejoined ${username} to room ${roomId}`);
             // io.to(roomId).emit('chatMessage', { username: "System", message: `${username} reconnected.`, timestamp: new Date().toISOString() });
 
         } else {

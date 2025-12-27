@@ -3,9 +3,19 @@ import Workspace from './Workspace';
 import { Users, Trophy, MessageSquare, Mic, MicOff, Send, Phone, PhoneIncoming, PhoneOff, Sword } from 'lucide-react';
 import LoadingScreen from './LoadingScreen';
 
+
+const Modal = ({ title, children, actions }) => (
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+        <div style={{ background: '#18181b', border: '1px solid #333', padding: '30px', borderRadius: '12px', width: '400px', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+            <h2 style={{ marginTop: 0, fontSize: '24px', color: 'white' }}>{title}</h2>
+            <div style={{ color: '#a1a1aa', margin: '15px 0' }}>{children}</div>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '25px' }}>{actions}</div>
+        </div>
+    </div>
+);
+
 const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
-    // --- RENDER HELPERS ---
-    if (!roomState) return <LoadingScreen text="SYNCHRONIZING BATTLEFIELD..." />;
+    // State declarations (must come before any conditional returns)
     const [problem, setProblem] = useState(null);
     const [winnerModal, setWinnerModal] = useState(null);
     const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
@@ -21,6 +31,9 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
 
     // Opponent State
     const [opponentStatus, setOpponentStatus] = useState('offline'); // 'online' | 'offline'
+
+    // Toast State
+    const [toast, setToast] = useState(null); // { message, type: 'info' | 'error' }
 
     // Volume Visualization State
     const [localVolume, setLocalVolume] = useState(0);
@@ -46,8 +59,12 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
     useEffect(() => {
         if (roomState?.problem) setProblem(roomState.problem);
 
+        // DEBUG LOGGING
+        // console.log("Current Room Status:", roomState?.status, "Winner:", roomState?.winner);
+
         // If rejoining a finished room, show winner
         if (roomState?.status === 'finished' && roomState?.winner) {
+            console.log("🏆 GAME FINISHED! Winner is:", roomState.winner);
             setWinnerModal(roomState.winner);
         }
     }, [roomState]);
@@ -61,9 +78,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
         }
     }, [roomState]);
 
-    // --- TOAST STATE ---
-    const [toast, setToast] = useState(null); // { message, type: 'info' | 'error' }
-
+    // --- TOAST HELPER ---
     const showToast = (message, type = 'info') => {
         setToast({ message, type });
         setTimeout(() => setToast(null), 3000);
@@ -414,7 +429,9 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
     };
 
 
-    // --- RENDER HELPERS ---
+
+
+    // Guard against null roomState (must be after all hooks)
     if (!roomState) return <LoadingScreen text="SYNCHRONIZING BATTLEFIELD..." />;
 
     // Helper to determine if we should show the VS/Waiting Overlay
@@ -542,11 +559,111 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                 }}>
 
                     {/* MODALS */}
+
+                    {/* PREMIUM RESULT SCREEN OVERLAY */}
                     {winnerModal && (
-                        <Modal title="🏆 VICTORY!" actions={<button onClick={onBack} style={{ padding: '10px 20px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}>Return to Lobby</button>}>
-                            <div style={{ fontSize: '40px', marginBottom: '10px' }}>👑</div>
-                            <p>Your opponent fled the battlefield!</p>
-                        </Modal>
+                        <div style={{
+                            position: 'fixed', inset: 0, zIndex: 2000,
+                            background: 'rgba(9, 9, 11, 0.95)',
+                            backdropFilter: 'blur(15px)',
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                            animation: 'fadeIn 0.5s ease-out'
+                        }}>
+                            {/* Confetti / Particle Effects could go here */}
+
+                            <div style={{
+                                fontSize: '80px', fontWeight: 900,
+                                background: winnerModal === username ? 'linear-gradient(to bottom, #4ade80, #22c55e)' : 'linear-gradient(to bottom, #f87171, #ef4444)',
+                                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                                textShadow: winnerModal === username ? '0 0 50px rgba(34, 197, 94, 0.5)' : '0 0 50px rgba(239, 68, 68, 0.5)',
+                                marginBottom: '20px',
+                                letterSpacing: '-2px',
+                                animation: 'scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                            }}>
+                                {winnerModal === username ? "VICTORY" : "DEFEAT"}
+                            </div>
+
+                            <div style={{ fontSize: '24px', color: '#a1a1aa', marginBottom: '60px', fontWeight: 500 }}>
+                                {winnerModal === username ? "You solved it first! 🚀" : `${winnerModal} claimed the victory.`}
+                            </div>
+
+                            {/* RESULTS TABLE */}
+                            <div style={{
+                                width: '100%', maxWidth: '600px',
+                                background: '#18181b', borderRadius: '24px',
+                                border: '1px solid #27272a',
+                                padding: '30px',
+                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+                            }}>
+                                {roomState.users.sort((a, b) => (a.timeTaken || Infinity) - (b.timeTaken || Infinity)).map((u, i) => {
+                                    const isWinner = u.username === winnerModal;
+                                    const formatTime = (ms) => {
+                                        if (!ms) return "--:--";
+                                        const mins = Math.floor(ms / 60000);
+                                        const secs = Math.floor((ms % 60000) / 1000);
+                                        return `${mins}m ${secs}s`;
+                                    };
+
+                                    return (
+                                        <div key={u.id} style={{
+                                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                            padding: '20px', marginBottom: '10px',
+                                            background: isWinner ? 'rgba(34, 197, 94, 0.1)' : 'transparent',
+                                            borderRadius: '16px',
+                                            border: isWinner ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid transparent'
+                                        }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                                <div style={{
+                                                    width: '50px', height: '50px', borderRadius: '50%',
+                                                    background: isWinner ? '#22c55e' : '#3f3f46',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    fontSize: '24px', fontWeight: 700, color: 'white'
+                                                }}>
+                                                    {i + 1}
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                    <span style={{ fontSize: '18px', fontWeight: 700, color: 'white' }}>
+                                                        {u.username} {u.username === username && <span style={{ fontSize: '12px', color: '#71717a' }}>(You)</span>}
+                                                    </span>
+                                                    <span style={{ fontSize: '14px', color: isWinner ? '#4ade80' : '#71717a' }}>
+                                                        {isWinner ? "Winner" : (u.status === 'completed' ? "Finished" : "DNF")}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div style={{ textAlign: 'right' }}>
+                                                <div style={{ fontSize: '20px', fontWeight: 700, color: 'white', fontFamily: 'monospace' }}>
+                                                    {u.timeTaken ? formatTime(u.timeTaken) : "--:--"}
+                                                </div>
+                                                <div style={{ fontSize: '12px', color: '#71717a' }}>Time Taken</div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            <button
+                                onClick={onBack}
+                                style={{
+                                    marginTop: '60px',
+                                    background: 'white', color: 'black',
+                                    padding: '16px 40px', borderRadius: '100px',
+                                    fontSize: '18px', fontWeight: 700,
+                                    border: 'none', cursor: 'pointer',
+                                    boxShadow: '0 0 30px rgba(255, 255, 255, 0.2)',
+                                    transition: 'transform 0.2s'
+                                }}
+                                onMouseEnter={e => e.target.style.transform = 'scale(1.05)'}
+                                onMouseLeave={e => e.target.style.transform = 'scale(1)'}
+                            >
+                                Return to Lobby
+                            </button>
+
+                            <style>{`
+                                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                                @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+                            `}</style>
+                        </div>
                     )}
 
                     {showLeaveConfirm && (
@@ -789,14 +906,6 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
     );
 };
 
-const Modal = ({ title, children, actions }) => (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-        <div style={{ background: '#18181b', border: '1px solid #333', padding: '30px', borderRadius: '12px', width: '400px', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
-            <h2 style={{ marginTop: 0, fontSize: '24px', color: 'white' }}>{title}</h2>
-            <div style={{ color: '#a1a1aa', margin: '15px 0' }}>{children}</div>
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '25px' }}>{actions}</div>
-        </div>
-    </div>
-);
+
 
 export default CompetitionRoom;

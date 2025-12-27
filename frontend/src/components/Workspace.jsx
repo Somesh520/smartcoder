@@ -123,8 +123,14 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                         setLoading(false);
                         setResult(res);
 
-                        if (type === 'submit' && res.status_msg === 'Accepted' && onSubmissionSuccess) {
-                            onSubmissionSuccess(res);
+                        if (type === 'submit' && onSubmissionSuccess) {
+                            // Check for standard "Accepted"
+                            if (res.status_msg === 'Accepted') {
+                                console.log("✅ Submission Accepted! Reporting success...");
+                                onSubmissionSuccess(res);
+                            } else {
+                                console.log("ℹ️ Submission Result:", res.status_msg);
+                            }
                         }
                     }
                 } catch (e) { console.error(e); }
@@ -359,7 +365,9 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                         }
                     `}</style>
                     {details ? (
-                        <div className="problem-content" dangerouslySetInnerHTML={{ __html: details.content || details.questionHtml }} />
+                        <div className="problem-content" dangerouslySetInnerHTML={{
+                            __html: (details.content || details.questionHtml || "").replace(/src="\//g, 'src="https://leetcode.com/')
+                        }} />
                     ) : (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
                             <ModernSpinner size={40} text="Loading details..." />

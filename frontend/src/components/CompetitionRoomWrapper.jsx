@@ -7,19 +7,35 @@ const CompetitionRoomWrapper = ({ socket, roomId, username, roomState, onBack, s
     const { roomId: urlRoomId } = useParams();
 
     useEffect(() => {
-        // If URL has roomId but state doesn't, update state and join room
+        // If URL has roomId but state doesn't, update state and join/rejoin room
         if (urlRoomId && !roomId) {
             console.log("🔗 Detected room from URL:", urlRoomId);
-            const defaultUsername = `User_${Math.floor(Math.random() * 1000)}`;
-            setRoomId(urlRoomId);
-            setUsername(defaultUsername);
-            sessionStorage.setItem('active_room_id', urlRoomId);
-            sessionStorage.setItem('active_username', defaultUsername);
 
             const joinLogic = () => {
                 if (socket && socket.connected) {
-                    console.log("📡 Joining room via socket:", urlRoomId);
-                    socket.emit('joinRoom', { roomId: urlRoomId, username: defaultUsername });
+                    // Check rejoin status FRESH on each connection attempt
+                    const savedRoomId = sessionStorage.getItem('active_room_id');
+                    const savedUsername = sessionStorage.getItem('active_username');
+                    const isRejoin = savedRoomId === urlRoomId && savedUsername;
+
+                    console.log("🔍 Rejoin Check:", { savedRoomId, savedUsername, urlRoomId, isRejoin });
+
+                    const usernameToUse = isRejoin ? savedUsername : `User_${Math.floor(Math.random() * 1000)}`;
+
+                    // Update state
+                    setRoomId(urlRoomId);
+                    setUsername(usernameToUse);
+                    sessionStorage.setItem('active_room_id', urlRoomId);
+                    sessionStorage.setItem('active_username', usernameToUse);
+
+                    if (isRejoin) {
+                        console.log("🔄 Rejoining room via socket:", urlRoomId, "as", usernameToUse);
+                        socket.emit('rejoinRoom', { roomId: urlRoomId, username: usernameToUse });
+                        console.log("✅ rejoinRoom event emitted");
+                    } else {
+                        console.log("📡 Joining room via socket:", urlRoomId);
+                        socket.emit('joinRoom', { roomId: urlRoomId, username: usernameToUse });
+                    }
                 }
             };
 
