@@ -32,6 +32,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
     const localStreamRef = useRef(null);
     const remoteAudioRef = useRef(null); // Persistent Audio Ref
     const peersRef = useRef({});
+    const candidateQueueRef = useRef({});
 
     // Refs for Socket Handlers (to avoid stale closures without re-binding)
     const isCallingRef = useRef(false);
@@ -125,6 +126,18 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
             if (senderId === socket.id) return;
             // console.log("Received Signal:", signal.type); 
 
+            const flushCandidateQueue = async (peer) => {
+                if (candidateQueueRef.current[senderId]) {
+                    console.log(`[ICE] Flushing ${candidateQueueRef.current[senderId].length} candidates for ${senderId}`);
+                    for (const candidate of candidateQueueRef.current[senderId]) {
+                        try {
+                            await peer.addIceCandidate(new RTCIceCandidate(candidate));
+                        } catch (e) { console.warn("[ICE] Flush Error", e); }
+                    }
+                    delete candidateQueueRef.current[senderId];
+                }
+            };
+
             if (signal.type === 'offer') {
                 if (peersRef.current[senderId]) {
                     peersRef.current[senderId].close();
@@ -132,6 +145,8 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                 }
                 const newPeer = createPeer(senderId, localStreamRef.current, false);
                 await newPeer.setRemoteDescription(new RTCSessionDescription(signal));
+                await flushCandidateQueue(newPeer);
+
                 const answer = await newPeer.createAnswer();
                 await newPeer.setLocalDescription(answer);
                 socket.emit('voiceSignal', { roomId, signal: newPeer.localDescription, targetId: senderId });
@@ -140,14 +155,22 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                 const peer = peersRef.current[senderId];
                 if (peer) {
                     await peer.setRemoteDescription(new RTCSessionDescription(signal));
+                    await flushCandidateQueue(peer);
                 }
 
             } else if (signal.candidate) {
                 const peer = peersRef.current[senderId];
                 if (peer) {
-                    try {
-                        await peer.addIceCandidate(new RTCIceCandidate(signal.candidate));
-                    } catch (e) { console.warn("ICE Error", e); }
+                    if (peer.remoteDescription && peer.remoteDescription.type) {
+                        try {
+                            await peer.addIceCandidate(new RTCIceCandidate(signal.candidate));
+                        } catch (e) { console.warn("ICE Error", e); }
+                    } else {
+                        // Queue early candidates
+                        console.log(`[ICE] Queuing candidate for ${senderId} (Remote Description not set)`);
+                        if (!candidateQueueRef.current[senderId]) candidateQueueRef.current[senderId] = [];
+                        candidateQueueRef.current[senderId].push(signal.candidate);
+                    }
                 }
             }
         };
@@ -364,6 +387,9 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
         // Debug Connection State
         peer.onconnectionstatechange = () => {
             console.log("Peer Connection State:", peer.connectionState);
+        };
+        peer.oniceconnectionstatechange = () => {
+            console.log("ICE Connection State:", peer.iceConnectionState);
         };
 
         if (initiator) {
