@@ -41,13 +41,26 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                     <div style={{ background: '#3f3f46', padding: '15px', borderRadius: '8px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                             <div style={{ background: '#2563eb', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px' }}>1</div>
-                            <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#60a5fa' }}>Install Extension (Developer Mode)</div>
+                            <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#60a5fa' }}>Install Extension</div>
                         </div>
+
+                        <a href="/leetcode-sync-ext.zip" download="leetcode-sync-ext.zip" style={{
+                            textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                            background: '#27272a', padding: '10px', borderRadius: '6px', color: 'white', fontSize: '13px',
+                            fontWeight: '600', marginBottom: '12px', border: '1px solid #52525b', transition: 'background 0.2s'
+                        }}
+                            onMouseEnter={e => e.currentTarget.style.background = '#3f3f46'}
+                            onMouseLeave={e => e.currentTarget.style.background = '#27272a'}
+                        >
+                            <Download size={16} /> Download Extension (ZIP)
+                        </a>
+
                         <ul style={{ fontSize: '13px', color: '#e4e4e7', paddingLeft: '20px', margin: 0, lineHeight: '1.5' }}>
+                            <li>Unzip the downloaded file.</li>
                             <li>Open Chrome and go to <code style={{ background: '#18181b', padding: '2px 4px', borderRadius: '4px' }}>chrome://extensions</code></li>
                             <li>Toggle <b>"Developer mode"</b> (top-right) to <b>ON</b>.</li>
                             <li>Click <b>"Load unpacked"</b> button.</li>
-                            <li>Select the <code style={{ background: '#18181b', padding: '2px 4px', borderRadius: '4px' }}>leetcode-sync-ext</code> folder in this project.</li>
+                            <li>Select the unzipped <code style={{ background: '#18181b', padding: '2px 4px', borderRadius: '4px' }}>leetcode-sync-ext</code> folder.</li>
                         </ul>
                     </div>
 
