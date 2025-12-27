@@ -80,9 +80,10 @@ const Lobby = ({ onJoin, onPracticeSolo }) => {
 
                     <h1 style={{
                         fontSize: '32px', fontWeight: 800, margin: '0 0 10px 0',
-                        background: mode === 'create' ? 'linear-gradient(135deg, #fff 0%, #4ade80 100%)' : 'linear-gradient(135deg, #fff 0%, #60a5fa 100%)',
-                        WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                        letterSpacing: '-1px'
+                        backgroundImage: mode === 'create' ? 'linear-gradient(135deg, #fff 0%, #4ade80 100%)' : 'linear-gradient(135deg, #fff 0%, #60a5fa 100%)',
+                        backgroundClip: 'text', WebkitBackgroundClip: 'text',
+                        color: 'transparent', WebkitTextFillColor: 'transparent',
+                        letterSpacing: '-1px', display: 'inline-block'
                     }}>
                         {mode === 'create' ? 'Host a Battle' : 'Enter the Arena'}
                     </h1>
