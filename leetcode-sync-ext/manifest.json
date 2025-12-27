@@ -1,8 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "LeetCode Connector Universal",
-  "version": "2.1",
-  "description": "Syncs LeetCode to ANY Localhost port.",
+  "name": "AlgoDuel Sync",
+  "version": "2.2",
+  "description": "Securely syncs LeetCode submissions to AlgoDuel in real-time.",
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
   "permissions": [
     "cookies",
     "scripting",
@@ -14,6 +19,11 @@
     "http://127.0.0.1:*/*"
   ],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
   }
 }
