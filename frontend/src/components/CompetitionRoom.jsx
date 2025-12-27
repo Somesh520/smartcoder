@@ -122,7 +122,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
         };
 
         const handleSignal = async ({ signal, senderId }) => {
-            if (userId === socket.id) return;
+            if (senderId === socket.id) return;
             // console.log("Received Signal:", signal.type); 
 
             if (signal.type === 'offer') {
