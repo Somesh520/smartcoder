@@ -77,7 +77,15 @@ io.on('connection', (socket) => {
         }
 
         // Add user
-        rooms[roomId].users.push({ id: socket.id, username, score: 0, status: 'joined' });
+        // Add user (Idempotent check)
+        const existingUser = rooms[roomId].users.find(u => u.id === socket.id);
+        if (!existingUser) {
+            rooms[roomId].users.push({ id: socket.id, username, score: 0, status: 'joined' });
+        } else {
+            // Update username if changed (e.g. from generated to real)
+            existingUser.username = username;
+            existingUser.status = 'joined';
+        }
 
         // Notify room
         io.to(roomId).emit('roomUpdate', rooms[roomId]);
@@ -85,6 +93,7 @@ io.on('connection', (socket) => {
         // If 2 users, Start Game!
         if (rooms[roomId].users.length === 2 && rooms[roomId].status === 'waiting') {
             rooms[roomId].status = 'starting';
+            io.to(roomId).emit('roomUpdate', rooms[roomId]); // FORCE SYNC
             io.to(roomId).emit('gameStart', { message: "Game Starting in 5 seconds..." });
 
             // Fetch Random Problem and Broadcast
@@ -363,7 +372,10 @@ io.on('connection', (socket) => {
             if (room.status === 'active' && room.users.length === 1) {
                 const winnerName = room.users[0].username;
                 console.log(`[GAME] Winner: ${winnerName} (Opponent ${leaverName} left)`);
+                room.status = 'finished'; // Mark game as finished
+                room.winner = winnerName; // Store winner
                 io.to(roomId).emit('playerLeft', { winner: winnerName });
+                io.to(roomId).emit('roomUpdate', room); // Send updated state with finished status
             }
 
             // Cleanup empty room

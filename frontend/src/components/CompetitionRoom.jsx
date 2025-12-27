@@ -42,9 +42,14 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
     useEffect(() => { roomStateRef.current = roomState; }, [roomState]);
     useEffect(() => { isCallingRef.current = isCalling; }, [isCalling]);
 
-    // Load Problem
+    // Load Problem & Check Winner
     useEffect(() => {
         if (roomState?.problem) setProblem(roomState.problem);
+
+        // If rejoining a finished room, show winner
+        if (roomState?.status === 'finished' && roomState?.winner) {
+            setWinnerModal(roomState.winner);
+        }
     }, [roomState]);
 
     // --- SYNC MESSAGES FROM SERVER (REJOIN HISTORY) ---
@@ -412,7 +417,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
     // --- RENDER HELPERS ---
     if (!roomState) return <LoadingScreen text="SYNCHRONIZING BATTLEFIELD..." />;
 
-    if (roomState.status === 'waiting') {
+    if (roomState.status === 'waiting' || roomState.status === 'starting') {
         const userCount = roomState.users.length;
         const copyLink = () => {
             const url = `${window.location.origin}?room=${roomId}`;

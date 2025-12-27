@@ -1,7 +1,12 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { Code2, Swords } from 'lucide-react';
 
-const Header = ({ onShowProblemList, onGoDetail, currentView }) => {
+const Header = ({ onShowProblemList, onGoDetail }) => {
+    const location = useLocation();
+    const currentView = location.pathname.includes('/competition') ? 'competition' :
+        location.pathname.includes('/problems') ? 'list' : 'lobby';
+
     // Disable navigation if in competition
     const isInBattle = currentView === 'competition';
 

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Code2, Swords, Zap, Trophy, TrendingUp, Users, Terminal, Github, Twitter, Linkedin, ChevronRight, Play } from 'lucide-react';
 
-const LandingPage = ({ onGetStarted }) => {
+const LandingPage = () => {
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
@@ -52,19 +53,20 @@ const LandingPage = ({ onGetStarted }) => {
                     <button onClick={() => scrollToSection('about')} style={navLinkStyle}>Studio</button>
                 </div>
 
-                <button
-                    onClick={onGetStarted}
+                <Link
+                    to="/app"
                     style={{
                         padding: '12px 28px', fontSize: '13px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
                         background: 'transparent', color: '#00FFFF', border: '1px solid #00FFFF', borderRadius: '100px', cursor: 'pointer',
                         transition: 'all 0.2s',
-                        display: 'flex', alignItems: 'center', gap: '6px'
+                        display: 'flex', alignItems: 'center', gap: '6px',
+                        textDecoration: 'none'
                     }}
                     onMouseEnter={(e) => { e.currentTarget.style.background = '#00FFFF'; e.currentTarget.style.color = 'black'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#00FFFF'; }}
                 >
                     Launch <ChevronRight size={14} />
-                </button>
+                </Link>
             </nav>
 
             {/* HERO SECTION */}
@@ -101,19 +103,20 @@ const LandingPage = ({ onGetStarted }) => {
                     </p>
 
                     <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
-                        <button
-                            onClick={onGetStarted}
+                        <Link
+                            to="/app"
                             style={{
                                 padding: '24px 60px', fontSize: '16px', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase',
                                 background: 'white', color: 'black', border: 'none', borderRadius: '100px',
                                 cursor: 'pointer', transition: 'all 0.2s',
-                                display: 'flex', alignItems: 'center', gap: '10px'
+                                display: 'flex', alignItems: 'center', gap: '10px',
+                                textDecoration: 'none'
                             }}
                             onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
                             onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
                         >
                             <Play fill="black" size={18} /> Enter The Arena
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </section>

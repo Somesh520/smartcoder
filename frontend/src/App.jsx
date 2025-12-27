@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import ProblemList from './components/ProblemList';
 import Workspace from './components/Workspace';
 import Lobby from './components/Lobby';
 import CompetitionRoom from './components/CompetitionRoom';
-import ConnectLeetCode from './components/ConnectLeetCode'; // Import Guide Page
+import CompetitionRoomWrapper from './components/CompetitionRoomWrapper';
+import ConnectLeetCode from './components/ConnectLeetCode';
 import LandingPage from './components/LandingPage';
-import PurposePage from './components/PurposePage';
-import WorkflowPage from './components/WorkflowPage';
-import AboutPage from './components/AboutPage';
 import { fetchProblems } from './api';
 import { io } from 'socket.io-client';
 
@@ -27,16 +26,14 @@ socket.on("connect_error", (err) => {
   console.error("❌ Socket Connection Error:", err);
 });
 
-function App() {
-  const [view, setView] = useState('landing'); // Default to Landing Page
+// Main App Component (with Header and routing)
+function MainApp({ initialRoom }) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [currentProblem, setCurrentProblem] = useState(null);
   const [userInfo, setUserInfo] = useState({ loggedIn: false });
-
-  // Single Player State
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // Multiplayer State
   const [roomId, setRoomId] = useState("");
   const [username, setUsername] = useState("");
   const [roomState, setRoomState] = useState(null);
@@ -57,50 +54,40 @@ function App() {
     const session = localStorage.getItem('user_session');
     if (session && session !== "undefined") {
       setUserInfo({ loggedIn: true });
-      setView('lobby'); // Go to Lobby if logged in
-      loadProblems();
+      navigate('/app');
     } else {
       setUserInfo({ loggedIn: false });
       alert("Session not found! Please ensure extension is synced.");
     }
   };
 
+  const hasJoinedRef = React.useRef(false);
+
   useEffect(() => {
-    // Check if logged in (from extension) but don't force redirect yet
     const session = localStorage.getItem('user_session');
     if (session) {
       setUserInfo({ loggedIn: true });
     }
 
-    loadProblems();
-
-    // 🔄 RECONNECT LOGIC: Check session storage for active room
-    // If active room exists, bypass landing page
-    const savedRoom = sessionStorage.getItem('active_room_id');
-    const savedUser = sessionStorage.getItem('active_username');
-
-    if (savedRoom && savedUser) {
-      console.log("♻️ Found saved session, restoring room:", savedRoom);
-      setRoomId(savedRoom);
-      setUsername(savedUser);
-      setView('competition');
+    // Only load problems if not already loaded
+    if (problems.length === 0) {
+      loadProblems();
     }
 
-    const handleRejoin = () => {
-      const r = sessionStorage.getItem('active_room_id');
-      const u = sessionStorage.getItem('active_username');
-      if (r && u) {
-        console.log("🔄 Socket Connected/Re-joining:", r);
-        socket.emit('rejoinRoom', { roomId: r, username: u });
-      }
-    };
+    // Check for room share link (initialRoom from URL)
+    // Check for room share link (initialRoom from URL)
+    // REMOVED auto-join logic to prevent forced navigation.
+    // 'initialRoom' is preserved in the URL parameter, and Lobby.jsx handles pre-filling.
+    // This allows the user to see the Lobby and click "Join" manually.
 
-    // Socket Listeners
-    socket.on('connect', handleRejoin);
+    // Auto-Restore logic REMOVED due to persistent loop issues.
+    // User must manually rejoin or use specific link.
+    // This guarantees stability.
 
-    // If already connected when mounting (e.g. hot reload), trigger manually
+    /* REMOVED handleRejoin to prevent race conditions */
+
     if (socket.connected) {
-      handleRejoin();
+      // No-op: Wait for Wrapper to join
     }
 
     socket.on('roomUpdate', (state) => {
@@ -111,33 +98,30 @@ function App() {
       setRoomState(state);
     });
 
-    // Handle Global Errors (like Room Expired)
     socket.on('error', (msg) => {
       console.error("Socket Error:", msg);
       alert(msg);
-
-      // Reset State -> Lobby (skip landing on error to allow quick retry)
       sessionStorage.removeItem('active_room_id');
       sessionStorage.removeItem('active_username');
       setRoomId("");
-      setView('lobby');
+      navigate('/app');
     });
 
     return () => {
-      socket.off('connect', handleRejoin);
+      /* REMOVED handleRejoin cleanup */
       socket.off('roomUpdate');
       socket.off('gameActive');
       socket.off('error');
     };
-  }, []); // Remove dependency on [roomId, username] to avoid loops, handle in connect
+  }, [navigate, initialRoom, problems.length]); // Updated dependencies
 
   const handlePrompt = (problem) => {
     setCurrentProblem(problem);
-    setView('workspace');
+    navigate(`/app/workspace/${problem.id}`);
   };
 
   const handleBack = () => {
-    setView('list');
+    navigate('/app/problems');
     setCurrentProblem(null);
   };
 
@@ -150,75 +134,96 @@ function App() {
       console.error("Leave Emit Failed:", e);
     }
 
-    // Clear Session
     sessionStorage.removeItem('active_room_id');
     sessionStorage.removeItem('active_username');
-
-    // Force State Reset
     setRoomId("");
-    setView('list');
-  }
+    navigate('/app/problems');
+  };
 
   const joinRoom = (rid, uname, topic, diff) => {
     const session = localStorage.getItem('user_session');
     if (!session || session === "undefined") {
-      setView('connect');
+      navigate('/connect');
       return;
     }
 
-    // Save Session
     sessionStorage.setItem('active_room_id', rid);
     sessionStorage.setItem('active_username', uname);
 
     setRoomId(rid);
     setUsername(uname);
     socket.emit('joinRoom', { roomId: rid, username: uname, topic, difficulty: diff });
-    setView('competition');
+    navigate(`/app/competition/${rid}`);
   };
-
-  // If not connected, show the guide page
-  if (view === 'connect') {
-    return <ConnectLeetCode onCheckConnection={checkLogin} />;
-  }
-
-  // --- PUBLIC PAGES ---
-  if (view === 'landing') return <LandingPage onGetStarted={() => setView('lobby')} />;
 
   return (
     <div className="app-container" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Header
-        currentView={view}
-        onShowProblemList={() => setView('list')}
-        onGoDetail={() => setView('lobby')}
-      />
+      <Routes>
+        {/* Connect LeetCode Page (no header) */}
+        <Route path="/connect" element={<ConnectLeetCode onCheckConnection={checkLogin} />} />
 
-      {view === 'lobby' && (
-        <Lobby onJoin={joinRoom} onPracticeSolo={() => setView('list')} />
-      )}
-
-      {view === 'list' && (
-        <ProblemList
-          problems={problems}
-          loading={loading}
-          onRefresh={loadProblems}
-          onSelectProblem={handlePrompt}
-        />
-      )}
-
-      {view === 'workspace' && currentProblem && (
-        <Workspace problem={currentProblem} onBack={handleBack} />
-      )}
-
-      {view === 'competition' && (
-        <CompetitionRoom
-          socket={socket}
-          roomId={roomId}
-          username={username}
-          roomState={roomState}
-          onBack={handleBackToLobby}
-        />
-      )}
+        {/* Main App Routes (with header) */}
+        <Route path="/app/*" element={
+          <>
+            <Header
+              onShowProblemList={() => navigate('/app/problems')}
+              onGoDetail={() => navigate('/app')}
+            />
+            <Routes>
+              <Route index element={<Lobby onJoin={joinRoom} onPracticeSolo={() => navigate('/app/problems')} />} />
+              <Route path="problems" element={
+                <ProblemList
+                  problems={problems}
+                  loading={loading}
+                  onRefresh={loadProblems}
+                  onSelectProblem={handlePrompt}
+                />
+              } />
+              <Route path="workspace/:problemId" element={
+                currentProblem ? <Workspace problem={currentProblem} onBack={handleBack} /> : <Navigate to="/app/problems" />
+              } />
+              <Route path="competition/:roomId" element={
+                <CompetitionRoomWrapper
+                  socket={socket}
+                  roomId={roomId}
+                  username={username}
+                  roomState={roomState}
+                  onBack={handleBackToLobby}
+                  setRoomId={setRoomId}
+                  setUsername={setUsername}
+                />
+              } />
+            </Routes>
+          </>
+        } />
+      </Routes>
     </div>
+  );
+}
+
+function App() {
+  const [initialRoom, setInitialRoom] = useState(null);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomId = urlParams.get('room');
+    if (roomId) {
+      console.log("🔗 Room share link detected:", roomId);
+      setInitialRoom(roomId);
+      // Removed URL cleanup to allow Lobby to read the param
+    }
+  }, []);
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Landing Page */}
+        <Route path="/" element={
+          initialRoom ? <Navigate to={`/app?room=${initialRoom}`} replace /> : <LandingPage />
+        } />    {/* Main App */}
+        <Route path="/*" element={<MainApp initialRoom={initialRoom} />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

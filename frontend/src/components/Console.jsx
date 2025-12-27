@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Terminal, ChevronUp, ChevronDown } from 'lucide-react';
+import { Terminal, ChevronUp, ChevronDown, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 
 const Console = ({
     isOpen,
@@ -16,9 +16,21 @@ const Console = ({
     const getResultContent = () => {
         if (isLoading) {
             return (
-                <div style={{ textAlign: 'center', padding: '20px' }}>
-                    <div className="spinner"></div>
-                    <div style={{ marginTop: '10px', fontSize: '12px', color: '#888' }}>Running Code...</div>
+                <div style={{
+                    textAlign: 'center',
+                    padding: '40px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '15px'
+                }}>
+                    <Loader2 size={40} color="#3b82f6" style={{ animation: 'spin 1s linear infinite' }} />
+                    <div style={{
+                        fontSize: '14px',
+                        color: '#9ca3af',
+                        fontWeight: 600,
+                        letterSpacing: '1px'
+                    }}>EXECUTING CODE...</div>
                 </div>
             );
         }
@@ -27,13 +39,42 @@ const Console = ({
         if (showInputSection) {
             return (
                 <div className="input-section">
-                    <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '5px' }}>Testcase (Stdin)</label>
+                    <label style={{
+                        display: 'block',
+                        fontSize: '12px',
+                        color: '#9ca3af',
+                        marginBottom: '8px',
+                        fontWeight: 600,
+                        letterSpacing: '0.5px'
+                    }}>TESTCASE INPUT</label>
                     <textarea
                         className="custom-input"
-                        rows="4"
+                        rows="6"
                         value={customInput}
                         onChange={(e) => setCustomInput(e.target.value)}
-                        style={{ width: '100%', background: '#333', border: '1px solid #444', color: '#eee', borderRadius: '4px', padding: '10px', fontFamily: 'monospace', resize: 'none', outline: 'none' }}
+                        placeholder="Enter your test input here..."
+                        style={{
+                            width: '100%',
+                            background: 'rgba(14, 14, 20, 0.8)',
+                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                            color: '#e5e7eb',
+                            borderRadius: '8px',
+                            padding: '12px',
+                            fontFamily: 'monospace',
+                            fontSize: '13px',
+                            resize: 'vertical',
+                            outline: 'none',
+                            boxShadow: '0 0 10px rgba(59, 130, 246, 0.1)',
+                            transition: 'all 0.2s'
+                        }}
+                        onFocus={(e) => {
+                            e.target.style.borderColor = 'rgba(59, 130, 246, 0.6)';
+                            e.target.style.boxShadow = '0 0 15px rgba(59, 130, 246, 0.3)';
+                        }}
+                        onBlur={(e) => {
+                            e.target.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+                            e.target.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.1)';
+                        }}
                     />
                 </div>
             );
@@ -45,11 +86,60 @@ const Console = ({
         if (result.run_success === false) {
             return (
                 <div>
-                    <div className="result-status status-error" style={{ color: 'var(--accent-red)', fontSize: '18px', fontWeight: 600, marginBottom: '15px' }}>Compile Error</div>
-                    <pre style={{ color: '#ff8888', background: '#333', padding: '10px', borderRadius: '5px' }}>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        color: '#ef4444',
+                        fontSize: '18px',
+                        fontWeight: 700,
+                        marginBottom: '20px',
+                        padding: '12px',
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(239, 68, 68, 0.3)'
+                    }}>
+                        <XCircle size={24} />
+                        COMPILATION ERROR
+                    </div>
+                    <pre style={{
+                        color: '#fca5a5',
+                        background: 'rgba(14, 14, 20, 0.8)',
+                        padding: '15px',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        lineHeight: '1.6',
+                        border: '1px solid rgba(239, 68, 68, 0.2)',
+                        overflowX: 'auto'
+                    }}>
                         {result.full_runtime_error || result.compile_error}
                     </pre>
-                    <button onClick={() => setShowInputSection(true)} className="btn-action" style={{ marginTop: '10px', background: '#444', color: 'white' }}>Back to Input</button>
+                    <button
+                        onClick={() => setShowInputSection(true)}
+                        style={{
+                            marginTop: '15px',
+                            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                            color: '#fff',
+                            border: '1px solid rgba(59, 130, 246, 0.5)',
+                            padding: '8px 16px',
+                            borderRadius: '6px',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)',
+                            transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.target.style.transform = 'translateY(-2px)';
+                            e.target.style.boxShadow = '0 5px 15px rgba(59, 130, 246, 0.4)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.transform = 'translateY(0)';
+                            e.target.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.3)';
+                        }}
+                    >
+                        Back to Input
+                    </button>
                 </div>
             );
         }
@@ -60,16 +150,86 @@ const Console = ({
             const isAcc = result.status_msg === 'Accepted';
             return (
                 <div>
-                    <div className={`result-status ${isAcc ? 'status-accepted' : 'status-error'}`} style={{ color: isAcc ? 'var(--accent-green)' : 'var(--accent-red)', fontSize: '18px', fontWeight: 600, marginBottom: '15px' }}>{result.status_msg}</div>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        color: isAcc ? '#22c55e' : '#ef4444',
+                        fontSize: '20px',
+                        fontWeight: 700,
+                        marginBottom: '20px',
+                        padding: '15px',
+                        background: isAcc ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                        borderRadius: '8px',
+                        border: `1px solid ${isAcc ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+                        boxShadow: `0 0 20px ${isAcc ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
+                    }}>
+                        {isAcc ? <CheckCircle2 size={28} /> : <XCircle size={28} />}
+                        {result.status_msg}
+                    </div>
                     {isAcc ? (
-                        <div className="stats-row" style={{ display: 'flex', gap: '20px', marginBottom: '15px' }}>
-                            <div className="stat-pill" style={{ background: '#333', padding: '5px 10px', borderRadius: '15px', fontSize: '12px', color: '#ccc' }}>Runtime: <span style={{ fontWeight: 'bold', color: 'white' }}>{result.status_runtime}</span></div>
-                            <div className="stat-pill" style={{ background: '#333', padding: '5px 10px', borderRadius: '15px', fontSize: '12px', color: '#ccc' }}>Memory: <span style={{ fontWeight: 'bold', color: 'white' }}>{result.status_memory}</span></div>
+                        <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                            <div style={{
+                                background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%)',
+                                padding: '12px 20px',
+                                borderRadius: '8px',
+                                fontSize: '13px',
+                                color: '#9ca3af',
+                                border: '1px solid rgba(34, 197, 94, 0.2)',
+                                boxShadow: '0 0 10px rgba(34, 197, 94, 0.1)'
+                            }}>
+                                Runtime: <span style={{ fontWeight: 'bold', color: '#22c55e', fontSize: '14px' }}>{result.status_runtime}</span>
+                            </div>
+                            <div style={{
+                                background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%)',
+                                padding: '12px 20px',
+                                borderRadius: '8px',
+                                fontSize: '13px',
+                                color: '#9ca3af',
+                                border: '1px solid rgba(59, 130, 246, 0.2)',
+                                boxShadow: '0 0 10px rgba(59, 130, 246, 0.1)'
+                            }}>
+                                Memory: <span style={{ fontWeight: 'bold', color: '#3b82f6', fontSize: '14px' }}>{result.status_memory}</span>
+                            </div>
                         </div>
                     ) : (
-                        <div style={{ marginBottom: '10px', color: '#aaa' }}>{result.total_correct} / {result.total_testcases} testcases passed</div>
+                        <div style={{
+                            marginBottom: '15px',
+                            color: '#9ca3af',
+                            fontSize: '14px',
+                            padding: '10px',
+                            background: 'rgba(239, 68, 68, 0.05)',
+                            borderRadius: '6px'
+                        }}>
+                            {result.total_correct} / {result.total_testcases} testcases passed
+                        </div>
                     )}
-                    <button onClick={() => setShowInputSection(true)} className="btn-action" style={{ marginTop: '15px', background: '#444', color: 'white' }}>Edit Testcase</button>
+                    <button
+                        onClick={() => setShowInputSection(true)}
+                        style={{
+                            marginTop: '10px',
+                            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                            color: '#fff',
+                            border: '1px solid rgba(59, 130, 246, 0.5)',
+                            padding: '8px 16px',
+                            borderRadius: '6px',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)',
+                            transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.target.style.transform = 'translateY(-2px)';
+                            e.target.style.boxShadow = '0 5px 15px rgba(59, 130, 246, 0.4)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.transform = 'translateY(0)';
+                            e.target.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.3)';
+                        }}
+                    >
+                        Edit Testcase
+                    </button>
                 </div>
             );
         }
@@ -83,44 +243,146 @@ const Console = ({
 
         return (
             <div>
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '15px', paddingBottom: '10px', overflowX: 'auto' }}>
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', paddingBottom: '10px', overflowX: 'auto' }}>
                     {Array.from({ length: count }).map((_, i) => {
                         const isPass = compareRes[i] === '1';
+                        const isActive = activeTab === i;
                         return (
                             <button
                                 key={i}
                                 onClick={() => setActiveTab(i)}
-                                className={`tab-btn ${activeTab === i ? 'active' : ''}`}
                                 style={{
-                                    background: activeTab === i ? '#444' : '#333',
-                                    borderColor: activeTab === i ? '#555' : 'transparent',
-                                    color: activeTab === i ? 'white' : '#999',
-                                    padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px',
-                                    border: '1px solid'
+                                    background: isActive
+                                        ? (isPass ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.1) 100%)' : 'linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%)')
+                                        : 'rgba(14, 14, 20, 0.6)',
+                                    border: `1px solid ${isActive ? (isPass ? 'rgba(34, 197, 94, 0.4)' : 'rgba(239, 68, 68, 0.4)') : 'rgba(75, 85, 99, 0.3)'}`,
+                                    color: isActive ? '#fff' : '#9ca3af',
+                                    padding: '10px 18px',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    fontSize: '13px',
+                                    fontWeight: 600,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    transition: 'all 0.2s',
+                                    boxShadow: isActive ? `0 0 15px ${isPass ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}` : 'none',
+                                    minWidth: '100px'
+                                }}
+                                onMouseEnter={(e) => {
+                                    if (!isActive) {
+                                        e.target.style.background = 'rgba(14, 14, 20, 0.8)';
+                                        e.target.style.borderColor = 'rgba(75, 85, 99, 0.5)';
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    if (!isActive) {
+                                        e.target.style.background = 'rgba(14, 14, 20, 0.6)';
+                                        e.target.style.borderColor = 'rgba(75, 85, 99, 0.3)';
+                                    }
                                 }}
                             >
-                                <span className={`dot ${isPass ? 'dot-green' : 'dot-red'}`} style={{ width: '6px', height: '6px', borderRadius: '50%', background: isPass ? 'var(--accent-green)' : 'var(--accent-red)' }}></span> Case {i + 1}
+                                {isPass ? <CheckCircle2 size={16} color="#22c55e" /> : <XCircle size={16} color="#ef4444" />}
+                                Case {i + 1}
                             </button>
                         );
                     })}
                 </div>
 
                 <div className="case-content">
-                    <div className="result-block" style={{ marginBottom: '15px' }}>
-                        <span className="result-label" style={{ fontSize: '12px', color: '#888', marginBottom: '6px', display: 'block' }}>Input</span>
-                        <div className="result-value" style={{ background: '#333', padding: '12px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '14px', color: '#e0e0e0', whiteSpace: 'pre-wrap', border: '1px solid #444' }}>{inputs[activeTab]}</div>
+                    <div style={{ marginBottom: '15px' }}>
+                        <span style={{
+                            fontSize: '11px',
+                            color: '#6b7280',
+                            marginBottom: '8px',
+                            display: 'block',
+                            fontWeight: 700,
+                            letterSpacing: '1px'
+                        }}>INPUT</span>
+                        <div style={{
+                            background: 'rgba(14, 14, 20, 0.8)',
+                            padding: '12px',
+                            borderRadius: '8px',
+                            fontFamily: 'monospace',
+                            fontSize: '13px',
+                            color: '#e5e7eb',
+                            whiteSpace: 'pre-wrap',
+                            border: '1px solid rgba(75, 85, 99, 0.3)',
+                            lineHeight: '1.6'
+                        }}>{inputs[activeTab]}</div>
                     </div>
-                    <div className="result-block" style={{ marginBottom: '15px' }}>
-                        <span className="result-label" style={{ fontSize: '12px', color: '#888', marginBottom: '6px', display: 'block' }}>Output</span>
-                        <div className="result-value" style={{ background: '#333', padding: '12px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '14px', color: '#e0e0e0', whiteSpace: 'pre-wrap', border: '1px solid #444' }}>{myOut[activeTab]}</div>
+                    <div style={{ marginBottom: '15px' }}>
+                        <span style={{
+                            fontSize: '11px',
+                            color: '#6b7280',
+                            marginBottom: '8px',
+                            display: 'block',
+                            fontWeight: 700,
+                            letterSpacing: '1px'
+                        }}>YOUR OUTPUT</span>
+                        <div style={{
+                            background: 'rgba(14, 14, 20, 0.8)',
+                            padding: '12px',
+                            borderRadius: '8px',
+                            fontFamily: 'monospace',
+                            fontSize: '13px',
+                            color: '#e5e7eb',
+                            whiteSpace: 'pre-wrap',
+                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                            boxShadow: '0 0 10px rgba(59, 130, 246, 0.1)',
+                            lineHeight: '1.6'
+                        }}>{myOut[activeTab]}</div>
                     </div>
-                    <div className="result-block" style={{ marginBottom: '15px' }}>
-                        <span className="result-label" style={{ fontSize: '12px', color: '#888', marginBottom: '6px', display: 'block' }}>Expected</span>
-                        <div className="result-value" style={{ background: '#333', padding: '12px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '14px', color: '#e0e0e0', whiteSpace: 'pre-wrap', border: '1px solid #444' }}>{expOut[activeTab]}</div>
+                    <div style={{ marginBottom: '15px' }}>
+                        <span style={{
+                            fontSize: '11px',
+                            color: '#6b7280',
+                            marginBottom: '8px',
+                            display: 'block',
+                            fontWeight: 700,
+                            letterSpacing: '1px'
+                        }}>EXPECTED OUTPUT</span>
+                        <div style={{
+                            background: 'rgba(14, 14, 20, 0.8)',
+                            padding: '12px',
+                            borderRadius: '8px',
+                            fontFamily: 'monospace',
+                            fontSize: '13px',
+                            color: '#e5e7eb',
+                            whiteSpace: 'pre-wrap',
+                            border: '1px solid rgba(34, 197, 94, 0.3)',
+                            boxShadow: '0 0 10px rgba(34, 197, 94, 0.1)',
+                            lineHeight: '1.6'
+                        }}>{expOut[activeTab]}</div>
                     </div>
                 </div>
 
-                <button onClick={() => setShowInputSection(true)} className="btn-action" style={{ marginTop: '15px', background: '#444', color: 'white' }}>Edit Testcase</button>
+                <button
+                    onClick={() => setShowInputSection(true)}
+                    style={{
+                        marginTop: '10px',
+                        background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                        color: '#fff',
+                        border: '1px solid rgba(59, 130, 246, 0.5)',
+                        padding: '8px 16px',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)',
+                        transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                        e.target.style.transform = 'translateY(-2px)';
+                        e.target.style.boxShadow = '0 5px 15px rgba(59, 130, 246, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.target.style.transform = 'translateY(0)';
+                        e.target.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.3)';
+                    }}
+                >
+                    Edit Testcase
+                </button>
             </div>
         );
     };
@@ -129,28 +391,64 @@ const Console = ({
         <div
             className={`console-drawer ${isOpen ? 'expanded' : ''}`}
             style={{
-                height: isOpen ? '350px' : '40px',
-                background: 'var(--bg-panel)', borderTop: '1px solid var(--border-color)',
-                display: 'flex', flexDirection: 'column', transition: 'height 0.3s ease',
-                overflow: 'hidden', position: 'absolute', bottom: 0, width: '100%', zIndex: 10
+                height: isOpen ? '350px' : '45px',
+                background: 'linear-gradient(180deg, rgba(26, 26, 46, 0.95) 0%, rgba(14, 14, 20, 0.95) 100%)',
+                backdropFilter: 'blur(10px)',
+                borderTop: '1px solid rgba(34, 197, 94, 0.2)',
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'height 0.3s ease',
+                overflow: 'hidden',
+                position: 'absolute',
+                bottom: 0,
+                width: '100%',
+                zIndex: 10,
+                boxShadow: '0 -5px 20px rgba(0, 0, 0, 0.3)'
             }}
         >
             <div
                 className="console-header"
                 onClick={onToggle}
                 style={{
-                    height: '40px', minHeight: '40px', display: 'flex', alignItems: 'center',
-                    justifyContent: 'space-between', padding: '0 15px', cursor: 'pointer',
-                    background: '#2a2a2a', borderBottom: '1px solid var(--border-color)'
+                    height: '45px',
+                    minHeight: '45px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '0 15px',
+                    cursor: 'pointer',
+                    background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%)',
+                    borderBottom: '1px solid rgba(34, 197, 94, 0.2)',
+                    transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%)';
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%)';
                 }}
             >
-                <div className="console-title" style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <Terminal size={16} /> Testcase / Result
+                <div style={{
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    letterSpacing: '0.5px'
+                }}>
+                    <Terminal size={18} color="#22c55e" />
+                    CONSOLE OUTPUT
                 </div>
-                {isOpen ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+                {isOpen ? <ChevronDown size={18} color="#22c55e" /> : <ChevronUp size={18} color="#22c55e" />}
             </div>
 
-            <div className="console-body" style={{ flex: 1, padding: '15px', overflowY: 'auto', background: 'var(--bg-panel)' }}>
+            <div style={{
+                flex: 1,
+                padding: '20px',
+                overflowY: 'auto',
+                background: 'transparent'
+            }}>
                 {getResultContent()}
             </div>
         </div>
