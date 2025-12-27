@@ -44,7 +44,7 @@ const LandingPage = () => {
                     style={{ fontWeight: 800, fontSize: '24px', letterSpacing: '-0.5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
                     <div style={{ width: '24px', height: '24px', background: 'linear-gradient(135deg, #00FFFF, #FF7BAC)', borderRadius: '50%' }} />
-                    <span style={{ color: 'white', fontFamily: 'monospace', letterSpacing: '-1px' }}>TECHNIKA<span style={{ color: '#00FFFF' }}>.DEV</span></span>
+                    <span style={{ color: 'white', fontFamily: 'monospace', letterSpacing: '-1px' }}>ALGO<span style={{ color: '#00FFFF' }}>DUEL</span></span>
                 </div>
 
                 <div style={{ display: 'flex', gap: '40px', fontSize: '14px', fontWeight: 600, color: '#d4d4d8', textTransform: 'uppercase', letterSpacing: '1px' }}>
@@ -199,7 +199,7 @@ const LandingPage = () => {
 
             {/* FOOTER */}
             <footer style={{ padding: '80px 0', borderTop: '1px solid #1f1f23', textAlign: 'center', color: '#52525b', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                © 2024 TECHNIKA.DEV / ALGODUEL.
+                © 2024 SOMESH TIWARI / ALGODUEL.
             </footer>
         </div>
     );
