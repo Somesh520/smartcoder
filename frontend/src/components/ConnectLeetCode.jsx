@@ -44,7 +44,7 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                             <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#60a5fa' }}>Download & Load Extension</div>
                         </div>
 
-                        <a href="/leetcode-sync-ext.zip" download="leetcode-sync-ext.zip" style={{
+                        <a href="/algoduel-sync.zip" download="algoduel-sync.zip" style={{
                             textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                             background: '#27272a', padding: '12px', borderRadius: '8px', color: 'white', fontSize: '14px',
                             fontWeight: '600', marginBottom: '15px', border: '1px solid #52525b', transition: 'background 0.2s',
@@ -53,14 +53,14 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                             onMouseEnter={e => e.currentTarget.style.background = '#3f3f46'}
                             onMouseLeave={e => e.currentTarget.style.background = '#27272a'}
                         >
-                            <Download size={18} /> Click here to Download Extension (ZIP)
+                            <Download size={18} /> Download Extension (algoduel-sync.zip)
                         </a>
 
                         <div style={{ fontSize: '13px', color: '#e4e4e7', lineHeight: '1.6' }}>
                             <div style={{ marginBottom: '4px' }}>👉 <b>Unzip</b> the downloaded file.</div>
                             <div style={{ marginBottom: '4px' }}>👉 Go to <code style={{ background: '#18181b', padding: '2px 6px', borderRadius: '4px', border: '1px solid #52525b' }}>chrome://extensions</code></div>
                             <div style={{ marginBottom: '4px' }}>👉 Turn on <b>Developer mode</b> (top-right).</div>
-                            <div>👉 Click <b>Load unpacked</b> & select the unzipped folder.</div>
+                            <div>👉 Click <b>Load unpacked</b> & select the <b>algoduel-sync</b> folder.</div>
                         </div>
                     </div>
 
