@@ -12,6 +12,10 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
+# Build time arguments
+ARG VITE_API_URL=http://localhost:3000
+ENV VITE_API_URL=$VITE_API_URL
+
 # Build the application
 RUN npm run build
 

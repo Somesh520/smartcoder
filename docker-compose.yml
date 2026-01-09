@@ -45,7 +45,10 @@ services:
 
   # Frontend UI
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:3000}
     container_name: algoduel_frontend
     ports:
       - "80:80"
