@@ -25,6 +25,9 @@ connectDB();
 import { limiter } from './src/middleware/rateLimiter.js';
 
 const app = express();
+// Enable trust proxy for Render/Heroku/Nginx
+app.set('trust proxy', 1);
+
 const server = http.createServer(app);
 
 // Socket.IO Setup
