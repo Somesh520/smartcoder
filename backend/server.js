@@ -1,5 +1,6 @@
+import './src/config/loadEnv.js'; // MUST BE FIRST
 import dotenv from 'dotenv';
-dotenv.config({ path: './src/.env' });
+// dotenv.config loaded via loadEnv.js
 
 import express from 'express';
 import cors from 'cors';
