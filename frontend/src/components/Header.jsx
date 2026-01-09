@@ -1,4 +1,4 @@
-import { getCurrentUser, logout } from '../api';
+import { getCurrentUser, logout, BASE_URL } from '../api';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Code2, Swords } from 'lucide-react'; // Assuming icons are from lucide-react based on usage
@@ -40,7 +40,7 @@ const Header = ({ onShowProblemList, onGoDetail }) => {
     };
 
     const handleLogin = () => {
-        window.location.href = 'http://localhost:3000/auth/google';
+        window.location.href = `${BASE_URL}/auth/google`;
     };
 
     return (
