@@ -11,10 +11,16 @@ dotenv.config({ path: join(__dirname, '../.env') }); // Ensure env vars are load
 
 const connectDB = async () => {
     try {
+        if (!process.env.MONGO_URI) {
+            console.error("❌ MONGO_URI is not defined in environment variables.");
+            // Don't exit immediately in dev, but in prod it will likely fail conceptually or use a fallback if configured?
+            // Actually, for deployment, we should probably exit so the orchestrator restarts, but logging it clearly is key.
+            process.exit(1);
+        }
         const conn = await mongoose.connect(process.env.MONGO_URI);
         console.log(`MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
-        console.error(`Error: ${error.message}`);
+        console.error(`MongoDB Connection Error: ${error.message}`);
         process.exit(1);
     }
 };
