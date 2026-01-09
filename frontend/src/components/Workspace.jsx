@@ -176,7 +176,6 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                 flex: 1,
                 borderRight: '1px solid rgba(34, 197, 94, 0.2)',
                 display: 'flex',
-                display: 'flex',
                 flexDirection: 'column',
                 background: 'rgba(14, 14, 20, 0.6)',
                 borderRadius: '12px',

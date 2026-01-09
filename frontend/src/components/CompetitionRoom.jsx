@@ -84,6 +84,14 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
         setTimeout(() => setToast(null), 3000);
     };
 
+    // --- SYNC WINNER STATE ---
+    useEffect(() => {
+        if (roomState && roomState.status === 'finished' && roomState.winner) {
+            console.log("🏆 Game Finished via RoomUpdate. Winner:", roomState.winner);
+            setWinnerModal(roomState.winner);
+        }
+    }, [roomState]);
+
     // --- SOCKET HANDLERS ---
     useEffect(() => {
         const handlePlayerLeft = ({ winner }) => {
@@ -452,8 +460,11 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                     // If we are starting, we want this to stay visible until the very end, effectively covering the loading workspace
                 }}>
                     {(() => {
+
                         const userCount = roomState.users.length;
-                        const opponent = roomState.users.find(u => u.username !== username);
+                        // Find opponent by checking who is NOT me (by Socket ID)
+                        // If same username (testing mode), we still want to show them.
+                        const opponent = roomState.users.find(u => u.id !== socket.id);
                         const isStarting = roomState.status === 'starting' || userCount === 2;
 
                         const copyLink = () => {

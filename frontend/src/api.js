@@ -1,7 +1,14 @@
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('auth_token');
+  return token ? { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+};
+
 export const fetchProblems = async () => {
-  const res = await fetch(`${BASE_URL}/problems?t=${Date.now()}`);
+  const res = await fetch(`${BASE_URL}/problems?t=${Date.now()}`, {
+    headers: getAuthHeaders()
+  });
   if (!res.ok) throw new Error("Backend connection failed");
   const data = await res.json();
 
@@ -25,7 +32,7 @@ export const fetchProblems = async () => {
 };
 
 export const fetchProblemDetails = async (id) => {
-  const res = await fetch(`${BASE_URL}/problem/${id}`);
+  const res = await fetch(`${BASE_URL}/problem/${id}`, { headers: getAuthHeaders() });
   const json = await res.json();
   const data = json.data?.question || json;
   return data;
@@ -34,7 +41,7 @@ export const fetchProblemDetails = async (id) => {
 export const runCode = async (data) => {
   const res = await fetch(`${BASE_URL}/run`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify(data)
   });
   return await res.json();
@@ -43,7 +50,7 @@ export const runCode = async (data) => {
 export const submitCode = async (data) => {
   const res = await fetch(`${BASE_URL}/submit`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify(data)
   });
   return await res.json();
@@ -51,8 +58,24 @@ export const submitCode = async (data) => {
 
 export const pollResult = async (id, slug, userSession, userCsrf) => {
   const res = await fetch(`${BASE_URL}/poll/${id}`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    headers: getAuthHeaders(),
     body: JSON.stringify({ slug, auth_session: userSession, auth_csrf: userCsrf })
   });
   return await res.json();
 };
+
+export const getCurrentUser = async () => {
+  const res = await fetch(`${BASE_URL}/auth/current_user`, { headers: getAuthHeaders() });
+  if (res.status === 401) {
+    localStorage.removeItem('auth_token');
+    return null;
+  }
+  return await res.json();
+};
+
+export const logout = async () => {
+  localStorage.removeItem('auth_token');
+  window.location.href = `${BASE_URL}/auth/logout`;
+};
+

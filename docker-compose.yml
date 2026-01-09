@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongo:
+    image: mongo:6
+    container_name: algoduel_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app_network
+
+  # Redis Cache
+  redis:
+    image: redis:alpine
+    container_name: algoduel_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_network
+
+  # Backend API
+  backend:
+    build: ./backend
+    container_name: algoduel_backend
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - MONGO_URI=mongodb://mongo:27017/algoduel
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      # Tricky: CLIENT_URL needs to be where the BROWSER sees the frontend
+      # For local docker-compose, localhost:80 (default) or whatever port you map
+      - CLIENT_URL=http://localhost
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - app_network
+
+  # Frontend UI
+  frontend:
+    build: ./frontend
+    container_name: algoduel_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+  redis_data:

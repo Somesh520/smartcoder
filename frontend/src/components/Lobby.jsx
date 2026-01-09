@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
 import { Users, Plus, Zap, Hash, Globe, Target, Code, Sword, ArrowRight } from 'lucide-react';
 
-const Lobby = ({ onJoin, onPracticeSolo }) => {
+const Lobby = ({ onJoin, onPracticeSolo, userInfo }) => {
     const [mode, setMode] = useState('create'); // 'create' | 'join'
 
     // Joint State
     const [username, setUsername] = useState(`User_${Math.floor(Math.random() * 1000)}`);
+
+    // Sync username with logged-in user info
+    React.useEffect(() => {
+        if (userInfo?.displayName) {
+            setUsername(userInfo.displayName);
+        }
+    }, [userInfo]);
 
     // Create State
     const [topic, setTopic] = useState("all");
@@ -32,6 +39,17 @@ const Lobby = ({ onJoin, onPracticeSolo }) => {
             setJoinRoomId(roomParam);
         }
     }, []);
+
+    const [showLoginModal, setShowLoginModal] = useState(false);
+
+    const checkAuth = (action) => {
+        const token = localStorage.getItem('auth_token');
+        if (!token) {
+            setShowLoginModal(true);
+            return;
+        }
+        action();
+    };
 
     return (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', position: 'relative' }}>
@@ -147,7 +165,7 @@ const Lobby = ({ onJoin, onPracticeSolo }) => {
 
                     <div style={{ marginTop: '10px' }}>
                         <button
-                            onClick={mode === 'create' ? handleCreate : handleJoin}
+                            onClick={() => checkAuth(mode === 'create' ? handleCreate : handleJoin)}
                             className={mode === 'create' ? "btn-primary" : "btn-blue"} // Assuming btn-blue exists or fallback
                             style={{
                                 width: '100%', padding: '16px', fontSize: '16px', fontWeight: 700, borderRadius: '14px',
@@ -163,7 +181,7 @@ const Lobby = ({ onJoin, onPracticeSolo }) => {
                         </button>
 
                         <button
-                            onClick={onPracticeSolo}
+                            onClick={() => checkAuth(onPracticeSolo)}
                             style={{
                                 width: '100%', marginTop: '12px', padding: '14px', background: 'transparent',
                                 border: '1px dashed rgba(255,255,255,0.15)', borderRadius: '14px',
@@ -179,6 +197,76 @@ const Lobby = ({ onJoin, onPracticeSolo }) => {
                     </div>
                 </div>
             </div>
+
+            {/* LOGIN POPUP MODAL */}
+            {showLoginModal && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+                    background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(5px)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+                }} onClick={() => setShowLoginModal(false)}>
+
+                    <div style={{
+                        background: 'rgba(20, 20, 20, 0.9)',
+                        border: '1px solid var(--border-subtle)',
+                        padding: '40px',
+                        borderRadius: '20px',
+                        width: '400px',
+                        textAlign: 'center',
+                        position: 'relative',
+                        boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+                    }} onClick={e => e.stopPropagation()}>
+
+                        <div style={{ marginBottom: '20px' }}>
+                            <div style={{
+                                width: '60px', height: '60px', background: 'rgba(74, 222, 128, 0.1)',
+                                borderRadius: '50%', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                            }}>
+                                <Sword size={32} color="#4ade80" />
+                            </div>
+                            <h2 style={{ margin: '0 0 10px 0', fontSize: '24px', fontWeight: 800 }}>Authentication Required</h2>
+                            <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                                You must sign in to Host a Battle, Join specific Rooms, or Practice Solo.
+                            </p>
+                        </div>
+
+                        <button
+                            onClick={() => window.location.href = 'http://localhost:3000/auth/google'}
+                            style={{
+                                background: 'var(--accent-green)',
+                                color: 'black',
+                                border: 'none',
+                                padding: '14px',
+                                width: '100%',
+                                borderRadius: '12px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                fontSize: '16px',
+                                transition: 'transform 0.1s'
+                            }}
+                            onMouseDown={e => e.target.style.transform = 'scale(0.98)'}
+                            onMouseUp={e => e.target.style.transform = 'scale(1)'}
+                        >
+                            Login with Google
+                        </button>
+
+                        <button
+                            onClick={() => setShowLoginModal(false)}
+                            style={{
+                                marginTop: '15px',
+                                background: 'transparent',
+                                border: 'none',
+                                color: 'var(--text-muted)',
+                                cursor: 'pointer',
+                                fontSize: '14px'
+                            }}
+                        >
+                            Cancel
+                        </button>
+
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

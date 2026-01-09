@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import Header from './components/Header';
 import ProblemList from './components/ProblemList';
 import Workspace from './components/Workspace';
@@ -8,14 +8,16 @@ import CompetitionRoom from './components/CompetitionRoom';
 import CompetitionRoomWrapper from './components/CompetitionRoomWrapper';
 import ConnectLeetCode from './components/ConnectLeetCode';
 import LandingPage from './components/LandingPage';
+import HistoryPage from './components/HistoryPage';
 import { fetchProblems } from './api';
 import { io } from 'socket.io-client';
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const socket = io(API_URL, {
-  transports: ['websocket', 'polling'],
+  transports: ['websocket'], // Force WebSocket only to avoid polling errors
   reconnectionRequests: 10,
+  autoConnect: false,
 });
 
 socket.on("connect", () => {
@@ -25,6 +27,45 @@ socket.on("connect", () => {
 socket.on("connect_error", (err) => {
   console.error("❌ Socket Connection Error:", err);
 });
+
+// Error Boundary Component
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null, errorInfo: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("Uncaught Error:", error, errorInfo);
+    this.setState({ error, errorInfo });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '40px', color: 'white', textAlign: 'center', background: '#121212', height: '100vh' }}>
+          <h1>Something went wrong.</h1>
+          <p style={{ color: '#ef4444' }}>{this.state.error && this.state.error.toString()}</p>
+          <pre style={{ textAlign: 'left', background: '#333', padding: '20px', overflow: 'auto' }}>
+            {this.state.errorInfo && this.state.errorInfo.componentStack}
+          </pre>
+          <button
+            onClick={() => window.location.href = '/app'}
+            style={{ marginTop: '20px', padding: '10px 20px', background: '#22c55e', border: 'none', color: 'black', fontWeight: 'bold', cursor: 'pointer' }}
+          >
+            Reload App
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 // Main App Component (with Header and routing)
 function MainApp({ initialRoom }) {
@@ -59,22 +100,85 @@ function MainApp({ initialRoom }) {
   };
 
   const checkLogin = () => {
-    const session = localStorage.getItem('user_session');
-    if (session && session !== "undefined") {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
       setUserInfo({ loggedIn: true });
       navigate('/app');
     } else {
       setUserInfo({ loggedIn: false });
-      showToast("Session not found! Please ensure extension is synced.", "error");
+      showToast("Session not found! Please ensure you are logged in.", "error");
     }
   };
 
   const hasJoinedRef = React.useRef(false);
 
+  // Error Modal State
+  const [errorModal, setErrorModal] = useState({ show: false, message: '', redirectId: null });
+
+  // 1. Socket Connection Effect (Global Listeners Only)
   useEffect(() => {
-    const session = localStorage.getItem('user_session');
-    if (session) {
+    // Note: We DO NOT connect here anymore. Connection is lazy-loaded in CompetitionRoomWrapper.
+
+    const onConnect = () => {
+      // console.log("✅ Socket Connected:", socket.id); 
+    };
+
+    const onError = (msg) => {
+      console.error("Socket Error:", msg);
+
+      // If we are already prompting to redirect, ignore subsequent generic errors
+      // so the user doesn't lose the "Return to Battle" button.
+      if (errorModal.redirectId) {
+        return;
+      }
+
+      let errorMessage = "An unknown error occurred";
+      let redirectId = null;
+
+      if (typeof msg === 'string') {
+        errorMessage = msg;
+      } else if (msg && msg.type === 'EXISTING_SESSION') {
+        // Structured Redirect Error
+        errorMessage = msg.message;
+        redirectId = msg.roomId;
+      } else if (msg && msg.message) {
+        errorMessage = msg.message;
+      } else {
+        errorMessage = JSON.stringify(msg);
+      }
+
+      setErrorModal({ show: true, message: errorMessage, redirectId });
+
+      // If critical error (but NOT a redirectable session), reset state
+      // We don't want to kick them out if we can redirect them!
+      if (!redirectId && (errorMessage.includes("Authentication") || errorMessage.includes("already in an active battle"))) {
+        sessionStorage.removeItem('active_room_id');
+        sessionStorage.removeItem('active_username');
+        setRoomId("");
+        navigate('/app');
+      }
+    };
+
+    socket.on('connect', onConnect);
+    socket.on('error', onError);
+
+    return () => {
+      socket.off('connect', onConnect);
+      socket.off('error', onError);
+    };
+  }, [navigate]);
+
+  // 2. Data & Room State Effect
+  useEffect(() => {
+    // Check for token and fetch user details
+    const token = localStorage.getItem('auth_token');
+    if (token) {
       setUserInfo({ loggedIn: true });
+      import('./api').then(api => {
+        api.getCurrentUser().then(user => {
+          if (user) setUserInfo({ loggedIn: true, ...user });
+        }).catch(() => localStorage.removeItem('auth_token'));
+      });
     }
 
     // Only load problems if not already loaded
@@ -82,47 +186,30 @@ function MainApp({ initialRoom }) {
       loadProblems();
     }
 
-    // Check for room share link (initialRoom from URL)
-    // Check for room share link (initialRoom from URL)
-    // REMOVED auto-join logic to prevent forced navigation.
-    // 'initialRoom' is preserved in the URL parameter, and Lobby.jsx handles pre-filling.
-    // This allows the user to see the Lobby and click "Join" manually.
-
-    // Auto-Restore logic REMOVED due to persistent loop issues.
-    // User must manually rejoin or use specific link.
-    // This guarantees stability.
-
-    /* REMOVED handleRejoin to prevent race conditions */
-
-    if (socket.connected) {
-      // No-op: Wait for Wrapper to join
-    }
-
-    socket.on('roomUpdate', (state) => {
+    // Room Listeners
+    const onRoomUpdate = (state) => {
       console.log("📥 App: Received roomUpdate:", state);
       setRoomState(state);
-    });
+    };
 
-    socket.on('gameActive', (state) => {
+    const onGameActive = (state) => {
       setRoomState(state);
-    });
+    };
 
-    socket.on('error', (msg) => {
-      console.error("Socket Error:", msg);
-      alert(msg);
-      sessionStorage.removeItem('active_room_id');
-      sessionStorage.removeItem('active_username');
-      setRoomId("");
-      navigate('/app');
-    });
+    const onSessionKilled = (data) => {
+      showToast(data.message || "Session Ended", "success");
+    };
+
+    socket.on('roomUpdate', onRoomUpdate);
+    socket.on('gameActive', onGameActive);
+    socket.on('sessionKilled', onSessionKilled);
 
     return () => {
-      /* REMOVED handleRejoin cleanup */
-      socket.off('roomUpdate');
-      socket.off('gameActive');
-      socket.off('error');
+      socket.off('roomUpdate', onRoomUpdate);
+      socket.off('gameActive', onGameActive);
+      socket.off('sessionKilled', onSessionKilled);
     };
-  }, [navigate, initialRoom, problems.length]); // Updated dependencies
+  }, [problems.length]); // Keep data dependencies here
 
   const handlePrompt = (problem) => {
     setCurrentProblem(problem);
@@ -161,17 +248,20 @@ function MainApp({ initialRoom }) {
 
     setRoomId(rid);
     setUsername(uname);
-    socket.emit('joinRoom', { roomId: rid, username: uname, topic, difficulty: diff });
+    socket.emit('joinRoom', {
+      roomId: rid,
+      username: uname,
+      userId: userInfo._id, // Pass MongoDB ID
+      topic,
+      difficulty: diff
+    });
     navigate(`/app/competition/${rid}`);
   };
 
   return (
     <div className="app-container" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Routes>
-        {/* Connect LeetCode Page (no header) */}
         <Route path="/connect" element={<ConnectLeetCode onCheckConnection={checkLogin} />} />
-
-        {/* Main App Routes (with header) */}
         <Route path="/app/*" element={
           <>
             <Header
@@ -179,29 +269,37 @@ function MainApp({ initialRoom }) {
               onGoDetail={() => navigate('/app')}
             />
             <Routes>
-              <Route index element={<Lobby onJoin={joinRoom} onPracticeSolo={() => navigate('/app/problems')} />} />
-              <Route path="problems" element={
-                <ProblemList
-                  problems={problems}
-                  loading={loading}
-                  onRefresh={loadProblems}
-                  onSelectProblem={handlePrompt}
-                />
-              } />
-              <Route path="workspace/:problemId" element={
-                currentProblem ? <Workspace problem={currentProblem} onBack={handleBack} /> : <Navigate to="/app/problems" />
-              } />
-              <Route path="competition/:roomId" element={
-                <CompetitionRoomWrapper
-                  socket={socket}
-                  roomId={roomId}
-                  username={username}
-                  roomState={roomState}
-                  onBack={handleBackToLobby}
-                  setRoomId={setRoomId}
-                  setUsername={setUsername}
-                />
-              } />
+              {/* Onboarding / Sync Page */}
+              <Route path="onboarding" element={<ConnectLeetCode onCheckConnection={() => window.location.reload()} />} />
+
+              {/* Protected App Routes (Require Sync) */}
+              <Route element={<RequireSync />}>
+                <Route index element={<Lobby onJoin={joinRoom} onPracticeSolo={() => navigate('/app/problems')} userInfo={userInfo} />} />
+                <Route path="problems" element={
+                  <ProblemList
+                    problems={problems}
+                    loading={loading}
+                    onRefresh={loadProblems}
+                    onSelectProblem={handlePrompt}
+                  />
+                } />
+                <Route path="workspace/:problemId" element={
+                  currentProblem ? <Workspace problem={currentProblem} onBack={handleBack} /> : <Navigate to="/app/problems" />
+                } />
+                <Route path="history" element={<HistoryPage />} />
+                <Route path="competition/:roomId" element={
+                  <CompetitionRoomWrapper
+                    socket={socket}
+                    roomId={roomId}
+                    username={username}
+                    userInfo={userInfo}
+                    roomState={roomState}
+                    onBack={handleBackToLobby}
+                    setRoomId={setRoomId}
+                    setUsername={setUsername}
+                  />
+                } />
+              </Route>
             </Routes>
           </>
         } />
@@ -220,31 +318,186 @@ function MainApp({ initialRoom }) {
           {toast.type === 'error' ? '⚠️' : '✅'} {toast.message}
         </div>
       )}
+
+      {/* GLOBAL ERROR POPUP (Glassmorphism) */}
+      {errorModal.show && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000,
+          animation: 'fadeIn 0.2s ease-out'
+        }} onClick={() => setErrorModal({ show: false, message: '' })}>
+
+          <div style={{
+            background: '#18181b',
+            border: '1px solid #ef4444',
+            padding: '40px',
+            borderRadius: '24px',
+            width: '420px',
+            textAlign: 'center',
+            position: 'relative',
+            boxShadow: '0 25px 50px -12px rgba(239, 68, 68, 0.25)',
+            transform: 'translateY(0)',
+            animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+          }} onClick={e => e.stopPropagation()}>
+
+            <div style={{
+              width: '70px', height: '70px', background: 'rgba(239, 68, 68, 0.1)',
+              borderRadius: '50%', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+
+            <h2 style={{ margin: '0 0 12px 0', fontSize: '24px', fontWeight: 800, color: 'white' }}>Action Blocked</h2>
+
+            <p style={{ margin: '0 0 30px 0', color: '#a1a1aa', lineHeight: '1.6', fontSize: '16px' }}>
+              {errorModal.message}
+            </p>
+
+            <button
+              onClick={() => setErrorModal({ show: false, message: '', redirectId: null })}
+              style={{
+                background: '#ef4444',
+                color: 'white',
+                border: 'none',
+                padding: '16px',
+                width: '100%',
+                borderRadius: '14px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontSize: '16px',
+                transition: 'transform 0.1s',
+                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                marginTop: '12px'
+              }}
+              onMouseDown={e => e.target.style.transform = 'scale(0.98)'}
+              onMouseUp={e => e.target.style.transform = 'scale(1)'}
+            >
+              Dismiss
+            </button>
+
+            {errorModal.redirectId && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px' }}>
+                <button
+                  onClick={() => {
+                    setErrorModal({ show: false, message: '', redirectId: null });
+                    navigate(`/app/competition/${errorModal.redirectId}`);
+                  }}
+                  style={{
+                    background: '#22c55e',
+                    color: 'black',
+                    border: 'none',
+                    padding: '16px',
+                    width: '100%',
+                    borderRadius: '14px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    transition: 'transform 0.1s',
+                    boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)',
+                  }}
+                  onMouseDown={e => e.target.style.transform = 'scale(0.98)'}
+                  onMouseUp={e => e.target.style.transform = 'scale(1)'}
+                >
+                  Return to Battle ⚔️
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (socket && socket.connected) {
+                      socket.emit('killSession', { userId: userInfo._id });
+                      // Optimistically close modal
+                      setErrorModal({ show: false, message: '', redirectId: null });
+                      showToast("Ending previous session...", "info");
+                    }
+                  }}
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.15)', // Light red background
+                    color: '#ef4444',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    padding: '12px',
+                    width: '100%',
+                    borderRadius: '14px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={e => e.target.style.background = 'rgba(239, 68, 68, 0.25)'}
+                  onMouseLeave={e => e.target.style.background = 'rgba(239, 68, 68, 0.15)'}
+                >
+                  End Old Session & Start New ⚠️
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
+// Wrapper to enforce LeetCode Sync
+function RequireSync() {
+  const session = localStorage.getItem('user_session');
+  // Check if session exists and is valid (simple check)
+  const isSynced = session && session !== "undefined" && session.length > 10;
+
+  if (!isSynced) {
+    return <Navigate to="/app/onboarding" replace />;
+  }
+  return <Outlet />;
+}
+
 function App() {
   const [initialRoom, setInitialRoom] = useState(null);
+  // Add state to track auth status, initialized from localStorage
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('auth_token'));
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const roomId = urlParams.get('room');
+    const token = urlParams.get('token');
+
+    if (token) {
+      console.log("🔑 Token detected, saving to storage.");
+      localStorage.setItem('auth_token', token);
+      setIsAuthenticated(true); // Force re-render with auth true
+
+      // Remove token from URL for cleaner look
+      urlParams.delete('token');
+      const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+      window.history.replaceState({}, document.title, newUrl);
+    }
+
     if (roomId) {
       console.log("🔗 Room share link detected:", roomId);
       setInitialRoom(roomId);
-      // Removed URL cleanup to allow Lobby to read the param
     }
   }, []);
 
   return (
     <BrowserRouter>
       <Routes>
-        {/* Landing Page */}
+        {/* Landing Page (Redirect if Logged In) */}
         <Route path="/" element={
-          initialRoom ? <Navigate to={`/app?room=${initialRoom}`} replace /> : <LandingPage />
+          initialRoom ? (
+            <Navigate to={`/app?room=${initialRoom}`} replace />
+          ) : isAuthenticated ? (
+            <Navigate to="/app" replace />
+          ) : (
+            <LandingPage />
+          )
         } />    {/* Main App */}
-        <Route path="/*" element={<MainApp initialRoom={initialRoom} />} />
+        <Route path="/*" element={
+          <ErrorBoundary>
+            <MainApp initialRoom={initialRoom} />
+          </ErrorBoundary>
+        } />
       </Routes>
     </BrowserRouter>
   );
