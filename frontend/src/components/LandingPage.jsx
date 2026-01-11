@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from './SEO';
+import SchemaMarkup from './SchemaMarkup';
 import {
     Code2, Swords, Zap, Trophy, TrendingUp, Users, Terminal,
     Github, Twitter, ChevronRight, Play, Server, Database,
@@ -48,6 +49,7 @@ const LandingPage = () => {
                 title="AlgoDuel - Build. Battle. Dominate."
                 description="The ultimate competitive programming arena. Battle in real-time execution environments with multiplayer sync."
             />
+            <SchemaMarkup />
             <style>{`
                 @media (max-width: 768px) {
                     .landing-nav {
@@ -137,7 +139,8 @@ const LandingPage = () => {
                         lineHeight: '0.9', letterSpacing: '-0.04em', textTransform: 'uppercase',
                         color: 'white', fontFamily: "'Inter', sans-serif"
                     }}>
-                        Build. Battle.<br />
+                        DS Algo.<br />
+                        Battle.<br />
                         <span style={{
                             color: 'transparent', WebkitTextStroke: '2px #FF7BAC',
                             background: 'linear-gradient(180deg, #FF7BAC 0%, transparent 100%)',
@@ -145,9 +148,9 @@ const LandingPage = () => {
                         }}>Dominate.</span>
                     </h1>
 
-                    <p style={{ fontSize: '18px', color: '#71717a', maxWidth: '500px', margin: '0 auto 50px', lineHeight: '1.6' }}>
-                        The ultimate competitive programming arena. <br />
-                        <span style={{ color: '#d4d4d8' }}>Real-time execution. Multiplayer sync. Zero latency.</span>
+                    <p style={{ fontSize: '18px', color: '#71717a', maxWidth: '600px', margin: '0 auto 50px', lineHeight: '1.6' }}>
+                        The ultimate <strong>competitive programming arena</strong>. <br />
+                        <span style={{ color: '#d4d4d8' }}>Real-time 1v1 execution. Multiplayer sync for <strong>Technical Interview</strong> prep.</span>
                     </p>
 
                     <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
@@ -181,10 +184,10 @@ const LandingPage = () => {
                                 <span style={{ color: '#71717a' }}>Coding is lonely.</span>
                             </h2>
                             <p style={{ fontSize: '16px', color: '#a1a1aa', lineHeight: '1.7' }}>
-                                Traditional competitive programming is a solitary experience. You, a static IDE, and a silent judge.
+                                Traditional <strong>DSA practice</strong> is a solitary experience. You, a static IDE, and a silent judge.
                                 There's no adrenaline. No real-time pressure. No human connection.
                                 <br /><br />
-                                It's effective, but it lacks the thrill of a real duel.
+                                It's effective, but it lacks the thrill of a real <strong>coding duel</strong>.
                             </p>
                         </div>
                         <div>
@@ -193,7 +196,7 @@ const LandingPage = () => {
                                 <span style={{ color: '#00FFFF' }}>Gamified Warfare.</span>
                             </h2>
                             <p style={{ fontSize: '16px', color: '#a1a1aa', lineHeight: '1.7' }}>
-                                AlgoDuel transforms algorithms into a spectator sport. We drop two developers into a
+                                AlgoDuel transforms <strong>algorithms</strong> into a spectator sport. We drop two developers into a
                                 <strong> synchronized 1v1 arena</strong>.
                                 <br /><br />
                                 It's not just about solving the problem—it's about solving it <em>faster</em> than the person breathing down your neck via Voice Chat.
