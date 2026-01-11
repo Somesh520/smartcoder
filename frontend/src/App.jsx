@@ -9,7 +9,9 @@ import CompetitionRoomWrapper from './components/CompetitionRoomWrapper';
 import ConnectLeetCode from './components/ConnectLeetCode';
 import LandingPage from './components/LandingPage';
 import HistoryPage from './components/HistoryPage';
+
 import LearnPage from './components/LearnPage';
+import SEO from './components/SEO';
 import { fetchProblems } from './api';
 import { io } from 'socket.io-client';
 
@@ -291,13 +293,21 @@ function MainApp({ initialRoom }) {
       }
     };
 
-    return <Workspace problem={problem} onBack={customHandleBack} />;
+    return (
+      <>
+        <SEO
+          title={problem.title ? `${problem.title} - AlgoDuel Workspace` : "Workspace - AlgoDuel"}
+          description={`Solve ${problem.title} on AlgoDuel. Real-time execution and competitive environment.`}
+        />
+        <Workspace problem={problem} onBack={customHandleBack} />
+      </>
+    );
   };
 
   return (
     <div className="app-container" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Routes>
-        <Route path="/connect" element={<ConnectLeetCode onCheckConnection={checkLogin} />} />
+        <Route path="/connect" element={<><SEO title="Connect LeetCode - AlgoDuel" /><ConnectLeetCode onCheckConnection={checkLogin} /></>} />
         <Route path="/app/*" element={
           <>
             <Header
@@ -306,18 +316,21 @@ function MainApp({ initialRoom }) {
             />
             <Routes>
               {/* Onboarding / Sync Page */}
-              <Route path="onboarding" element={<ConnectLeetCode onCheckConnection={() => window.location.reload()} />} />
+              <Route path="onboarding" element={<><SEO title="Sync Account - AlgoDuel" /><ConnectLeetCode onCheckConnection={() => window.location.reload()} /></>} />
 
               {/* Protected App Routes (Require Sync) */}
               <Route element={<RequireSync />}>
-                <Route index element={<Lobby socket={socket} onJoin={joinRoom} onPracticeSolo={() => navigate('/app/problems')} userInfo={userInfo} />} />
+                <Route index element={<><SEO title="Lobby - AlgoDuel" /><Lobby socket={socket} onJoin={joinRoom} onPracticeSolo={() => navigate('/app/problems')} userInfo={userInfo} /></>} />
                 <Route path="problems" element={
-                  <ProblemList
-                    problems={problems}
-                    loading={loading}
-                    onRefresh={loadProblems}
-                    onSelectProblem={handlePrompt}
-                  />
+                  <>
+                    <SEO title="Problem Set - AlgoDuel" />
+                    <ProblemList
+                      problems={problems}
+                      loading={loading}
+                      onRefresh={loadProblems}
+                      onSelectProblem={handlePrompt}
+                    />
+                  </>
                 } />
                 <Route path="workspace/:problemId" element={<WorkspaceWrapper />} />
 

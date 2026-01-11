@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { dsaPatterns } from '../data/dsaPatterns';
+import SEO from './SEO';
 import { ArrowLeft, ExternalLink, Code, Layers, FileText, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,6 +17,10 @@ const LearnPage = () => {
             padding: '40px 20px',
             paddingTop: '100px' // Space for fixed header
         }}>
+            <SEO
+                title={selectedPattern ? `${selectedPattern.name} - AlgoDuel Learn` : "Master DSA Patterns - AlgoDuel"}
+                description="A curated collection of the most critical coding patterns (Sliding Window, Two Pointers, DP) to ace your technical interviews."
+            />
             <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 
                 {/* HEADER SECTION */}

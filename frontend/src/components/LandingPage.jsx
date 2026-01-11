@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import SEO from './SEO';
 import {
     Code2, Swords, Zap, Trophy, TrendingUp, Users, Terminal,
     Github, Twitter, ChevronRight, Play, Server, Database,
@@ -43,6 +44,10 @@ const LandingPage = () => {
             overflowX: 'hidden',
             selection: { background: '#00FFFF', color: 'black' }
         }}>
+            <SEO
+                title="AlgoDuel - Build. Battle. Dominate."
+                description="The ultimate competitive programming arena. Battle in real-time execution environments with multiplayer sync."
+            />
             <style>{`
                 @media (max-width: 768px) {
                     .landing-nav {
