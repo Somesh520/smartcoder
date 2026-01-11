@@ -43,8 +43,18 @@ const LandingPage = () => {
             overflowX: 'hidden',
             selection: { background: '#00FFFF', color: 'black' }
         }}>
+            <style>{`
+                @media (max-width: 768px) {
+                    .landing-nav {
+                        padding: 15px 20px !important;
+                    }
+                    .nav-links {
+                        display: none !important;
+                    }
+                }
+            `}</style>
             {/* NAVBAR */}
-            <nav style={{
+            <nav className="landing-nav" style={{
                 position: 'fixed', top: 0, left: 0, right: 0,
                 padding: '15px 40px',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -70,7 +80,7 @@ const LandingPage = () => {
                     </span>
                 </div>
 
-                <div style={{ display: 'flex', gap: '40px', fontSize: '13px', fontWeight: 600, color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                <div className="nav-links" style={{ display: 'flex', gap: '40px', fontSize: '13px', fontWeight: 600, color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '1px' }}>
                     <NavBtn onClick={() => scrollToSection('mission')}>Mission</NavBtn>
                     <NavBtn onClick={() => scrollToSection('workflow')}>Architecture</NavBtn>
                     <NavBtn onClick={() => scrollToSection('features')}>Engine</NavBtn>

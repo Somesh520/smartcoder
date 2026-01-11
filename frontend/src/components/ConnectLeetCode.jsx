@@ -16,7 +16,7 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
     }, []);
 
     return (
-        <div style={{
+        <div className="page-container" style={{
             minHeight: '100vh', // Changed to minHeight for scrolling on small screens
             paddingTop: '80px', // Add padding for fixed header
             display: 'flex',
@@ -28,7 +28,7 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
             textAlign: 'center',
             paddingBottom: '40px'
         }}>
-            <div style={{
+            <div className="main-card" style={{
                 background: 'rgba(24, 24, 27, 0.6)', // Glassmorphism
                 backdropFilter: 'blur(12px)',
                 padding: '30px', // Reduced padding
@@ -190,6 +190,20 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                 </div>
 
                 <style>{`
+                    /* Mobile Responsiveness */
+                    @media (max-width: 768px) {
+                        .main-card {
+                            padding: 20px !important;
+                            border-radius: 16px !important;
+                        }
+                        .page-container {
+                            padding-top: 100px !important; /* Extra top padding for mobile navbar */
+                            padding-bottom: 20px !important;
+                            padding-left: 15px !important;
+                            padding-right: 15px !important;
+                        }
+                    }
+
                     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
                     
                     /* Animation Scenario */
