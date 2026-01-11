@@ -57,10 +57,15 @@ const CompetitionRoomWrapper = ({ socket, roomId, username, roomState, onBack, s
         return () => {
             socket.off('connect', joinLogic);
             socket.off('sessionKilled', joinLogic);
-            // DO NOT force disconnect here. 
-            // The socket is global (owned by App.jsx) and might be needed for error handling/redirects.
-            // Leaving the room is handled by 'leaveRoom' emit or server cleanup.
-            console.log("🛑 Cleaning up Wrapper listeners (Socket remains connected)");
+
+            // Explicitly leave the room when unmounting (e.g. Browser Back Button)
+            if (socket.connected && urlRoomId) {
+                console.log("🛑 Leaving room via cleanup:", urlRoomId);
+                socket.emit('leaveRoom', { roomId: urlRoomId });
+            }
+            // Clear session to prevent sticky re-joins only if we are truly leaving context
+            // actually, let's keep session until explicit logout or error, 
+            // but here we want to ensure server knows we left.
         };
     }, [urlRoomId]); // Minimized dependencies to prevent re-runs
 

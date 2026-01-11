@@ -213,12 +213,43 @@ const LandingPage = () => {
                 </div>
             </section>
 
-            {/* WORKFLOW (ARCHITECTURE) SECTION */}
+            {/* USER JOURNEY (THE WORKFLOW) */}
+            <section id="journey" style={{ padding: '120px 20px', background: '#080808' }}>
+                <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+                    <SectionLabel>The Workflow</SectionLabel>
+                    <h2 style={{ fontSize: '48px', fontWeight: 800, marginBottom: '20px', color: 'white' }}>
+                        From Novice to <span style={{ color: '#00FFFF' }}>Grandmaster.</span>
+                    </h2>
+                    <p style={{ fontSize: '18px', color: '#a1a1aa', maxWidth: '600px', marginBottom: '80px' }}>
+                        Stop solving random problems. Our structured workflow guides you through the patterns that matter, directly inside the platform.
+                    </p>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
+                        <JourneyCard
+                            num="01"
+                            title="Select a Pattern"
+                            desc="Don't guess. Pick from 15+ curated patterns like 'Sliding Window' or 'Two Pointers' that cover 90% of interview questions."
+                        />
+                        <JourneyCard
+                            num="02"
+                            title="Internal Workspace"
+                            desc="Launch a dedicated workspace instantly. No tab switching. Your code runs against LeetCode's engine directly within AlgoDuel."
+                        />
+                        <JourneyCard
+                            num="03"
+                            title="Analyze & Optimize"
+                            desc="Get real-time feedback. Compare your runtime against global percentiles. Refine your solution until it's optimal."
+                        />
+                    </div>
+                </div>
+            </section>
+
+            {/* WORKFLOW (ROOM EXPERIENCE) SECTION */}
             <section id="workflow" style={{ padding: '120px 20px', background: '#080808' }}>
                 <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                    <SectionLabel>Architecture</SectionLabel>
+                    <SectionLabel>The Experience</SectionLabel>
                     <h2 style={{ fontSize: '48px', fontWeight: 800, marginBottom: '80px', letterSpacing: '-1px' }}>
-                        Battle Pipeline
+                        Inside The Arena
                     </h2>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '40px', position: 'relative' }}>
@@ -230,32 +261,32 @@ const LandingPage = () => {
 
                         {[
                             {
-                                icon: <Server size={24} />,
-                                title: "Lobby Handshake",
-                                desc: "WebSocket connection established. Room ID generated via secure hash.",
+                                icon: <Users size={24} />,
+                                title: "Connect",
+                                desc: "Share a simple link. Jump into a private room. Voice chat activates instantly—no setup required.",
                                 color: "#00FFFF",
-                                code: "io.connect()"
+                                code: "Join Room"
                             },
                             {
-                                icon: <Terminal size={24} />,
-                                title: "Code Sync",
-                                desc: "Operational Transform (OT) algorithms ensure <10ms editor syncing.",
+                                icon: <Code2 size={24} />,
+                                title: "Collaborate",
+                                desc: "See your partner's cursor in real-time. Discuss logic, debug together, or race against them.",
                                 color: "#FF7BAC",
-                                code: "state.push(op)"
+                                code: "Live Edit"
                             },
                             {
-                                icon: <Microchip size={24} />,
-                                title: "Remote Exec",
-                                desc: "Code sandboxed in Docker containers. Time/Memory limits enforced.",
+                                icon: <Play size={24} />,
+                                title: "Compete",
+                                desc: "Run your code against 100+ hidden test cases. Sandbox execution ensures fairness.",
                                 color: "#B6A1C4",
-                                code: "docker run"
+                                code: "Run Code"
                             },
                             {
                                 icon: <Trophy size={24} />,
-                                title: "Verdict",
-                                desc: "Test cases validated against rigorous constraints. ELO updated.",
+                                title: "Victory",
+                                desc: "Get an instant verdict. Analyze memory usage and runtime. Claim your rank points.",
                                 color: "#ffffff",
-                                code: "rank.update()"
+                                code: "Win Match"
                             }
                         ].map((step, i) => (
                             <div key={i} style={{
@@ -282,6 +313,7 @@ const LandingPage = () => {
                     </div>
                 </div>
             </section>
+
 
             {/* FEATURES (ENGINE) SECTION */}
             <section id="features" style={{ padding: '120px 20px' }}>
@@ -327,12 +359,36 @@ const LandingPage = () => {
                             tech="BACKEND"
                             desc="Scalable server architecture handling concurrent compilation requests."
                         />
+                        <FeatureCard
+                            icon={<Database color="#DC382D" />}
+                            title="Redis"
+                            tech="CACHING"
+                            desc="Sub-millisecond data access for session management and real-time leadership boards."
+                        />
+                        <FeatureCard
+                            icon={<Code2 color="#007ACC" />}
+                            title="Monaco Editor"
+                            tech="IDE"
+                            desc="The power of VS Code in your browser. IntelliSense, syntax highlighting, and minimap."
+                        />
+                        <FeatureCard
+                            icon={<Microchip color="#2496ED" />}
+                            title="Docker"
+                            tech="SANDBOX"
+                            desc="Isolated containers for secure code execution. Preventing malicious system access."
+                        />
+                        <FeatureCard
+                            icon={<Users color="#FFC107" />}
+                            title="Passport.js"
+                            tech="AUTH"
+                            desc="Secure authentication strategies including Google OAuth and local JWT sessions."
+                        />
                     </div>
                 </div>
-            </section>
+            </section >
 
             {/* STUDIO SECTION */}
-            <section id="studio" style={{ padding: '160px 20px', background: 'radial-gradient(circle at 50% 10%, #111, #050505)' }}>
+            < section id="studio" style={{ padding: '160px 20px', background: 'radial-gradient(circle at 50% 10%, #111, #050505)' }}>
                 <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
                     <h2 style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '4px', textTransform: 'uppercase', color: '#FF7BAC', marginBottom: '20px' }}>
                         The Studio
@@ -351,10 +407,10 @@ const LandingPage = () => {
                         <SocialLink label="PORTFOLIO" href="#" />
                     </div>
                 </div>
-            </section>
+            </section >
 
             {/* FOOTER */}
-            <footer style={{ borderTop: '1px solid #1f1f23', background: '#080808', paddingTop: '80px', paddingBottom: '40px' }}>
+            < footer style={{ borderTop: '1px solid #1f1f23', background: '#080808', paddingTop: '80px', paddingBottom: '40px' }}>
                 <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '60px', marginBottom: '80px' }}>
@@ -392,13 +448,7 @@ const LandingPage = () => {
                             <FooterLink onClick={() => openModal("System Status", "All Systems Operational. 99.9% Uptime this month.\n\n- Matchmaking: ONLINE\n- Execution Engine: ONLINE\n- Voice Server: ONLINE")}>System Status</FooterLink>
                         </div>
 
-                        <div>
-                            <FooterHeader>Company</FooterHeader>
-                            <FooterLink onClick={() => openModal("About Studio", "We are a team of competitive programmers building the tool we always wanted. \n\nFounded by Somesh.")}>About Studio</FooterLink>
-                            <FooterLink onClick={() => openModal("Careers", "We are hiring! Positions open:\n\n- Senior Backend Engineer (Node.js)\n- Systems Architect (Docker/K8s)\n\nContact: jobs@algoduel.com")}>Careers</FooterLink>
-                            <FooterLink onClick={() => openModal("Brand Kit", "Logo assets and color palettes are available for press usage. Please contact press@algoduel.com")}>Brand Kit</FooterLink>
-                            <FooterLink onClick={() => openModal("Contact", "General Inquiries: hello@algoduel.com\nSupport: support@algoduel.com")}>Contact</FooterLink>
-                        </div>
+
                     </div>
 
                     {/* BOTTOM BAR */}
@@ -417,10 +467,10 @@ const LandingPage = () => {
                         </div>
                     </div>
                 </div>
-            </footer>
+            </footer >
 
             {/* INLINE STYLES FOR BUTTON HOVERS */}
-            <style>{`
+            < style > {`
                 .cyber-btn-primary {
                     background: white; color: black; padding: 18px 40px; border-radius: 4px;
                     font-weight: 800; text-transform: uppercase; letter-spacing: 1px; font-size: 14px;
@@ -438,40 +488,41 @@ const LandingPage = () => {
                         display: block;
                     }
                 }
-            `}</style>
+            `}</style >
 
             {/* CONTENT MODAL */}
-            {modalOpen && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)',
-                    zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
-                }} onClick={() => setModalOpen(false)}>
+            {
+                modalOpen && (
                     <div style={{
-                        background: '#121214', border: '1px solid #27272a', width: '100%', maxWidth: '500px',
-                        padding: '40px', borderRadius: '16px', position: 'relative'
-                    }} onClick={e => e.stopPropagation()}>
-                        <button onClick={() => setModalOpen(false)} style={{
-                            position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none',
-                            color: '#71717a', cursor: 'pointer', fontSize: '24px'
-                        }}>&times;</button>
+                        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                        background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)',
+                        zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
+                    }} onClick={() => setModalOpen(false)}>
+                        <div style={{
+                            background: '#121214', border: '1px solid #27272a', width: '100%', maxWidth: '500px',
+                            padding: '40px', borderRadius: '16px', position: 'relative'
+                        }} onClick={e => e.stopPropagation()}>
+                            <button onClick={() => setModalOpen(false)} style={{
+                                position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none',
+                                color: '#71717a', cursor: 'pointer', fontSize: '24px'
+                            }}>&times;</button>
 
-                        <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'white', marginBottom: '20px', textTransform: 'uppercase' }}>
-                            {modalContent.title}
-                        </h2>
-                        <div style={{ fontSize: '15px', color: '#a1a1aa', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
-                            {modalContent.body}
+                            <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'white', marginBottom: '20px', textTransform: 'uppercase' }}>
+                                {modalContent.title}
+                            </h2>
+                            <div style={{ fontSize: '15px', color: '#a1a1aa', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
+                                {modalContent.body}
+                            </div>
+
+                            <button onClick={() => setModalOpen(false)} style={{
+                                marginTop: '30px', width: '100%', padding: '12px', background: 'white', color: 'black',
+                                border: 'none', borderRadius: '4px', fontWeight: 700, cursor: 'pointer', textTransform: 'uppercase'
+                            }}>
+                                Close
+                            </button>
                         </div>
-
-                        <button onClick={() => setModalOpen(false)} style={{
-                            marginTop: '30px', width: '100%', padding: '12px', background: 'white', color: 'black',
-                            border: 'none', borderRadius: '4px', fontWeight: 700, cursor: 'pointer', textTransform: 'uppercase'
-                        }}>
-                            Close
-                        </button>
                     </div>
-                </div>
-            )
+                )
             }
         </div >
     );
@@ -501,6 +552,32 @@ const SectionLabel = ({ children }) => (
     }}>
         <div style={{ width: '20px', height: '1px', background: '#00FFFF' }} />
         {children}
+    </div>
+);
+
+const JourneyCard = ({ num, title, desc }) => (
+    <div style={{
+        background: '#121214', border: '1px solid #27272a', padding: '40px',
+        borderRadius: '16px', position: 'relative', overflow: 'hidden',
+        transition: 'transform 0.3s'
+    }}
+        onMouseEnter={e => e.currentTarget.style.borderColor = '#00FFFF'}
+        onMouseLeave={e => e.currentTarget.style.borderColor = '#27272a'}
+    >
+        <div style={{
+            fontSize: '80px', fontWeight: 900, color: 'rgba(255, 255, 255, 0.03)',
+            position: 'absolute', top: -20, right: -10, pointerEvents: 'none'
+        }}>
+            {num}
+        </div>
+        <div style={{
+            color: '#00FFFF', fontSize: '14px', fontWeight: 700, marginBottom: '16px',
+            textTransform: 'uppercase', letterSpacing: '2px'
+        }}>
+            Step {num}
+        </div>
+        <h3 style={{ fontSize: '24px', fontWeight: 800, color: 'white', marginBottom: '12px' }}>{title}</h3>
+        <p style={{ fontSize: '16px', color: '#a1a1aa', lineHeight: '1.6' }}>{desc}</p>
     </div>
 );
 

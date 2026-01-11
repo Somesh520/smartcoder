@@ -6,11 +6,16 @@ import Match from '../models/Match.js';
 export const socketHandler = (io) => {
     const disconnectTimeouts = {};
 
+    const broadcastPublicRooms = () => {
+        const rooms = RoomManager.getPublicRooms();
+        io.emit('publicRoomsUpdate', rooms);
+    };
+
     io.on('connection', (socket) => {
         console.log('User connected:', socket.id);
 
         // JOIN ROOM
-        socket.on('joinRoom', async ({ roomId, username, userId, topic, difficulty }) => {
+        socket.on('joinRoom', async ({ roomId, username, userId, topic, difficulty, isPublic }) => {
             roomId = String(roomId);
 
             // 1. Require Registration
@@ -89,7 +94,7 @@ export const socketHandler = (io) => {
 
             console.log(`[JOIN] Socket ${socket.id} joined room "${roomId}"`);
 
-            let room = RoomManager.createRoom(roomId, topic, difficulty);
+            let room = RoomManager.createRoom(roomId, topic, difficulty, isPublic);
             // Store userId in the room user object
             const user = { id: socket.id, username, userId, score: 0, status: 'attempting' };
 
@@ -109,96 +114,120 @@ export const socketHandler = (io) => {
 
             // Notify room
             io.to(roomId).emit('roomUpdate', room);
+            broadcastPublicRooms();
 
-            // If 2 users, Start Game!
-            if (room.users.length === 2 && room.status === 'waiting') {
-                room.status = 'starting';
-                io.to(roomId).emit('roomUpdate', room);
-                io.to(roomId).emit('gameStart', { message: "Game Starting in 5 seconds..." });
+            // Notify room
+            io.to(roomId).emit('roomUpdate', room);
+            broadcastPublicRooms();
 
-                // Fetch Random Problem
-                try {
-                    let allProblems = await leetcodeService.fetchProblems();
-                    if (allProblems.stat_status_pairs) allProblems = allProblems.stat_status_pairs;
+            // Auto-start REPLACED by Manual Start for >2 players (User Request: 5 player limit)
+            // But we can trigger "Ready" status updates if we want, for now just update room.
+        });
 
-                    const roomTopic = room.topic || 'all';
-                    const roomDiff = room.difficulty || 'Medium';
+        // MANUAL START GAME
+        socket.on('startGame', async ({ roomId }) => {
+            const room = RoomManager.getRoom(roomId);
+            if (!room) return;
 
-                    let filtered = allProblems.filter(p => {
-                        const isPaid = p.paid_only === true;
-                        if (isPaid) return false;
+            // Only Host (first user) can start
+            if (room.users[0].id !== socket.id) {
+                return; // Ignore if not host
+            }
 
-                        let diffLevel = 2;
-                        if (roomDiff === 'Easy') diffLevel = 1;
-                        if (roomDiff === 'Hard') diffLevel = 3;
+            if (room.users.length < 2) {
+                // socket.emit('error', "Need at least 2 players to start!"); 
+                return;
+            }
 
-                        if (p.difficulty.level !== diffLevel) return false;
+            if (room.status !== 'waiting') return; // Already started
 
-                        const title = p.title || (p.stat && p.stat.question__title) || "";
-                        if (roomTopic === 'all') return true;
-                        return title.toLowerCase().includes(roomTopic.toLowerCase());
-                    });
+            room.status = 'starting';
+            io.to(roomId).emit('roomUpdate', room);
+            broadcastPublicRooms(); // Remove from public list
+            io.to(roomId).emit('gameStart', { message: "Host started the battle! Starting in 5 seconds..." });
 
-                    if (filtered.length === 0) {
-                        let diffLevel = 2;
-                        if (roomDiff === 'Easy') diffLevel = 1;
-                        if (roomDiff === 'Hard') diffLevel = 3;
-                        filtered = allProblems.filter(p => p.difficulty.level === diffLevel && !p.paid_only);
-                    }
+            // Fetch Random Problem
+            try {
+                let allProblems = await leetcodeService.fetchProblems();
+                if (allProblems.stat_status_pairs) allProblems = allProblems.stat_status_pairs;
 
-                    if (filtered.length === 0) {
-                        filtered = allProblems.filter(p => p.difficulty.level === 2 && !p.paid_only);
-                    }
+                const roomTopic = room.topic || 'all';
+                const roomDiff = room.difficulty || 'Medium';
 
-                    let randomProb = filtered[Math.floor(Math.random() * filtered.length)];
+                let filtered = allProblems.filter(p => {
+                    const isPaid = p.paid_only === true;
+                    if (isPaid) return false;
 
-                    if (!randomProb) {
-                        console.log("⚠️ API Failed! Using Offline Fallback Pool.");
-                        const FALLBACK_PROBLEMS = RoomManager.getFallbackProblems();
-                        let diffLevel = 2;
-                        if (roomDiff === 'Easy') diffLevel = 1;
-                        if (roomDiff === 'Hard') diffLevel = 3;
+                    let diffLevel = 2;
+                    if (roomDiff === 'Easy') diffLevel = 1;
+                    if (roomDiff === 'Hard') diffLevel = 3;
 
-                        let localFiltered = FALLBACK_PROBLEMS.filter(p => p.difficulty.level === diffLevel);
-                        if (localFiltered.length === 0) localFiltered = FALLBACK_PROBLEMS;
+                    if (p.difficulty.level !== diffLevel) return false;
 
-                        const pick = localFiltered[Math.floor(Math.random() * localFiltered.length)];
-                        room.problem = { id: pick.id, title: pick.title, slug: pick.slug };
-                    } else {
-                        console.log("Random Problem Selected:", JSON.stringify(randomProb, null, 2));
-                        room.problem = {
-                            id: randomProb.id || (randomProb.stat && randomProb.stat.question_id),
-                            title: randomProb.title || (randomProb.stat && randomProb.stat.question__title),
-                            slug: randomProb.title_slug || (randomProb.stat && randomProb.stat.question__title_slug)
-                        };
-                    }
+                    const title = p.title || (p.stat && p.stat.question__title) || "";
+                    if (roomTopic === 'all') return true;
+                    return title.toLowerCase().includes(roomTopic.toLowerCase());
+                });
 
-                    console.log("Room Problem Set:", room.problem);
+                if (filtered.length === 0) {
+                    let diffLevel = 2;
+                    if (roomDiff === 'Easy') diffLevel = 1;
+                    if (roomDiff === 'Hard') diffLevel = 3;
+                    filtered = allProblems.filter(p => p.difficulty.level === diffLevel && !p.paid_only);
+                }
 
-                    room.status = 'active';
-                    room.startTime = Date.now();
-                    io.to(roomId).emit('gameActive', room);
+                if (filtered.length === 0) {
+                    filtered = allProblems.filter(p => p.difficulty.level === 2 && !p.paid_only);
+                }
 
-                } catch (e) {
-                    console.error("Failed to fetch problem for room", e);
+                let randomProb = filtered[Math.floor(Math.random() * filtered.length)];
 
-                    // FALLBACK ON ERROR
-                    console.log("⚠️ API Error! Using Offline Fallback Pool.");
+                if (!randomProb) {
+                    console.log("⚠️ API Failed! Using Offline Fallback Pool.");
                     const FALLBACK_PROBLEMS = RoomManager.getFallbackProblems();
-                    let diffLevel = 2; // Default Medium
-                    if (room.difficulty === 'Easy') diffLevel = 1;
-                    if (room.difficulty === 'Hard') diffLevel = 3;
+                    let diffLevel = 2;
+                    if (roomDiff === 'Easy') diffLevel = 1;
+                    if (roomDiff === 'Hard') diffLevel = 3;
 
                     let localFiltered = FALLBACK_PROBLEMS.filter(p => p.difficulty.level === diffLevel);
                     if (localFiltered.length === 0) localFiltered = FALLBACK_PROBLEMS;
 
                     const pick = localFiltered[Math.floor(Math.random() * localFiltered.length)];
                     room.problem = { id: pick.id, title: pick.title, slug: pick.slug };
-
-                    room.status = 'active';
-                    room.startTime = Date.now();
-                    io.to(roomId).emit('gameActive', room);
+                } else {
+                    console.log("Random Problem Selected:", JSON.stringify(randomProb, null, 2));
+                    room.problem = {
+                        id: randomProb.id || (randomProb.stat && randomProb.stat.question_id),
+                        title: randomProb.title || (randomProb.stat && randomProb.stat.question__title),
+                        slug: randomProb.title_slug || (randomProb.stat && randomProb.stat.question__title_slug)
+                    };
                 }
+
+                console.log("Room Problem Set:", room.problem);
+
+                room.status = 'active';
+                room.startTime = Date.now();
+                io.to(roomId).emit('gameActive', room);
+
+            } catch (e) {
+                console.error("Failed to fetch problem for room", e);
+
+                // FALLBACK ON ERROR
+                console.log("⚠️ API Error! Using Offline Fallback Pool.");
+                const FALLBACK_PROBLEMS = RoomManager.getFallbackProblems();
+                let diffLevel = 2; // Default Medium
+                if (room.difficulty === 'Easy') diffLevel = 1;
+                if (room.difficulty === 'Hard') diffLevel = 3;
+
+                let localFiltered = FALLBACK_PROBLEMS.filter(p => p.difficulty.level === diffLevel);
+                if (localFiltered.length === 0) localFiltered = FALLBACK_PROBLEMS;
+
+                const pick = localFiltered[Math.floor(Math.random() * localFiltered.length)];
+                room.problem = { id: pick.id, title: pick.title, slug: pick.slug };
+
+                room.status = 'active';
+                room.startTime = Date.now();
+                io.to(roomId).emit('gameActive', room);
             }
         });
 
@@ -332,6 +361,7 @@ export const socketHandler = (io) => {
                 socket.join(roomId);
                 io.to(roomId).emit('roomUpdate', room);
             }
+            broadcastPublicRooms();
         });
 
         // KILL SESSION (Force End Previous Room)
@@ -381,6 +411,11 @@ export const socketHandler = (io) => {
                 socket.emit('sessionKilled', { message: "No active session found. Retrying..." });
             }
         });
+
+        // REQUEST PUBLIC ROOMS
+        socket.on('getPublicRooms', () => {
+            socket.emit('publicRoomsUpdate', RoomManager.getPublicRooms());
+        });
     });
 
     const saveMatchToDB = async (room, specificPlayers = null, specificWinner = null) => {
@@ -420,34 +455,35 @@ export const socketHandler = (io) => {
             const wasActive = room && (room.status === 'active' || room.status === 'starting');
 
             if (wasActive && !deleted) {
-                // Opponent Left -> Remaining User Wins (BUT user wants "No Winner" text)
-                // Actually, if opponent leaves, usually remaining wins. 
-                // User said: "winner mat bana likhe de no winner user leave"
+                // Modified Logic: Only end game if < 2 players remain (e.g. 1v1 and someone left, or last survivor)
+                if (room.users.length < 2) {
+                    const winnerText = "No Winner (User Left)";
+                    room.status = 'finished';
+                    room.winner = winnerText;
 
-                const winnerText = "No Winner (User Left)";
+                    io.to(roomId).emit('playerLeft', { winner: winnerText, leaver: user });
+                    io.to(roomId).emit('roomUpdate', room);
 
-                room.status = 'finished';
-                room.winner = winnerText;
-
-                io.to(roomId).emit('playerLeft', { winner: winnerText });
-                io.to(roomId).emit('roomUpdate', room);
-
-                // SAVE MATCH
-                // We must include the leaver (user) + remaining (room.users)
-                const allPlayers = [...room.users, user];
-                saveMatchToDB(room, allPlayers, winnerText);
+                    // SAVE MATCH
+                    const allPlayers = [...room.users, user];
+                    saveMatchToDB(room, allPlayers, winnerText);
+                } else {
+                    // Game Continues!
+                    console.log(`[LEAVE] Game continues with ${room.users.length} players.`);
+                    io.to(roomId).emit('chatMessage', {
+                        username: "System",
+                        message: `🚫 ${user.username} left the battle.`,
+                        timestamp: new Date().toISOString()
+                    });
+                    // Just update the room (user list changed)
+                    io.to(roomId).emit('roomUpdate', room);
+                }
             } else if (wasActive && deleted) {
-                // Room deleted (Last player left) or Single Player
-                const winnerText = "No Winner (User Left)";
-                console.log(`[ROOM] Room ${roomId} deleted (Last User: ${user.username}). Saving final state...`);
-
-                // If it was active, it means this user was playing (alone or last)
-                // We should save this session.
-                const allPlayers = [user];
-
-                // We don't need to emit updates (room is gone)
+                // ... (existing code)
                 saveMatchToDB(room, allPlayers, winnerText);
             }
+
+            broadcastPublicRooms();
         }
     };
 };

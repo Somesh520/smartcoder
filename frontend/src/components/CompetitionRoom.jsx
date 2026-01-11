@@ -19,6 +19,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
     const [problem, setProblem] = useState(null);
     const [winnerModal, setWinnerModal] = useState(null);
     const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+    const [leavers, setLeavers] = useState([]); // Track users who left to show in results
 
     // Chat State
     const [messages, setMessages] = useState([]);
@@ -94,15 +95,23 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
 
     // --- SOCKET HANDLERS ---
     useEffect(() => {
-        const handlePlayerLeft = ({ winner }) => {
-            if (winner === username) setWinnerModal(winner);
+        const handlePlayerLeft = ({ winner, leaver }) => {
+            if (winner) setWinnerModal(winner);
+
+            if (leaver) {
+                console.log("Opponent Left:", leaver.username);
+                setLeavers(prev => {
+                    if (prev.find(u => u.username === leaver.username)) return prev;
+                    return [...prev, { ...leaver, status: 'forfeited' }];
+                });
+            }
 
             // If they left, the call definitely ended.
             // Force cleanup and notify if we were in a call or just strictly show it.
             if (opponentStatus === 'online' || isMicOn) {
                 setOpponentStatus('offline'); // FIXED: Ensure UI updates to "Call" not "Join"
                 endCall(false); // Don't emit 'offline' back, they are gone.
-                showToast("Opponent left the match (Call Ended)", 'info');
+                showToast(leaver ? `${leaver.username} left (Call Ended)` : "Opponent left the match (Call Ended)", 'info');
             }
         };
 
@@ -465,7 +474,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                         // Find opponent by checking who is NOT me (by Socket ID)
                         // If same username (testing mode), we still want to show them.
                         const opponent = roomState.users.find(u => u.id !== socket.id);
-                        const isStarting = roomState.status === 'starting' || userCount === 2;
+                        const isStarting = roomState.status === 'starting';
 
                         const copyLink = () => {
                             const url = `${window.location.origin}?room=${roomId}`;
@@ -475,58 +484,163 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
 
                         return (
                             <>
+                                {/* ANIMATIONS & STYLES */}
+                                <style>{`
+                                     @keyframes slideInLeft { from { opacity: 0; transform: translateX(-100px); } to { opacity: 1; transform: translateX(0); } }
+                                     @keyframes slideInRight { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
+                                     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+                                     @keyframes popIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
+                                     @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                                     @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+                                     @keyframes pulse-fast { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.05); filter: brightness(1.3); } }
+                                     @keyframes glitch {
+                                        0% { transform: translate(0); }
+                                        20% { transform: translate(-2px, 2px); }
+                                        40% { transform: translate(-2px, -2px); }
+                                        60% { transform: translate(2px, 2px); }
+                                        80% { transform: translate(2px, -2px); }
+                                        100% { transform: translate(0); }
+                                     }
+                                     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+                                 `}</style>
+
                                 {/* Background Grid & Glow */}
-                                <div style={{ position: 'absolute', inset: 0, opacity: 0.2, background: 'radial-gradient(circle at center, #1e293b 0%, #000 100%)' }} />
-                                <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(#1f1f23 1px, transparent 1px), linear-gradient(90deg, #1f1f23 1px, transparent 1px)', backgroundSize: '40px 40px', opacity: 0.1 }} />
+                                <div style={{ position: 'absolute', inset: 0, opacity: 0.4, background: 'radial-gradient(circle at center, #1e1e24 0%, #000 100%)' }} />
+                                <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(#27272a 1px, transparent 1px), linear-gradient(90deg, #27272a 1px, transparent 1px)', backgroundSize: '50px 50px', opacity: 0.15 }} />
 
-                                {/* VS Badge */}
-                                <div style={{
-                                    position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)',
-                                    zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                }}>
-                                    <div style={{
-                                        width: '80px', height: '80px', borderRadius: '50%', background: '#000',
-                                        border: '4px solid #f59e0b', boxShadow: '0 0 30px #f59e0b',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        fontSize: '32px', fontWeight: 900, color: '#f59e0b', fontStyle: 'italic',
-                                        animation: isStarting ? 'pulse-fast 0.5s infinite' : 'none'
-                                    }}>
-                                        VS
-                                    </div>
-                                </div>
+                                {/* --- HYBRID LAYOUT CONTENT --- */}
 
-                                {/* Main Content */}
-                                <div style={{ display: 'flex', width: '100%', maxWidth: '1000px', height: '400px', alignItems: 'center', justifyContent: 'space-between', zIndex: 10, padding: '0 40px' }}>
+                                {userCount <= 2 ? (
+                                    /* --- 1v1 CLASSIC LAYOUT --- */
+                                    <div style={{ display: 'flex', width: '100%', maxWidth: '1000px', height: '400px', alignItems: 'center', justifyContent: 'space-between', zIndex: 10, padding: '0 40px' }}>
 
-                                    {/* PLAYER 1 (YOU) */}
-                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'slideInLeft 0.5s ease-out' }}>
-                                        <div style={{ width: '120px', height: '120px', borderRadius: '50%', background: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 40px rgba(34, 197, 94, 0.4)', marginBottom: '24px', border: '4px solid #fff' }}>
-                                            <Users size={60} color="white" />
+                                        {/* VS Badge (Absolute Center) */}
+                                        <div style={{
+                                            position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)',
+                                            zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                        }}>
+                                            <div style={{
+                                                width: '100px', height: '100px', borderRadius: '50%', background: '#09090b',
+                                                border: '4px solid #f59e0b', boxShadow: '0 0 50px rgba(245, 158, 11, 0.5)',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                fontSize: '40px', fontWeight: 900, color: '#f59e0b', fontStyle: 'italic',
+                                                animation: isStarting ? 'glitch 0.2s infinite' : 'pulse-fast 2s infinite'
+                                            }}>
+                                                VS
+                                            </div>
                                         </div>
-                                        <h2 style={{ fontSize: '32px', fontWeight: 800, color: 'white', marginBottom: '8px' }}>{username}</h2>
-                                        <div style={{ padding: '6px 16px', background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', borderRadius: '20px', fontSize: '14px', fontWeight: 700, border: '1px solid rgba(34, 197, 94, 0.3)' }}>READY</div>
-                                    </div>
 
-                                    {/* PLAYER 2 */}
-                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'slideInRight 0.5s ease-out' }}>
-                                        {opponent ? (
-                                            <>
-                                                <div style={{ width: '120px', height: '120px', borderRadius: '50%', background: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 40px rgba(239, 68, 68, 0.4)', marginBottom: '24px', border: '4px solid #fff' }}>
-                                                    <Sword size={60} color="white" />
-                                                </div>
-                                                <h2 style={{ fontSize: '32px', fontWeight: 800, color: 'white', marginBottom: '8px' }}>{opponent.username}</h2>
-                                                <div style={{ padding: '6px 16px', background: 'rgba(239, 68, 68, 0.15)', color: '#f87171', borderRadius: '20px', fontSize: '14px', fontWeight: 700, border: '1px solid rgba(239, 68, 68, 0.3)' }}>CONNECTED</div>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <div style={{ width: '120px', height: '120px', borderRadius: '50%', border: '4px dashed #52525b', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px', animation: 'spin-slow 10s linear infinite' }}>
-                                                    <div style={{ width: '100%', height: '100%', borderRadius: '50%', animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite', opacity: 0.1, background: 'white' }}></div>
-                                                </div>
-                                                <h2 style={{ fontSize: '24px', fontWeight: 600, color: '#71717a', marginBottom: '8px', fontStyle: 'italic' }}>Searching...</h2>
-                                            </>
-                                        )}
+                                        {/* PLAYER 1 (YOU) */}
+                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'slideInLeft 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)' }}>
+                                            <div style={{
+                                                width: '140px', height: '140px', borderRadius: '50%',
+                                                background: `linear-gradient(135deg, #22c55e, #10b981)`,
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                boxShadow: '0 0 50px rgba(34, 197, 94, 0.5)',
+                                                marginBottom: '24px', border: '5px solid #fff',
+                                                animation: isStarting ? 'glitch 0.3s infinite' : 'float 6s ease-in-out infinite'
+                                            }}>
+                                                <Users size={70} color="white" />
+                                            </div>
+                                            <h2 style={{ fontSize: '36px', fontWeight: 800, color: 'white', marginBottom: '8px', textShadow: '0 4px 10px rgba(0,0,0,0.5)' }}>{username}</h2>
+                                            <div style={{ padding: '6px 20px', background: '#22c55e20', color: '#4ade80', borderRadius: '20px', fontSize: '14px', fontWeight: 700, border: '1px solid #22c55e50' }}>READY</div>
+                                        </div>
+
+                                        {/* PLAYER 2 (OPPONENT or SEARCHING) */}
+                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'slideInRight 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)' }}>
+                                            {opponent ? (
+                                                <>
+                                                    <div style={{
+                                                        width: '140px', height: '140px', borderRadius: '50%',
+                                                        background: `linear-gradient(135deg, #ef4444, #dc2626)`,
+                                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                        boxShadow: '0 0 50px rgba(239, 68, 68, 0.5)',
+                                                        marginBottom: '24px', border: '5px solid #fff',
+                                                        animation: isStarting ? 'glitch 0.3s infinite' : 'float 6s ease-in-out infinite 1s' /* Delayed float */
+                                                    }}>
+                                                        <Sword size={70} color="white" />
+                                                    </div>
+                                                    <h2 style={{ fontSize: '36px', fontWeight: 800, color: 'white', marginBottom: '8px', textShadow: '0 4px 10px rgba(0,0,0,0.5)' }}>{opponent.username}</h2>
+                                                    <div style={{ padding: '6px 20px', background: '#ef444420', color: '#f87171', borderRadius: '20px', fontSize: '14px', fontWeight: 700, border: '1px solid #ef444450' }}>CONNECTED</div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div style={{ width: '140px', height: '140px', borderRadius: '50%', border: '4px dashed #52525b', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px', animation: 'spin-slow 10s linear infinite' }}>
+                                                        <div style={{ width: '100%', height: '100%', borderRadius: '50%', animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite', opacity: 0.1, background: 'white' }}></div>
+                                                    </div>
+                                                    <h2 style={{ fontSize: '28px', fontWeight: 600, color: '#71717a', marginBottom: '8px', fontStyle: 'italic' }}>Searching...</h2>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
+                                ) : (
+                                    /* --- BATTLE ROYALE LAYOUT (3+ Players) --- */
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', zIndex: 10, marginTop: '-50px' }}>
+
+                                        {/* BR TITLE */}
+                                        <div style={{ marginBottom: '50px', textAlign: 'center', animation: 'fadeInUp 0.5s ease-out' }}>
+                                            <h1 style={{
+                                                fontSize: '60px', fontWeight: 900, color: 'white', margin: 0,
+                                                textShadow: '0 0 20px #f59e0b', letterSpacing: '-2px',
+                                                fontStyle: 'italic',
+                                                animation: isStarting ? 'glitch 0.2s infinite' : 'none'
+                                            }}>
+                                                BATTLE <span style={{ color: '#f59e0b' }}>ROYALE</span>
+                                            </h1>
+                                            <div style={{ color: '#a1a1aa', fontSize: '16px', letterSpacing: '2px', fontWeight: 600 }}>{userCount} FIGHTERS READY</div>
+                                        </div>
+
+                                        {/* PLAYERS GRID */}
+                                        <div style={{
+                                            display: 'flex', flexWrap: 'wrap',
+                                            alignItems: 'center', justifyContent: 'center',
+                                            gap: '30px', maxWidth: '1200px'
+                                        }}>
+                                            {roomState.users.map((u, i) => {
+                                                const isDistorted = isStarting && Math.random() > 0.5;
+                                                return (
+                                                    <div key={u.id} style={{
+                                                        display: 'flex', flexDirection: 'column', alignItems: 'center',
+                                                        animation: `popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${i * 0.1}s backwards`,
+                                                        transform: isDistorted ? `translate(${Math.random() * 4 - 2}px, ${Math.random() * 4 - 2}px)` : 'none'
+                                                    }}>
+
+                                                        {/* Avatar Circle */}
+                                                        <div style={{
+                                                            width: '100px', height: '100px', borderRadius: '50%',
+                                                            background: u.id === socket.id ? '#22c55e' : (i % 2 === 0 ? '#3b82f6' : '#ef4444'),
+                                                            border: '4px solid white',
+                                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                            boxShadow: u.id === socket.id ? '0 0 30px #22c55e' : '0 0 20px rgba(0,0,0,0.5)',
+                                                            marginBottom: '10px', position: 'relative'
+                                                        }}>
+                                                            {i === 0 && <div style={{ position: 'absolute', top: '-20px', fontSize: '24px', animation: 'float 3s infinite' }}>👑</div>}
+                                                            {u.id === socket.id ? <Users size={40} color="white" /> : <Sword size={40} color="white" />}
+                                                        </div>
+
+                                                        {/* Name Tag */}
+                                                        <div style={{ background: '#18181b', padding: '5px 15px', borderRadius: '10px', border: '1px solid #333' }}>
+                                                            <div style={{ color: 'white', fontWeight: 700, fontSize: '14px' }}>{u.username}</div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+
+                                            {/* ADD SLOT (Only 1, to imply more can join) */}
+                                            {userCount < 5 && (
+                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: 0.5, animation: 'fadeInUp 1s ease-out' }}>
+                                                    <div style={{
+                                                        width: '100px', height: '100px', borderRadius: '50%', border: '4px dashed #52525b',
+                                                        display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px'
+                                                    }}>
+                                                        <span style={{ fontSize: '30px', color: '#52525b' }}>+</span>
+                                                    </div>
+                                                    <div style={{ color: '#52525b', fontSize: '12px', fontWeight: 600 }}>WAITING...</div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Footer */}
                                 <div style={{ zIndex: 10, marginTop: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
@@ -536,7 +650,36 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                                         </div>
                                     ) : (
                                         <div style={{ background: '#18181b', padding: '16px 24px', borderRadius: '16px', border: '1px solid #27272a', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)' }}>
-                                            <div style={{ color: '#a1a1aa', fontSize: '13px', fontWeight: 500 }}>INVITE A FRIEND</div>
+
+                                            {/* HOST START BUTTON */}
+                                            {roomState.users?.[0]?.id === socket.id && (
+                                                <button
+                                                    onClick={() => socket.emit('startGame', { roomId })}
+                                                    disabled={userCount < 2}
+                                                    style={{
+                                                        width: '100%',
+                                                        padding: '12px',
+                                                        borderRadius: '8px',
+                                                        border: 'none',
+                                                        background: userCount >= 2 ? '#eab308' : '#3f3f46',
+                                                        color: userCount >= 2 ? 'black' : '#71717a',
+                                                        fontWeight: 700,
+                                                        fontSize: '16px',
+                                                        cursor: userCount >= 2 ? 'pointer' : 'not-allowed',
+                                                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                                                        transition: 'all 0.2s'
+                                                    }}
+                                                >
+                                                    <Sword size={20} />
+                                                    {userCount < 2 ? "Waiting for Players..." : "START BATTLE"}
+                                                </button>
+                                            )}
+
+                                            {!roomState.users?.[0]?.id === socket.id && (
+                                                <div style={{ color: '#fbbf24', fontWeight: 600 }}>Waiting for Host to Start...</div>
+                                            )}
+
+                                            <div style={{ color: '#a1a1aa', fontSize: '13px', fontWeight: 500 }}>INVITE A FRIEND ({userCount}/5)</div>
                                             <div style={{ display: 'flex', gap: '10px' }}>
                                                 <div style={{ background: '#27272a', padding: '10px 16px', borderRadius: '8px', fontFamily: 'monospace', color: 'white', letterSpacing: '1px', border: '1px solid #3f3f46' }}>{roomId}</div>
                                                 <button onClick={copyLink} style={{ background: '#2563eb', border: 'none', borderRadius: '8px', padding: '0 20px', color: 'white', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -582,32 +725,56 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                         }}>
                             {/* Confetti / Particle Effects could go here */}
 
-                            <div style={{
-                                fontSize: '80px', fontWeight: 900,
-                                background: winnerModal === username ? 'linear-gradient(to bottom, #4ade80, #22c55e)' : 'linear-gradient(to bottom, #f87171, #ef4444)',
-                                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                                textShadow: winnerModal === username ? '0 0 50px rgba(34, 197, 94, 0.5)' : '0 0 50px rgba(239, 68, 68, 0.5)',
-                                marginBottom: '20px',
-                                letterSpacing: '-2px',
-                                animation: 'scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-                            }}>
-                                {winnerModal === username ? "VICTORY" : "DEFEAT"}
-                            </div>
+                            {(() => {
+                                const isUserLeft = winnerModal.includes("User Left");
+                                const isVictory = winnerModal === username;
 
-                            <div style={{ fontSize: '24px', color: '#a1a1aa', marginBottom: '60px', fontWeight: 500 }}>
-                                {winnerModal === username ? "You solved it first! 🚀" : `${winnerModal} claimed the victory.`}
-                            </div>
+                                return (
+                                    <>
+                                        <div style={{
+                                            fontSize: '80px', fontWeight: 900,
+                                            background: isVictory ? 'linear-gradient(to bottom, #4ade80, #22c55e)' : (isUserLeft ? 'linear-gradient(to bottom, #fbbf24, #d97706)' : 'linear-gradient(to bottom, #f87171, #ef4444)'),
+                                            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                                            textShadow: isVictory ? '0 0 50px rgba(34, 197, 94, 0.5)' : (isUserLeft ? '0 0 50px rgba(251, 191, 36, 0.5)' : '0 0 50px rgba(239, 68, 68, 0.5)'),
+                                            marginBottom: '20px',
+                                            letterSpacing: '-2px',
+                                            animation: 'scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                                        }}>
+                                            {isVictory ? "VICTORY" : (isUserLeft ? "MATCH ENDED" : "DEFEAT")}
+                                        </div>
+
+                                        <div style={{ fontSize: '24px', color: '#a1a1aa', marginBottom: '60px', fontWeight: 500, textAlign: 'center' }}>
+                                            {isVictory ? "You solved it first! 🚀" : (isUserLeft ? "Opponent forfeited the match." : `${winnerModal} claimed the victory.`)}
+                                        </div>
+                                    </>
+                                );
+                            })()}
 
                             {/* RESULTS TABLE */}
                             <div style={{
-                                width: '100%', maxWidth: '600px',
+                                width: '100%', maxWidth: '700px',
                                 background: '#18181b', borderRadius: '24px',
                                 border: '1px solid #27272a',
                                 padding: '30px',
                                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
                             }}>
-                                {roomState.users.sort((a, b) => (a.timeTaken || Infinity) - (b.timeTaken || Infinity)).map((u, i) => {
+                                <div style={{ display: 'grid', gridTemplateColumns: '50px 2fr 1fr 1fr', paddingBottom: '16px', borderBottom: '1px solid #333', color: '#71717a', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '16px' }}>
+                                    <div>#</div>
+                                    <div>Player</div>
+                                    <div style={{ textAlign: 'center' }}>Test Cases</div>
+                                    <div style={{ textAlign: 'right' }}>Time</div>
+                                </div>
+
+                                {[...roomState.users, ...leavers].sort((a, b) => {
+                                    // Sort by Status (completed first) -> Score (desc) -> Time (asc)
+                                    if (a.status === 'completed' && b.status !== 'completed') return -1;
+                                    if (b.status === 'completed' && a.status !== 'completed') return 1;
+                                    if ((b.score || 0) !== (a.score || 0)) return (b.score || 0) - (a.score || 0);
+                                    return (a.timeTaken || Infinity) - (b.timeTaken || Infinity);
+                                }).map((u, i) => {
                                     const isWinner = u.username === winnerModal;
+                                    const isMe = u.username === username;
+                                    const isLeaver = leavers.some(l => l.username === u.username);
                                     const formatTime = (ms) => {
                                         if (!ms) return "--:--";
                                         const mins = Math.floor(ms / 60000);
@@ -617,36 +784,48 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
 
                                     return (
                                         <div key={u.id} style={{
-                                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                            padding: '20px', marginBottom: '10px',
-                                            background: isWinner ? 'rgba(34, 197, 94, 0.1)' : 'transparent',
-                                            borderRadius: '16px',
-                                            border: isWinner ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid transparent'
+                                            display: 'grid', gridTemplateColumns: '50px 2fr 1fr 1fr', alignItems: 'center',
+                                            padding: '16px', marginBottom: '8px',
+                                            background: isWinner ? 'rgba(34, 197, 94, 0.1)' : (isMe ? 'rgba(255, 255, 255, 0.05)' : 'transparent'),
+                                            borderRadius: '12px',
+                                            border: isWinner ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid transparent',
+                                            transition: 'background 0.2s'
                                         }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                                <div style={{
-                                                    width: '50px', height: '50px', borderRadius: '50%',
-                                                    background: isWinner ? '#22c55e' : '#3f3f46',
-                                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                    fontSize: '24px', fontWeight: 700, color: 'white'
-                                                }}>
-                                                    {i + 1}
-                                                </div>
-                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                    <span style={{ fontSize: '18px', fontWeight: 700, color: 'white' }}>
-                                                        {u.username} {u.username === username && <span style={{ fontSize: '12px', color: '#71717a' }}>(You)</span>}
-                                                    </span>
-                                                    <span style={{ fontSize: '14px', color: isWinner ? '#4ade80' : '#71717a' }}>
-                                                        {isWinner ? "Winner" : (u.status === 'completed' ? "Finished" : "DNF")}
-                                                    </span>
-                                                </div>
+                                            {/* RANK */}
+                                            <div style={{
+                                                width: '32px', height: '32px', borderRadius: '50%',
+                                                background: i === 0 ? '#f59e0b' : (i === 1 ? '#94a3b8' : '#71717a'),
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                fontSize: '14px', fontWeight: 700, color: 'white'
+                                            }}>
+                                                {i + 1}
                                             </div>
 
-                                            <div style={{ textAlign: 'right' }}>
-                                                <div style={{ fontSize: '20px', fontWeight: 700, color: 'white', fontFamily: 'monospace' }}>
-                                                    {u.timeTaken ? formatTime(u.timeTaken) : "--:--"}
-                                                </div>
-                                                <div style={{ fontSize: '12px', color: '#71717a' }}>Time Taken</div>
+                                            {/* PLAYER INFO */}
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <span style={{ fontSize: '16px', fontWeight: 700, color: isLeaver ? '#ef4444' : 'white', opacity: isLeaver ? 0.7 : 1 }}>
+                                                    {u.username}
+                                                    {isMe && <span style={{ fontSize: '11px', color: '#a1a1aa', background: '#333', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px' }}>YOU</span>}
+                                                    {isLeaver && <span style={{ fontSize: '11px', color: '#ef4444', border: '1px solid #ef4444', padding: '1px 5px', borderRadius: '4px', marginLeft: '6px' }}>LEFT</span>}
+                                                </span>
+                                                {u.status === 'completed' && <Trophy size={14} color="#f59e0b" />}
+                                            </div>
+
+                                            {/* TEST CASES */}
+                                            <div style={{ textAlign: 'center' }}>
+                                                <span style={{
+                                                    padding: '4px 12px', borderRadius: '20px',
+                                                    background: u.status === 'completed' ? '#22c55e20' : '#3f3f46',
+                                                    color: u.status === 'completed' ? '#4ade80' : '#a1a1aa',
+                                                    fontSize: '13px', fontWeight: 600
+                                                }}>
+                                                    {u.status === 'completed' ? 'ALL PASSED' : (isLeaver ? 'FORFEIT' : `${u.score || 0} / ?`)}
+                                                </span>
+                                            </div>
+
+                                            {/* TIME */}
+                                            <div style={{ textAlign: 'right', fontFamily: 'monospace', fontSize: '15px', color: u.timeTaken ? 'white' : '#52525b' }}>
+                                                {u.timeTaken ? formatTime(u.timeTaken) : "--:--"}
                                             </div>
                                         </div>
                                     );

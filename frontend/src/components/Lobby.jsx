@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Users, Plus, Zap, Hash, Globe, Target, Code, Sword, ArrowRight } from 'lucide-react';
 
-const Lobby = ({ onJoin, onPracticeSolo, userInfo }) => {
+const Lobby = ({ socket, onJoin, onPracticeSolo, userInfo }) => {
     const [mode, setMode] = useState('create'); // 'create' | 'join'
 
     // Joint State
@@ -17,18 +17,61 @@ const Lobby = ({ onJoin, onPracticeSolo, userInfo }) => {
     // Create State
     const [topic, setTopic] = useState("all");
     const [difficulty, setDifficulty] = useState("Medium");
+    const [isPublic, setIsPublic] = useState(true);
 
     // Join State
     const [joinRoomId, setJoinRoomId] = useState("");
 
+    // Public Rooms State
+    const [publicRooms, setPublicRooms] = useState([]);
+
+    React.useEffect(() => {
+        if (!socket) {
+            console.log("Lobby: Socket not available yet.");
+            return;
+        }
+
+        if (!socket.connected) {
+            console.log("Lobby: Connecting socket...");
+            socket.connect();
+        }
+
+        console.log("Lobby: Requesting public rooms...");
+        // Request initial list
+        socket.emit('getPublicRooms');
+
+        const onRoomsUpdate = (rooms) => {
+            console.log("Lobby: Received Public Rooms Update:", rooms);
+            setPublicRooms(rooms);
+        };
+
+        const onConnect = () => {
+            console.log("Lobby: Socket connected, refetching rooms...");
+            socket.emit('getPublicRooms');
+        };
+
+        socket.on('publicRoomsUpdate', onRoomsUpdate);
+        socket.on('connect', onConnect);
+
+        return () => {
+            socket.off('publicRoomsUpdate', onRoomsUpdate);
+            socket.off('connect', onConnect);
+        };
+    }, [socket]);
+
     const handleCreate = () => {
         const newRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-        onJoin(newRoomId, username, topic, difficulty);
+        onJoin(newRoomId, username, topic, difficulty, isPublic);
     };
 
     const handleJoin = () => {
         if (!joinRoomId) return;
-        onJoin(joinRoomId.toUpperCase(), username, null, null);
+        onJoin(joinRoomId.toUpperCase(), username, null, null); // Join generic
+    };
+
+    const handleJoinPublic = (roomId) => {
+        setJoinRoomId(roomId);
+        onJoin(roomId, username, null, null);
     };
 
     React.useEffect(() => {
@@ -52,7 +95,7 @@ const Lobby = ({ onJoin, onPracticeSolo, userInfo }) => {
     };
 
     return (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', position: 'relative' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', position: 'relative', gap: '40px' }}>
             {/* Background Glow */}
             <div style={{
                 position: 'absolute', width: '600px', height: '600px',
@@ -106,7 +149,7 @@ const Lobby = ({ onJoin, onPracticeSolo, userInfo }) => {
                         {mode === 'create' ? 'Host a Battle' : 'Enter the Arena'}
                     </h1>
                     <p style={{ color: '#a1a1aa', fontSize: '14px', lineHeight: '1.5' }}>
-                        {mode === 'create' ? 'Configure settings and invite a friend.' : 'Paste your room code below to connect.'}
+                        {mode === 'create' ? 'Configure settings and invite a friend.' : 'Paste a room code or join a public game.'}
                     </p>
                 </div>
 
@@ -125,32 +168,48 @@ const Lobby = ({ onJoin, onPracticeSolo, userInfo }) => {
                     </div>
 
                     {mode === 'create' ? (
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                            <div style={inputGroupStyle}>
-                                <label style={labelStyle}><Hash size={14} /> TOPIC</label>
-                                <div style={{ position: 'relative' }}>
-                                    <select value={topic} onChange={e => setTopic(e.target.value)} style={selectStyle}>
-                                        <option value="all">Random</option>
-                                        <option value="array">Arrays</option>
-                                        <option value="string">Strings</option>
-                                        <option value="tree">Trees</option>
-                                        <option value="dynamic">DP</option>
-                                    </select>
-                                    <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#71717a' }}>▼</div>
+                        <>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                <div style={inputGroupStyle}>
+                                    <label style={labelStyle}><Hash size={14} /> TOPIC</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <select value={topic} onChange={e => setTopic(e.target.value)} style={selectStyle}>
+                                            <option value="all">Random</option>
+                                            <option value="array">Arrays</option>
+                                            <option value="string">Strings</option>
+                                            <option value="tree">Trees</option>
+                                            <option value="dynamic">DP</option>
+                                        </select>
+                                        <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#71717a' }}>▼</div>
+                                    </div>
+                                </div>
+                                <div style={inputGroupStyle}>
+                                    <label style={labelStyle}><Target size={14} /> DIFFICULTY</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <select value={difficulty} onChange={e => setDifficulty(e.target.value)} style={selectStyle}>
+                                            <option value="Easy">Easy</option>
+                                            <option value="Medium">Medium</option>
+                                            <option value="Hard">Hard</option>
+                                        </select>
+                                        <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#71717a' }}>▼</div>
+                                    </div>
                                 </div>
                             </div>
-                            <div style={inputGroupStyle}>
-                                <label style={labelStyle}><Target size={14} /> DIFFICULTY</label>
-                                <div style={{ position: 'relative' }}>
-                                    <select value={difficulty} onChange={e => setDifficulty(e.target.value)} style={selectStyle}>
-                                        <option value="Easy">Easy</option>
-                                        <option value="Medium">Medium</option>
-                                        <option value="Hard">Hard</option>
-                                    </select>
-                                    <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#71717a' }}>▼</div>
-                                </div>
+
+                            {/* Public/Private Toggle */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '5px' }}>
+                                <input
+                                    type="checkbox"
+                                    id="isPublic"
+                                    checked={isPublic}
+                                    onChange={e => setIsPublic(e.target.checked)}
+                                    style={{ accentColor: 'var(--accent-green)', width: '16px', height: '16px', cursor: 'pointer' }}
+                                />
+                                <label htmlFor="isPublic" style={{ color: 'var(--text-secondary)', fontSize: '14px', cursor: 'pointer' }}>
+                                    Make Room Public (Visible to others)
+                                </label>
                             </div>
-                        </div>
+                        </>
                     ) : (
                         <div style={inputGroupStyle}>
                             <label style={labelStyle}><Code size={14} /> ROOM CODE</label>
@@ -198,6 +257,54 @@ const Lobby = ({ onJoin, onPracticeSolo, userInfo }) => {
                 </div>
             </div>
 
+            {/* PUBLIC ROOMS LIST */}
+            <div style={{ width: '100%', maxWidth: '700px', zIndex: 1 }}>
+                <h3 style={{ color: 'white', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Globe size={18} color="#4ade80" /> Live Public Battles
+                </h3>
+
+                {publicRooms.length === 0 ? (
+                    <div style={{
+                        padding: '30px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px',
+                        border: '1px dashed rgba(255,255,255,0.1)', textAlign: 'center', color: 'var(--text-muted)'
+                    }}>
+                        No active public rooms. Be the first to host one! 🚀
+                    </div>
+                ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px' }}>
+                        {publicRooms.map(room => (
+                            <div key={room.id} className="glass-panel" style={{
+                                padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)',
+                                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                transition: 'transform 0.2s', cursor: 'pointer'
+                            }}
+                                onClick={() => checkAuth(() => handleJoinPublic(room.id))}
+                                onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                                onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
+                            >
+                                <div>
+                                    <div style={{ fontSize: '13px', color: 'var(--accent-green)', fontWeight: 700, marginBottom: '4px' }}>
+                                        {room.difficulty} • {room.topic === 'all' ? 'Random' : room.topic.toUpperCase()}
+                                    </div>
+                                    <div style={{ color: 'white', fontWeight: 600, fontSize: '16px' }}>
+                                        {room.host}'s Lobby
+                                    </div>
+                                    <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginTop: '6px' }}>
+                                        Waiting for opponent...
+                                    </div>
+                                </div>
+                                <button style={{
+                                    background: 'rgba(74, 222, 128, 0.1)', color: '#4ade80', border: '1px solid rgba(74, 222, 128, 0.2)',
+                                    padding: '8px 16px', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer'
+                                }}>
+                                    Join
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
             {/* LOGIN POPUP MODAL */}
             {showLoginModal && (
                 <div style={{
@@ -230,8 +337,17 @@ const Lobby = ({ onJoin, onPracticeSolo, userInfo }) => {
                             </p>
                         </div>
 
+                        {/* Login logic now handled by Header/App via API URL, but here explicit link is fine/safe if matches Header */}
+                        {/* Ideally reuse Header's logic but direct link is acceptable here as fallback */}
+                        {/* Actually, let's use the same logic as Header if possible, or just the hardcoded relative path 
+                            which we know works because we fixed the Header one to use absolute path.
+                            Wait, Header uses absolute URL. Here we should likely use the same.
+                         */}
                         <button
-                            onClick={() => window.location.href = 'http://localhost:3000/auth/google'}
+                            onClick={async () => {
+                                const { BASE_URL } = await import('../api');
+                                window.location.href = `${BASE_URL}/auth/google`;
+                            }}
                             style={{
                                 background: 'var(--accent-green)',
                                 color: 'black',

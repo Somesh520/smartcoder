@@ -7,6 +7,7 @@ import cors from 'cors';
 import { Server } from 'socket.io';
 import http from 'http';
 import compression from 'compression';
+import helmet from 'helmet';
 import session from 'express-session';
 import { RedisStore } from 'connect-redis';
 
@@ -42,6 +43,7 @@ const io = new Server(server, {
 const PORT = process.env.PORT || 3000;
 
 // --- MIDDLEWARE ---
+app.use(helmet());
 app.use(compression());
 app.use(cors(corsOptions));
 app.use(express.json());

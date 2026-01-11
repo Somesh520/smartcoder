@@ -76,22 +76,29 @@ export const fetchProblemDetails = async (id) => {
         console.error("Redis Get Error:", e);
     }
 
-    // 1. Fetch Problem Slug using ID
-    const listRes = await fetch('https://leetcode.com/api/problems/all/', {
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Referer': 'https://leetcode.com'
-        }
-    });
+    // 1. Fetch Problem Slug using ID (If input is numeric ID)
+    let titleSlug = id;
 
-    if (!listRes.ok) throw new Error(`LeetCode API Failed: ${listRes.status}`);
+    // Check if 'id' is actually a slug (contains non-numeric)
+    const isSlug = isNaN(id);
 
-    const listData = await listRes.json();
-    const problem = listData.stat_status_pairs.find(p => p.stat.question_id == id || p.stat.frontend_question_id == id);
+    if (!isSlug) {
+        const listRes = await fetch('https://leetcode.com/api/problems/all/', {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Referer': 'https://leetcode.com'
+            }
+        });
 
-    if (!problem) throw new Error("Problem not found");
+        if (!listRes.ok) throw new Error(`LeetCode API Failed: ${listRes.status}`);
 
-    const titleSlug = problem.stat.question__title_slug;
+        const listData = await listRes.json();
+        const problem = listData.stat_status_pairs.find(p => p.stat.question_id == id || p.stat.frontend_question_id == id);
+
+        if (!problem) throw new Error("Problem not found");
+        titleSlug = problem.stat.question__title_slug;
+    }
+
 
     const query = `
         query questionData($titleSlug: String!) {

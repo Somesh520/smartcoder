@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, Outlet, useParams } from 'react-router-dom';
 import Header from './components/Header';
 import ProblemList from './components/ProblemList';
 import Workspace from './components/Workspace';
@@ -9,6 +9,7 @@ import CompetitionRoomWrapper from './components/CompetitionRoomWrapper';
 import ConnectLeetCode from './components/ConnectLeetCode';
 import LandingPage from './components/LandingPage';
 import HistoryPage from './components/HistoryPage';
+import LearnPage from './components/LearnPage';
 import { fetchProblems } from './api';
 import { io } from 'socket.io-client';
 
@@ -151,10 +152,23 @@ function MainApp({ initialRoom }) {
 
       // If critical error (but NOT a redirectable session), reset state
       // We don't want to kick them out if we can redirect them!
-      if (!redirectId && (errorMessage.includes("Authentication") || errorMessage.includes("already in an active battle"))) {
+      const isRoomError = errorMessage.includes("expired") || errorMessage.includes("does not exist") || errorMessage.includes("full");
+      const isAuthError = errorMessage.includes("Authentication");
+      const isStateError = errorMessage.includes("already in an active battle");
+
+      if (!redirectId && (isAuthError || isStateError || isRoomError)) {
         sessionStorage.removeItem('active_room_id');
         sessionStorage.removeItem('active_username');
         setRoomId("");
+
+        // Don't show modal for room errors, just toast and redirect
+        if (isRoomError) {
+          setErrorModal({ show: false, message: '', redirectId: null });
+          showToast(`Redirecting: ${errorMessage}`, "error");
+          navigate('/app/problems');
+          return;
+        }
+
         navigate('/app');
       }
     };
@@ -236,7 +250,7 @@ function MainApp({ initialRoom }) {
     navigate('/app/problems');
   };
 
-  const joinRoom = (rid, uname, topic, diff) => {
+  const joinRoom = (rid, uname, topic, diff, isPublic = true) => {
     const session = localStorage.getItem('user_session');
     if (!session || session === "undefined") {
       navigate('/connect');
@@ -253,9 +267,31 @@ function MainApp({ initialRoom }) {
       username: uname,
       userId: userInfo._id, // Pass MongoDB ID
       topic,
-      difficulty: diff
+      difficulty: diff,
+      isPublic
     });
     navigate(`/app/competition/${rid}`);
+  };
+
+  // Workspace Wrapper to handle URL params
+  const WorkspaceWrapper = () => {
+    const { problemId } = useParams();
+    const location = useLocation();
+
+    // Use currentProblem if matches, otherwise create stub from URL
+    const problem = currentProblem && (currentProblem.id == problemId || currentProblem.slug == problemId)
+      ? currentProblem
+      : { id: problemId, slug: problemId, title: "Loading Problem..." };
+
+    const customHandleBack = () => {
+      if (location.state?.from === 'learn') {
+        navigate('/app/learn');
+      } else {
+        handleBack();
+      }
+    };
+
+    return <Workspace problem={problem} onBack={customHandleBack} />;
   };
 
   return (
@@ -274,7 +310,7 @@ function MainApp({ initialRoom }) {
 
               {/* Protected App Routes (Require Sync) */}
               <Route element={<RequireSync />}>
-                <Route index element={<Lobby onJoin={joinRoom} onPracticeSolo={() => navigate('/app/problems')} userInfo={userInfo} />} />
+                <Route index element={<Lobby socket={socket} onJoin={joinRoom} onPracticeSolo={() => navigate('/app/problems')} userInfo={userInfo} />} />
                 <Route path="problems" element={
                   <ProblemList
                     problems={problems}
@@ -283,10 +319,10 @@ function MainApp({ initialRoom }) {
                     onSelectProblem={handlePrompt}
                   />
                 } />
-                <Route path="workspace/:problemId" element={
-                  currentProblem ? <Workspace problem={currentProblem} onBack={handleBack} /> : <Navigate to="/app/problems" />
-                } />
+                <Route path="workspace/:problemId" element={<WorkspaceWrapper />} />
+
                 <Route path="history" element={<HistoryPage />} />
+                <Route path="learn" element={<LearnPage />} />
                 <Route path="competition/:roomId" element={
                   <CompetitionRoomWrapper
                     socket={socket}

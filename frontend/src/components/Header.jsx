@@ -121,11 +121,29 @@ const Header = ({ onShowProblemList, onGoDetail }) => {
                     </button>
 
                     <button
-                        onClick={() => handleNav(() => navigate('/app/history'))} // Protected Navigation
+                        onClick={() => handleNav(() => navigate('/app/learn'))}
                         style={{
                             background: 'transparent',
                             border: 'none',
-                            color: isInBattle ? 'var(--text-muted)' : 'var(--text-secondary)',
+                            color: isInBattle ? 'var(--text-muted)' : (location.pathname.includes('/learn') ? 'white' : 'var(--text-secondary)'),
+                            cursor: isInBattle ? 'not-allowed' : 'pointer',
+                            fontSize: '13px',
+                            padding: '8px 16px',
+                            borderRadius: '8px',
+                            fontWeight: 500,
+                            transition: 'all 0.2s',
+                            background: location.pathname.includes('/learn') ? 'var(--bg-hover)' : 'transparent',
+                        }}
+                    >
+                        Learn
+                    </button>
+
+                    <button
+                        onClick={() => handleNav(() => navigate('/app/history'))} // Protected Navigation
+                        style={{
+                            background: location.pathname.includes('/history') ? 'var(--bg-hover)' : 'transparent',
+                            border: 'none',
+                            color: isInBattle ? 'var(--text-muted)' : (location.pathname.includes('/history') ? 'white' : 'var(--text-secondary)'),
                             cursor: isInBattle ? 'not-allowed' : 'pointer',
                             fontSize: '13px',
                             padding: '8px 16px',

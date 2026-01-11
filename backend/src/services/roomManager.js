@@ -62,8 +62,9 @@ export class RoomManager {
         return rooms[roomId];
     }
 
-    static createRoom(roomId, topic, difficulty) {
+    static createRoom(roomId, topic, difficulty, isPublic = true) {
         if (!rooms[roomId]) {
+            console.log(`[RoomManager] Creating Room ${roomId} (Public: ${isPublic})`);
             rooms[roomId] = {
                 id: roomId,
                 users: [],
@@ -71,6 +72,7 @@ export class RoomManager {
                 status: 'waiting',
                 topic: topic || 'all',
                 difficulty: difficulty || 'Medium',
+                isPublic: isPublic,
                 messages: []
             };
         }
@@ -78,17 +80,37 @@ export class RoomManager {
     }
 
     static joinRoom(roomId, socketId, username) {
+        // ... (existing code, no change needed here yet)
         const room = rooms[roomId];
         if (!room) return null;
 
         const existingUser = room.users.find(u => u.id === socketId);
         if (!existingUser) {
             room.users.push({ id: socketId, username, score: 0, status: 'joined' });
+            console.log(`[RoomManager] User ${username} joined Room ${roomId}. Users: ${room.users.length}`);
         } else {
             existingUser.username = username;
             existingUser.status = 'joined';
         }
         return room;
+    }
+
+    static getPublicRooms() {
+        const publicRooms = Object.values(rooms)
+            .filter(r => {
+                const visible = r.isPublic && r.status === 'waiting' && r.users.length < 5;
+                // console.log(`[RoomManager] Room ${r.id}: Public=${r.isPublic}, Status=${r.status}, Users=${r.users.length} -> Visible=${visible}`);
+                return visible;
+            })
+            .map(r => ({
+                id: r.id,
+                host: r.users[0]?.username || 'Unknown',
+                topic: r.topic,
+                difficulty: r.difficulty,
+                usersCount: r.users.length
+            }));
+        console.log(`[RoomManager] Returned ${publicRooms.length} public rooms.`);
+        return publicRooms;
     }
 
     static removeUser(roomId, socketId) {
@@ -113,18 +135,18 @@ export class RoomManager {
     }
 
     static findRoomByUser(userId) {
-        log(`Checking userId: ${userId}`);
+        // log(`Checking userId: ${userId}`);
         for (const roomId in rooms) {
             const room = rooms[roomId];
-            log(`Scanning Room ${roomId} Users: ${JSON.stringify(room.users.map(u => ({ id: u.id, userId: u.userId })))}`);
+            // log(`Scanning Room ${roomId} Users: ${JSON.stringify(room.users.map(u => ({ id: u.id, userId: u.userId })))}`);
             // Check if user is in this room
             const user = room.users.find(u => String(u.userId) === String(userId));
             if (user) {
-                log(`MATCH FOUND in Room ${roomId}`);
+                // log(`MATCH FOUND in Room ${roomId}`);
                 return { room, user };
             }
         }
-        log(`No match found for ${userId}`);
+        // log(`No match found for ${userId}`);
         return null;
     }
 

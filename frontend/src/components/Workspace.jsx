@@ -96,7 +96,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
             const fn = type === 'run' ? runCode : submitCode;
             const data = await fn({
                 slug: problem.slug,
-                question_id: problem.id,
+                question_id: details?.questionId || problem.id,
                 lang: language,
                 typed_code: code,
                 data_input: customInput,
