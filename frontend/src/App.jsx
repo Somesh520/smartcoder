@@ -195,7 +195,10 @@ function MainApp({ initialRoom }) {
       import('./api').then(api => {
         api.getCurrentUser().then(user => {
           if (user) setUserInfo({ loggedIn: true, ...user });
-        }).catch(() => localStorage.removeItem('auth_token'));
+        }).catch((err) => {
+          console.error("Failed to restore session:", err);
+          // Do NOT remove token here. Network error != Invalid Token.
+        });
       });
     }
 
