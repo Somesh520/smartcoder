@@ -23,6 +23,7 @@
     "express-session": "^1.18.2",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
+    "leetcode-query": "^2.0.1",
     "mongoose": "^9.1.2",
     "node": "^20.19.6",
     "nodemon": "^3.1.11",

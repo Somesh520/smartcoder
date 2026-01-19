@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, Outlet, useParams } from 'react-router-dom';
-import Header from './components/Header';
+import Sidebar from './components/Sidebar';
 import ProblemList from './components/ProblemList';
 import Workspace from './components/Workspace';
 import Lobby from './components/Lobby';
@@ -9,6 +9,8 @@ import CompetitionRoomWrapper from './components/CompetitionRoomWrapper';
 import ConnectLeetCode from './components/ConnectLeetCode';
 import LandingPage from './components/LandingPage';
 import HistoryPage from './components/HistoryPage';
+import LeetCodePage from './components/LeetCodePage';
+import Documentation from './components/Documentation';
 
 import LearnPage from './components/LearnPage';
 import SEO from './components/SEO';
@@ -308,49 +310,53 @@ function MainApp({ initialRoom }) {
     <div className="app-container" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Routes>
         <Route path="/connect" element={<><SEO title="Connect LeetCode - AlgoDuel" /><ConnectLeetCode onCheckConnection={checkLogin} /></>} />
+        <Route path="/docs" element={<><SEO title="Documentation - AlgoDuel" description="Complete technical documentation for AlgoDuel platform" /><Documentation /></>} />
         <Route path="/app/*" element={
-          <>
-            <Header
+          <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
+            <Sidebar
               onShowProblemList={() => navigate('/app/problems')}
               onGoDetail={() => navigate('/app')}
             />
-            <Routes>
-              {/* Onboarding / Sync Page */}
-              <Route path="onboarding" element={<><SEO title="Sync Account - AlgoDuel" /><ConnectLeetCode onCheckConnection={() => window.location.reload()} /></>} />
+            <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+              <Routes>
+                {/* Onboarding / Sync Page */}
+                <Route path="onboarding" element={<><SEO title="Sync Account - AlgoDuel" /><ConnectLeetCode onCheckConnection={() => window.location.reload()} /></>} />
 
-              {/* Protected App Routes (Require Sync) */}
-              <Route element={<RequireSync />}>
-                <Route index element={<><SEO title="Lobby - AlgoDuel" /><Lobby socket={socket} onJoin={joinRoom} onPracticeSolo={() => navigate('/app/problems')} userInfo={userInfo} /></>} />
-                <Route path="problems" element={
-                  <>
-                    <SEO title="Problem Set - AlgoDuel" />
-                    <ProblemList
-                      problems={problems}
-                      loading={loading}
-                      onRefresh={loadProblems}
-                      onSelectProblem={handlePrompt}
+                {/* Protected App Routes (Require Sync) */}
+                <Route element={<RequireSync />}>
+                  <Route index element={<><SEO title="Lobby - AlgoDuel" /><Lobby socket={socket} onJoin={joinRoom} onPracticeSolo={() => navigate('/app/problems')} userInfo={userInfo} /></>} />
+                  <Route path="problems" element={
+                    <>
+                      <SEO title="Problem Set - AlgoDuel" />
+                      <ProblemList
+                        problems={problems}
+                        loading={loading}
+                        onRefresh={loadProblems}
+                        onSelectProblem={handlePrompt}
+                      />
+                    </>
+                  } />
+                  <Route path="workspace/:problemId" element={<WorkspaceWrapper />} />
+
+                  <Route path="history" element={<HistoryPage />} />
+                  <Route path="stats" element={<LeetCodePage />} />
+                  <Route path="learn" element={<LearnPage />} />
+                  <Route path="competition/:roomId" element={
+                    <CompetitionRoomWrapper
+                      socket={socket}
+                      roomId={roomId}
+                      username={username}
+                      userInfo={userInfo}
+                      roomState={roomState}
+                      onBack={handleBackToLobby}
+                      setRoomId={setRoomId}
+                      setUsername={setUsername}
                     />
-                  </>
-                } />
-                <Route path="workspace/:problemId" element={<WorkspaceWrapper />} />
-
-                <Route path="history" element={<HistoryPage />} />
-                <Route path="learn" element={<LearnPage />} />
-                <Route path="competition/:roomId" element={
-                  <CompetitionRoomWrapper
-                    socket={socket}
-                    roomId={roomId}
-                    username={username}
-                    userInfo={userInfo}
-                    roomState={roomState}
-                    onBack={handleBackToLobby}
-                    setRoomId={setRoomId}
-                    setUsername={setUsername}
-                  />
-                } />
-              </Route>
-            </Routes>
-          </>
+                  } />
+                </Route>
+              </Routes>
+            </div>
+          </div>
         } />
       </Routes>
 

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import Header from './Header'; // Ensure Header is imported if used, or standard imports
+import ElectricBorder from './ElectricBorder';
 import SEO from './SEO';
 import SchemaMarkup from './SchemaMarkup';
 import {
@@ -7,6 +9,7 @@ import {
     Github, Twitter, ChevronRight, Play, Server, Database,
     Globe, Cpu, Cpu as Microchip
 } from 'lucide-react';
+import LeetCodeStats from './LeetCodeStats';
 
 const LandingPage = () => {
     const [scrolled, setScrolled] = useState(false);
@@ -18,6 +21,16 @@ const LandingPage = () => {
         setModalContent({ title, body });
         setModalOpen(true);
     };
+
+    // Smooth scrolling for navigation links
+    useEffect(() => {
+        // Enable smooth scrolling
+        document.documentElement.style.scrollBehavior = 'smooth';
+
+        return () => {
+            document.documentElement.style.scrollBehavior = 'auto';
+        };
+    }, []);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -154,15 +167,17 @@ const LandingPage = () => {
                     </p>
 
                     <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
-                        <Link to="/app" className="cyber-btn-primary">
-                            <span className="btn-content">Enter The Arena <Play fill="black" size={14} /></span>
-                        </Link>
+                        <ElectricBorder color="#00FFFF" speed={2} chaos={0.10} thickness={2} style={{ borderRadius: '4px' }}>
+                            <Link to="/app" className="cyber-btn-primary">
+                                <span className="btn-content">Enter The Arena <Play fill="black" size={14} /></span>
+                            </Link>
+                        </ElectricBorder>
                     </div>
                 </div>
 
                 {/* Floating Code Snippet Effect */}
                 <div className="desktop-only" style={{
-                    position: 'absolute', bottom: '40px', right: '40px',
+                    position: 'absolute', bottom: '40px', right: '40px', zIndex: 5,
                     fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.2)',
                     textAlign: 'right'
                 }}>
@@ -403,7 +418,10 @@ const LandingPage = () => {
                         />
                     </div>
                 </div>
+
             </section >
+
+
 
             {/* STUDIO SECTION */}
             < section id="studio" style={{ padding: '160px 20px', background: 'radial-gradient(circle at 50% 10%, #111, #050505)' }}>
@@ -421,8 +439,8 @@ const LandingPage = () => {
 
                     <div style={{ display: 'inline-flex', gap: '20px', borderTop: '1px solid #333', paddingTop: '40px' }}>
                         <SocialLink label="GITHUB" href="https://github.com/Somesh520" />
-                        <SocialLink label="LINKEDIN" href="#" />
-                        <SocialLink label="PORTFOLIO" href="#" />
+                        <SocialLink label="LINKEDIN" href="https://www.linkedin.com/in/somesh-tiwari-236555322/" />
+                        <SocialLink label="PORTFOLIO" href="https://someshxd.netlify.app/" />
                     </div>
                 </div>
             </section >
@@ -460,7 +478,7 @@ const LandingPage = () => {
 
                         <div>
                             <FooterHeader>Resources</FooterHeader>
-                            <FooterLink onClick={() => openModal("Documentation", "Full system documentation including WebSocket event specifications and Docker container constraints is available in our developer portal (Coming Soon).")}>Documentation</FooterLink>
+                            <Link to="/docs" style={{ color: '#a1a1aa', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#a1a1aa'}>Documentation</Link>
                             <FooterLink onClick={() => openModal("API Reference", "Our REST and WebSocket APIs are rate-limited to 100 req/min. Authentication via JWT required for all endpoints.")}>API Reference</FooterLink>
                             <FooterLink onClick={() => openModal("Guidelines", "Be respectful. No cheating. Ensure fair play. Bans are permanent for macro usage or multiple account abuse.")}>Community Guidelines</FooterLink>
                             <FooterLink onClick={() => openModal("System Status", "All Systems Operational. 99.9% Uptime this month.\n\n- Matchmaking: ONLINE\n- Execution Engine: ONLINE\n- Voice Server: ONLINE")}>System Status</FooterLink>

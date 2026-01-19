@@ -1,7 +1,7 @@
 import { getCurrentUser, logout, BASE_URL } from '../api';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Code2, Swords } from 'lucide-react'; // Assuming icons are from lucide-react based on usage
+import { Code2, Swords, TrendingUp } from 'lucide-react';
 
 const Header = ({ onShowProblemList, onGoDetail }) => {
     const navigate = useNavigate();
@@ -104,6 +104,27 @@ const Header = ({ onShowProblemList, onGoDetail }) => {
                     </button>
 
                     <button
+                        onClick={() => handleNav(() => navigate('/app/stats'))}
+                        style={{
+                            background: location.pathname.includes('/stats') ? 'var(--bg-hover)' : 'transparent',
+                            border: '1px solid var(--border-subtle)',
+                            color: isInBattle ? 'var(--text-muted)' : (location.pathname.includes('/stats') ? 'white' : 'var(--text-secondary)'),
+                            cursor: isInBattle ? 'not-allowed' : 'pointer',
+                            fontSize: '13px',
+                            padding: '8px 16px',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            fontWeight: 500,
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        <TrendingUp size={14} color={isInBattle ? '#52525b' : '#f59e0b'} />
+                        Stats
+                    </button>
+
+                    <button
                         onClick={() => handleNav(onShowProblemList)}
                         style={{
                             background: currentView === 'list' ? 'var(--bg-hover)' : 'transparent',
@@ -123,7 +144,6 @@ const Header = ({ onShowProblemList, onGoDetail }) => {
                     <button
                         onClick={() => handleNav(() => navigate('/app/learn'))}
                         style={{
-                            background: 'transparent',
                             border: 'none',
                             color: isInBattle ? 'var(--text-muted)' : (location.pathname.includes('/learn') ? 'white' : 'var(--text-secondary)'),
                             cursor: isInBattle ? 'not-allowed' : 'pointer',

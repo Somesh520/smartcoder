@@ -305,6 +305,7 @@ const Lobby = ({ socket, onJoin, onPracticeSolo, userInfo }) => {
                 )}
             </div>
 
+
             {/* LOGIN POPUP MODAL */}
             {showLoginModal && (
                 <div style={{
