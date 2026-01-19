@@ -903,25 +903,32 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                         flexDirection: 'column',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         overflow: 'hidden',
-                        whiteSpace: 'nowrap'
+                        whiteSpace: 'nowrap',
+                        position: 'relative' // Added for absolute children
                     }}>
 
                         {/* VOICE CONTROL HEADER */}
-                        <div style={{ padding: '15px', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #3f3f46' }}>
-                            {/* Collapse Button (Only visual if open) */}
-                            <div style={{ position: 'absolute', right: '10px', top: '55px', zIndex: 10 }}>
-                                <button
-                                    onClick={() => setSidebarOpen(false)}
-                                    style={{
-                                        background: '#27272a', border: '1px solid #3f3f46', borderRadius: '50%',
-                                        width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        cursor: 'pointer', color: '#a1a1aa'
-                                    }}
-                                    title="Collapse Sidebar"
-                                >
-                                    <ChevronLeft size={14} />
-                                </button>
-                            </div>
+                        <div style={{ padding: '15px', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #3f3f46', position: 'relative' }}>
+                            {/* Collapse Button */}
+                            <button
+                                onClick={() => setSidebarOpen(false)}
+                                style={{
+                                    position: 'absolute',
+                                    right: '5px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: '#3f3f46',
+                                    border: '1px solid #52525b',
+                                    borderRadius: '50%',
+                                    width: '20px', height: '20px',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    cursor: 'pointer', color: 'white',
+                                    zIndex: 20
+                                }}
+                                title="Collapse Sidebar"
+                            >
+                                <ChevronLeft size={12} />
+                            </button>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 {/* Status Ring / Voice Visualizer */}
                                 <div style={{ position: 'relative', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
