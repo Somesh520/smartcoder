@@ -908,26 +908,30 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                     }}>
 
                         {/* VOICE CONTROL HEADER */}
-                        <div style={{ padding: '15px', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #3f3f46', position: 'relative' }}>
-                            {/* Collapse Button */}
+                        <div style={{ padding: '15px 40px 15px 15px', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #3f3f46', position: 'relative' }}>
+
+                            {/* COLLAPSE BUTTON (Clear & Distinct) */}
                             <button
                                 onClick={() => setSidebarOpen(false)}
                                 style={{
                                     position: 'absolute',
-                                    right: '5px',
+                                    right: '8px',
                                     top: '50%',
                                     transform: 'translateY(-50%)',
-                                    background: '#3f3f46',
-                                    border: '1px solid #52525b',
-                                    borderRadius: '50%',
-                                    width: '20px', height: '20px',
+                                    background: 'transparent',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    padding: '6px',
+                                    cursor: 'pointer',
+                                    color: '#a1a1aa',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    cursor: 'pointer', color: 'white',
-                                    zIndex: 20
+                                    transition: 'background 0.2s',
                                 }}
+                                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'white'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#a1a1aa'; }}
                                 title="Collapse Sidebar"
                             >
-                                <ChevronLeft size={12} />
+                                <PanelLeftClose size={20} />
                             </button>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 {/* Status Ring / Voice Visualizer */}
