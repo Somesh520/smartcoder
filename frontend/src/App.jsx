@@ -186,9 +186,8 @@ function MainApp({ initialRoom }) {
     };
   }, [navigate]);
 
-  // 2. Data & Room State Effect
+  // 2. Authentication Check (Runs ONCE on mount)
   useEffect(() => {
-    // Check for token and fetch user details
     const token = localStorage.getItem('auth_token');
     if (token) {
       setUserInfo({ loggedIn: true });
@@ -196,19 +195,22 @@ function MainApp({ initialRoom }) {
         api.getCurrentUser().then(user => {
           if (user) setUserInfo({ loggedIn: true, ...user });
         }).catch(() => {
-          // Do NOT remove token here. Network error != Invalid Token.
+          // Network error != Invalid Token.
         });
       });
     }
+  }, []);
 
-    // Only load problems if not already loaded
+  // 3. Data Loading (Runs ONCE on mount)
+  useEffect(() => {
     if (problems.length === 0) {
       loadProblems();
     }
+  }, []); // Remove dependency on problems.length to avoid loops
 
-    // Room Listeners
+  // 4. Room Listeners (Runs ONCE on mount)
+  useEffect(() => {
     const onRoomUpdate = (state) => {
-
       setRoomState(state);
     };
 
@@ -229,7 +231,7 @@ function MainApp({ initialRoom }) {
       socket.off('gameActive', onGameActive);
       socket.off('sessionKilled', onSessionKilled);
     };
-  }, [problems.length]); // Keep data dependencies here
+  }, []);
 
   const handlePrompt = (problem) => {
     setCurrentProblem(problem);
