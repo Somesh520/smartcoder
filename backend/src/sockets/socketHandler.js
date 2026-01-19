@@ -15,7 +15,7 @@ export const socketHandler = (io) => {
 
 
         // JOIN ROOM
-        socket.on('joinRoom', async ({ roomId, username, userId, topic, difficulty, isPublic }) => {
+        socket.on('joinRoom', async ({ roomId, username, userId, topic, difficulty, isPublic, specificProblem }) => {
             roomId = String(roomId);
 
             // 1. Require Registration
@@ -23,27 +23,6 @@ export const socketHandler = (io) => {
                 socket.emit('error', "Authentication required to join matches.");
                 return;
             }
-
-
-
-            // 1.5. ENFORCE ONE ROOM PER USER - DISABLED BY USER REQUEST
-            // const existingSession = RoomManager.findRoomByUser(userId);
-
-            // if (existingSession) {
-            //     console.log(`[BLOCK] User found in Room ${existingSession.room.id}`);
-            //     // Allow re-joining the SAME room (for refresh/reconnect)
-            //     if (String(existingSession.room.id) !== String(roomId)) {
-            //         // Send structured error to allow frontend to offer redirection
-            //         socket.emit('error', {
-            //             message: `You are already in an active battle (Room ${existingSession.room.id}). Finish that first!`,
-            //             roomId: existingSession.room.id,
-            //             type: 'EXISTING_SESSION'
-            //         });
-            //         return;
-            //     }
-            // } else {
-
-            // }
 
             // 2. Prevent Self-Play (Unique Users only) & Handle Reclaims
             const existingRoom = RoomManager.getRoom(roomId);
@@ -56,19 +35,9 @@ export const socketHandler = (io) => {
                         const existingUser = existingRoom.users[existingUserIndex];
 
                         // ALWAYS RECLAIM (Whether zombie or active)
-                        // This allows a user to "Take Over" their session from another tab/device
-                        // without getting blocked by "You cannot join a game against yourself".
-
-
-
                         if (disconnectTimeouts[existingUser.id]) {
                             clearTimeout(disconnectTimeouts[existingUser.id]);
                             delete disconnectTimeouts[existingUser.id];
-                        } else {
-                            // If active, maybe notify the old socket?
-                            // io.to(existingUser.id).emit('error', "Session taken over by another tab.");
-                            // The old socket will naturally disconnect if the user closed the tab, 
-                            // or will just be orphaned until it disconnects.
                         }
 
                         // Update ID
@@ -92,20 +61,14 @@ export const socketHandler = (io) => {
 
             socket.join(roomId);
 
-
-
             let room = RoomManager.createRoom(roomId, topic, difficulty, isPublic);
+            if (specificProblem) {
+                room.specificProblem = specificProblem; // Store constraint
+            }
+
             // Store userId in the room user object
             const user = { id: socket.id, username, userId, score: 0, status: 'attempting' };
 
-            // We need to manually add user since RoomManager.joinRoom might create a default one
-            // Let's modify how we use RoomManager or just append directly if allowed, 
-            // but RoomManager.joinRoom is cleaner. Let's assume we update RoomManager later or 
-            // override here.
-
-            // Actually, RoomManager.joinRoom(roomId, socket.id, username) likely pushes a simple object.
-            // Let's verify RoomManager content if possible, but since I can't see it right now, 
-            // I'll assume I need to find the user and update it after joining.
             RoomManager.joinRoom(roomId, socket.id, username);
 
             // Update the user with userId if provided
@@ -115,13 +78,6 @@ export const socketHandler = (io) => {
             // Notify room
             io.to(roomId).emit('roomUpdate', room);
             broadcastPublicRooms();
-
-            // Notify room
-            io.to(roomId).emit('roomUpdate', room);
-            broadcastPublicRooms();
-
-            // Auto-start REPLACED by Manual Start for >2 players (User Request: 5 player limit)
-            // But we can trigger "Ready" status updates if we want, for now just update room.
         });
 
         // MANUAL START GAME
@@ -144,13 +100,45 @@ export const socketHandler = (io) => {
             room.status = 'starting';
             io.to(roomId).emit('roomUpdate', room);
             broadcastPublicRooms(); // Remove from public list
-            io.to(roomId).emit('gameStart', { message: "Host started the battle! Starting in 5 seconds..." });
+            io.to(roomId).emit('gameStart', { message: room.specificProblem ? "Starting Custom Challenge..." : "Host started the battle! Starting in 5 seconds..." });
 
             // Fetch Random Problem
             try {
                 let allProblems = await leetcodeService.fetchProblems();
                 if (allProblems.stat_status_pairs) allProblems = allProblems.stat_status_pairs;
 
+                // 1. SPECIFIC PROBLEM OVERRIDE
+                if (room.specificProblem) {
+                    const targetSlug = room.specificProblem.toLowerCase();
+                    const specificMatch = allProblems.find(p =>
+                        (p.stat?.question__title_slug?.toLowerCase() === targetSlug) ||
+                        (String(p.stat?.question_id) === targetSlug)
+                    );
+
+                    if (specificMatch) {
+                        const isPaid = specificMatch.paid_only === true;
+                        if (!isPaid) {
+                            console.log(`[GameStart] Using Specific Problem: ${specificMatch.stat.question__title_slug}`);
+                            room.problem = {
+                                id: specificMatch.stat.question_id,
+                                title: specificMatch.stat.question__title,
+                                slug: specificMatch.stat.question__title_slug
+                            };
+
+                            room.status = 'active';
+                            room.startTime = Date.now();
+                            io.to(roomId).emit('gameActive', room);
+                            return; // Exit early
+                        } else {
+                            // Notify fallback
+                            io.to(roomId).emit('chatMessage', { username: "System", message: "⚠️ Custom problem is Premium/Locked. Using random instead." });
+                        }
+                    } else {
+                        io.to(roomId).emit('chatMessage', { username: "System", message: "⚠️ Custom problem not found. Using random instead." });
+                    }
+                }
+
+                // 2. RANDOM FALLBACK (Existing Logic)
                 const roomTopic = room.topic || 'all';
                 const roomDiff = room.difficulty || 'Medium';
 
@@ -202,8 +190,6 @@ export const socketHandler = (io) => {
                         slug: randomProb.title_slug || (randomProb.stat && randomProb.stat.question__title_slug)
                     };
                 }
-
-
 
                 room.status = 'active';
                 room.startTime = Date.now();

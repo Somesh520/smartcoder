@@ -18,6 +18,7 @@ const Lobby = ({ socket, onJoin, onPracticeSolo, userInfo }) => {
     const [topic, setTopic] = useState("all");
     const [difficulty, setDifficulty] = useState("Medium");
     const [isPublic, setIsPublic] = useState(true);
+    const [specificProblem, setSpecificProblem] = useState("");
 
     // Join State
     const [joinRoomId, setJoinRoomId] = useState("");
@@ -61,7 +62,14 @@ const Lobby = ({ socket, onJoin, onPracticeSolo, userInfo }) => {
 
     const handleCreate = () => {
         const newRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-        onJoin(newRoomId, username, topic, difficulty, isPublic);
+        // Extract slug from URL if pasted, otherwise use as is
+        let problemSlug = specificProblem.trim();
+        if (problemSlug.includes('/problems/')) {
+            const match = problemSlug.match(/\/problems\/([^/]+)/);
+            if (match) problemSlug = match[1];
+        }
+
+        onJoin(newRoomId, username, topic, difficulty, isPublic, problemSlug);
     };
 
     const handleJoin = () => {
@@ -193,6 +201,20 @@ const Lobby = ({ socket, onJoin, onPracticeSolo, userInfo }) => {
                                         </select>
                                         <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#71717a' }}>▼</div>
                                     </div>
+                                </div>
+                            </div>
+
+                            {/* Specific Problem Input */}
+                            <div style={inputGroupStyle}>
+                                <label style={labelStyle}><Code size={14} /> CUSTOM PROBLEM (OPTIONAL)</label>
+                                <input
+                                    placeholder="Enter URL or Slug (e.g. two-sum)"
+                                    value={specificProblem}
+                                    onChange={(e) => setSpecificProblem(e.target.value)}
+                                    style={inputStyle}
+                                />
+                                <div style={{ fontSize: '11px', color: '#71717a', marginTop: '4px' }}>
+                                    Leave empty to use AI Random Picker
                                 </div>
                             </div>
 

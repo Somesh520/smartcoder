@@ -258,7 +258,7 @@ function MainApp({ initialRoom }) {
     navigate('/app/problems');
   };
 
-  const joinRoom = (rid, uname, topic, diff, isPublic = true) => {
+  const joinRoom = (rid, uname, topic, diff, isPublic = true, specificProblem = "") => {
     const session = localStorage.getItem('user_session');
     if (!session || session === "undefined") {
       navigate('/connect');
@@ -276,7 +276,8 @@ function MainApp({ initialRoom }) {
       userId: userInfo._id, // Pass MongoDB ID
       topic,
       difficulty: diff,
-      isPublic
+      isPublic,
+      specificProblem // Passthrough to backend
     });
     navigate(`/app/competition/${rid}`);
   };
