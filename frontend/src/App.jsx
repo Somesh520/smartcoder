@@ -318,10 +318,12 @@ function MainApp({ initialRoom }) {
         <Route path="/docs" element={<><SEO title="Documentation - AlgoDuel" description="Complete technical documentation for AlgoDuel platform" /><Documentation /></>} />
         <Route path="/app/*" element={
           <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
-            <Sidebar
-              onShowProblemList={() => navigate('/app/problems')}
-              onGoDetail={() => navigate('/app')}
-            />
+            {!location.pathname.includes('/competition/') && (
+              <Sidebar
+                onShowProblemList={() => navigate('/app/problems')}
+                onGoDetail={() => navigate('/app')}
+              />
+            )}
             <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', position: 'relative' }}>
               <Routes>
                 {/* Onboarding / Sync Page */}
