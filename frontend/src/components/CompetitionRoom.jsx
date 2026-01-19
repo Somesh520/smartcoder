@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import Workspace from './Workspace';
-import { Users, Trophy, MessageSquare, Mic, MicOff, Send, Phone, PhoneIncoming, PhoneOff, Sword } from 'lucide-react';
+import { Users, Trophy, MessageSquare, Mic, MicOff, Send, Phone, PhoneIncoming, PhoneOff, Sword, Loader, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import LoadingScreen from './LoadingScreen';
 
 
@@ -35,6 +36,8 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
 
     // Toast State
     const [toast, setToast] = useState(null); // { message, type: 'info' | 'error' }
+    const [showResults, setShowResults] = useState(false);
+    const [isSidebarOpen, setSidebarOpen] = useState(true);
 
     // Volume Visualization State
     const [localVolume, setLocalVolume] = useState(0);
@@ -111,7 +114,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
             if (opponentStatus === 'online' || isMicOn) {
                 setOpponentStatus('offline'); // FIXED: Ensure UI updates to "Call" not "Join"
                 endCall(false); // Don't emit 'offline' back, they are gone.
-                showToast(leaver ? `${leaver.username} left (Call Ended)` : "Opponent left the match (Call Ended)", 'info');
+                showToast(leaver ? `${leaver.username} left(Call Ended)` : "Opponent left the match (Call Ended)", 'info');
             }
         };
 
@@ -204,7 +207,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                         } catch (e) { console.warn("ICE Error", e); }
                     } else {
                         // Queue early candidates
-                        console.log(`[ICE] Queuing candidate for ${senderId} (Remote Description not set)`);
+                        console.log(`[ICE] Queuing candidate for ${senderId}(Remote Description not set)`);
                         if (!candidateQueueRef.current[senderId]) candidateQueueRef.current[senderId] = [];
                         candidateQueueRef.current[senderId].push(signal.candidate);
                     }
@@ -213,7 +216,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
         };
         const handleCallRejected = ({ username }) => {
             setIsCalling(false); // Stop calling state
-            showToast(`Called Ignored by ${username}`, 'error');
+            showToast(`Called Ignored by ${username} `, 'error');
         };
 
         socket.on('playerLeft', handlePlayerLeft);
@@ -264,7 +267,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
             </div>
         )
     }
-    <style>{`@keyframes slideDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }`}</style>
+    <style>{`@keyframes slideDown { from { transform: translate(-50 %, -100 %); opacity: 0; } to { transform: translate(-50 %, 0); opacity: 1; } } `}</style>
 
     {/* SIDEBAR */ }
 
@@ -477,7 +480,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                         const isStarting = roomState.status === 'starting';
 
                         const copyLink = () => {
-                            const url = `${window.location.origin}?room=${roomId}`;
+                            const url = `${window.location.origin}?room = ${roomId} `;
                             navigator.clipboard.writeText(url);
                             showToast("Invite Link Copied!", 'info');
                         };
@@ -486,23 +489,23 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                             <>
                                 {/* ANIMATIONS & STYLES */}
                                 <style>{`
-                                     @keyframes slideInLeft { from { opacity: 0; transform: translateX(-100px); } to { opacity: 1; transform: translateX(0); } }
-                                     @keyframes slideInRight { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
-                                     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-                                     @keyframes popIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
-                                     @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-                                     @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
-                                     @keyframes pulse-fast { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.05); filter: brightness(1.3); } }
-                                     @keyframes glitch {
-                                        0% { transform: translate(0); }
-                                        20% { transform: translate(-2px, 2px); }
-                                        40% { transform: translate(-2px, -2px); }
-                                        60% { transform: translate(2px, 2px); }
-                                        80% { transform: translate(2px, -2px); }
-                                        100% { transform: translate(0); }
-                                     }
-                                     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-                                 `}</style>
+@keyframes slideInLeft { from { opacity: 0; transform: translateX(-100px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes popIn { 0 % { transform: scale(0); } 80 % { transform: scale(1.1); } 100 % { transform: scale(1); } }
+@keyframes spin - slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes ping { 75 %, 100 % { transform: scale(2); opacity: 0; } }
+@keyframes pulse - fast { 0 %, 100 % { transform: scale(1); filter: brightness(1); } 50 % { transform: scale(1.05); filter: brightness(1.3); } }
+@keyframes glitch {
+    0 % { transform: translate(0); }
+    20 % { transform: translate(-2px, 2px); }
+    40 % { transform: translate(-2px, -2px); }
+    60 % { transform: translate(2px, 2px); }
+    80 % { transform: translate(2px, -2px); }
+    100 % { transform: translate(0); }
+}
+@keyframes float { 0 %, 100 % { transform: translateY(0); } 50 % { transform: translateY(-10px); } }
+`}</style>
 
                                 {/* Background Grid & Glow */}
                                 <div style={{ position: 'absolute', inset: 0, opacity: 0.4, background: 'radial-gradient(circle at center, #1e1e24 0%, #000 100%)' }} />
@@ -534,7 +537,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'slideInLeft 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)' }}>
                                             <div style={{
                                                 width: '140px', height: '140px', borderRadius: '50%',
-                                                background: `linear-gradient(135deg, #22c55e, #10b981)`,
+                                                background: `linear - gradient(135deg, #22c55e, #10b981)`,
                                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                 boxShadow: '0 0 50px rgba(34, 197, 94, 0.5)',
                                                 marginBottom: '24px', border: '5px solid #fff',
@@ -552,7 +555,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                                                 <>
                                                     <div style={{
                                                         width: '140px', height: '140px', borderRadius: '50%',
-                                                        background: `linear-gradient(135deg, #ef4444, #dc2626)`,
+                                                        background: `linear - gradient(135deg, #ef4444, #dc2626)`,
                                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                         boxShadow: '0 0 50px rgba(239, 68, 68, 0.5)',
                                                         marginBottom: '24px', border: '5px solid #fff',
@@ -601,7 +604,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                                                 return (
                                                     <div key={u.id} style={{
                                                         display: 'flex', flexDirection: 'column', alignItems: 'center',
-                                                        animation: `popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${i * 0.1}s backwards`,
+                                                        animation: `popIn 0.4s cubic - bezier(0.175, 0.885, 0.32, 1.275) ${i * 0.1}s backwards`,
                                                         transform: isDistorted ? `translate(${Math.random() * 4 - 2}px, ${Math.random() * 4 - 2}px)` : 'none'
                                                     }}>
 
@@ -691,12 +694,12 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                                 </div>
 
                                 <style>{`
-                                     @keyframes slideInLeft { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
-                                     @keyframes slideInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
-                                     @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-                                     @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
-                                     @keyframes pulse-fast { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.1); } }
-                                 `}</style>
+@keyframes slideInLeft { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes spin - slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes ping { 75 %, 100 % { transform: scale(2); opacity: 0; } }
+@keyframes pulse - fast { 0 %, 100 % { transform: translate(-50 %, -50 %) scale(1); } 50 % { transform: translate(-50 %, -50 %) scale(1.1); } }
+`}</style>
                             </>
                         );
                     })()}
@@ -779,7 +782,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                                         if (!ms) return "--:--";
                                         const mins = Math.floor(ms / 60000);
                                         const secs = Math.floor((ms % 60000) / 1000);
-                                        return `${mins}m ${secs}s`;
+                                        return `${mins}m ${secs} s`;
                                     };
 
                                     return (
@@ -820,17 +823,17 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                                                     fontSize: '13px', fontWeight: 600
                                                 }}>
                                                     {u.status === 'completed' ? 'ALL PASSED' : (isLeaver ? 'FORFEIT' : `${u.score || 0} / ?`)}
-                                                </span>
-                                            </div>
+                                                </span >
+                                            </div >
 
                                             {/* TIME */}
-                                            <div style={{ textAlign: 'right', fontFamily: 'monospace', fontSize: '15px', color: u.timeTaken ? 'white' : '#52525b' }}>
+                                            < div style={{ textAlign: 'right', fontFamily: 'monospace', fontSize: '15px', color: u.timeTaken ? 'white' : '#52525b' }}>
                                                 {u.timeTaken ? formatTime(u.timeTaken) : "--:--"}
-                                            </div>
-                                        </div>
+                                            </div >
+                                        </div >
                                     );
                                 })}
-                            </div>
+                            </div >
 
                             <button
                                 onClick={onBack}
@@ -853,44 +856,72 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                                 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
                                 @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
                             `}</style>
-                        </div>
+                        </div >
                     )}
 
-                    {showLeaveConfirm && (
-                        <Modal title="Leave Battle?" actions={
-                            <>
-                                <button onClick={() => setShowLeaveConfirm(false)} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid #444', color: '#ccc', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
-                                <button onClick={() => { setShowLeaveConfirm(false); onBack(); }} style={{ padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}>Yes, Surrender</button>
-                            </>
-                        }>
-                            <p>Are you sure? This counts as a forfeit.</p>
-                        </Modal>
-                    )}
+                    {
+                        showLeaveConfirm && (
+                            <Modal title="Leave Battle?" actions={
+                                <>
+                                    <button onClick={() => setShowLeaveConfirm(false)} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid #444', color: '#ccc', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
+                                    <button onClick={() => { setShowLeaveConfirm(false); onBack(); }} style={{ padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}>Yes, Surrender</button>
+                                </>
+                            }>
+                                <p>Are you sure? This counts as a forfeit.</p>
+                            </Modal>
+                        )
+                    }
 
-                    {incomingCall && (
-                        <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', padding: '20px 30px', background: '#22c55e', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', color: 'white', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.3)', zIndex: 2000, animation: 'bounce 1s infinite' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <PhoneIncoming size={32} />
-                                <span style={{ fontSize: '20px', fontWeight: 700 }}>Incoming Call...</span>
+                    {
+                        incomingCall && (
+                            <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', padding: '20px 30px', background: '#22c55e', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', color: 'white', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.3)', zIndex: 2000, animation: 'bounce 1s infinite' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <PhoneIncoming size={32} />
+                                    <span style={{ fontSize: '20px', fontWeight: 700 }}>Incoming Call...</span>
+                                </div>
+                                <div style={{ fontSize: '14px', opacity: 0.9 }}>Opponent wants to speak</div>
+
+                                <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+                                    <button onClick={toggleMic} style={{ flex: 1, background: 'white', color: '#22c55e', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '14px' }}>ACCEPT</button>
+                                    <button onClick={() => {
+                                        setIncomingCall(false);
+                                        socket.emit('callRejected', { roomId, username });
+                                    }} style={{ background: 'rgba(0,0,0,0.2)', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer' }}>Ignore</button>
+                                </div>
+                                <style>{`@keyframes bounce { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.05); } }`}</style>
                             </div>
-                            <div style={{ fontSize: '14px', opacity: 0.9 }}>Opponent wants to speak</div>
-
-                            <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
-                                <button onClick={toggleMic} style={{ flex: 1, background: 'white', color: '#22c55e', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '14px' }}>ACCEPT</button>
-                                <button onClick={() => {
-                                    setIncomingCall(false);
-                                    socket.emit('callRejected', { roomId, username });
-                                }} style={{ background: 'rgba(0,0,0,0.2)', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer' }}>Ignore</button>
-                            </div>
-                            <style>{`@keyframes bounce { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.05); } }`}</style>
-                        </div>
-                    )}
+                        )
+                    }
 
                     {/* SIDEBAR */}
-                    <div style={{ width: '300px', background: '#18181b', borderRight: '1px solid #27272a', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{
+                        width: isSidebarOpen ? '260px' : '0px',
+                        opacity: isSidebarOpen ? 1 : 0,
+                        background: '#1c1c1c',
+                        borderRight: isSidebarOpen ? '1px solid #333' : 'none',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap'
+                    }}>
 
                         {/* VOICE CONTROL HEADER */}
                         <div style={{ padding: '15px', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #3f3f46' }}>
+                            {/* Collapse Button (Only visual if open) */}
+                            <div style={{ position: 'absolute', right: '10px', top: '55px', zIndex: 10 }}>
+                                <button
+                                    onClick={() => setSidebarOpen(false)}
+                                    style={{
+                                        background: '#27272a', border: '1px solid #3f3f46', borderRadius: '50%',
+                                        width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        cursor: 'pointer', color: '#a1a1aa'
+                                    }}
+                                    title="Collapse Sidebar"
+                                >
+                                    <ChevronLeft size={14} />
+                                </button>
+                            </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 {/* Status Ring / Voice Visualizer */}
                                 <div style={{ position: 'relative', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1068,9 +1099,25 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                         </button>
                     </div>
 
-                    {/* MAIN WORKSPACE */}
-                    <div style={{ flex: 1, position: 'relative' }}>
-                        <Workspace
+                    {/* MAIN WORKSPACE - RELATIVE FOR OVERLAYS */}
+                    <div style={{ flex: 1, position: 'relative', height: '100%', overflow: 'hidden' }}>
+
+                        {/* EXPAND SIDEBAR BUTTON (Floating) */}
+                        {!isSidebarOpen && (
+                            <button
+                                onClick={() => setSidebarOpen(true)}
+                                style={{
+                                    position: 'absolute', top: '20px', left: '20px', zIndex: 50,
+                                    background: '#27272a', border: '1px solid #3f3f46', borderRadius: '8px',
+                                    padding: '8px', cursor: 'pointer', color: 'white',
+                                    display: 'flex', alignItems: 'center', gap: '8px',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                                }}
+                            >
+                                <PanelLeftOpen size={18} />
+                                <span style={{ fontSize: '13px', fontWeight: 600 }}>Open Menu</span>
+                            </button>
+                        )}                    <Workspace
                             problem={problem}
                             roomId={roomId}
                             onBack={() => setShowLeaveConfirm(true)}
@@ -1090,9 +1137,9 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                             Room: {roomId} | Socket: {socket.id} | Mic: {isMicOn ? 'ON' : 'OFF'}
                         </div>
                     </div>
-                </div>
+                </div >
             ) : null}
-        </div>
+        </div >
     );
 };
 
