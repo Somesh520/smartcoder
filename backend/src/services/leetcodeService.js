@@ -10,7 +10,7 @@ export const fetchProblems = async () => {
         if (redisClient.isOpen) {
             const cached = await redisClient.get(cacheKey);
             if (cached) {
-                console.log("Using Cached Problem List");
+
                 return JSON.parse(cached);
             }
         }
@@ -21,7 +21,7 @@ export const fetchProblems = async () => {
 
     // 2. Try Primary API
     try {
-        console.log("Fetching from Primary API...");
+
         const response = await axios.get('https://leetcode-api-pied.vercel.app/problems', { timeout: 5000 });
         const data = response.data;
 
@@ -34,7 +34,7 @@ export const fetchProblems = async () => {
 
         // 3. Try Backup API
         try {
-            console.log("Fetching from Backup API...");
+
             const response = await axios.get('https://alfa-leetcode-api.onrender.com/problems', { timeout: 8000 });
             const data = response.data; // Note: Structure might differ, need to ensure compatibility or normalize
             // Alfa API returns { totalQuestions: N, count: N, problemsetQuestionList: [...] }
@@ -69,7 +69,7 @@ export const fetchProblemDetails = async (id) => {
     try {
         const cached = await redisClient.get(cacheKey);
         if (cached) {
-            console.log(`Using Cached Details for Problem ${id}`);
+
             return JSON.parse(cached);
         }
     } catch (e) {

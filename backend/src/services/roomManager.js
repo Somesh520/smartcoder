@@ -64,7 +64,7 @@ export class RoomManager {
 
     static createRoom(roomId, topic, difficulty, isPublic = true) {
         if (!rooms[roomId]) {
-            console.log(`[RoomManager] Creating Room ${roomId} (Public: ${isPublic})`);
+
             rooms[roomId] = {
                 id: roomId,
                 users: [],
@@ -87,7 +87,7 @@ export class RoomManager {
         const existingUser = room.users.find(u => u.id === socketId);
         if (!existingUser) {
             room.users.push({ id: socketId, username, score: 0, status: 'joined' });
-            console.log(`[RoomManager] User ${username} joined Room ${roomId}. Users: ${room.users.length}`);
+
         } else {
             existingUser.username = username;
             existingUser.status = 'joined';
@@ -109,7 +109,7 @@ export class RoomManager {
                 difficulty: r.difficulty,
                 usersCount: r.users.length
             }));
-        console.log(`[RoomManager] Returned ${publicRooms.length} public rooms.`);
+
         return publicRooms;
     }
 

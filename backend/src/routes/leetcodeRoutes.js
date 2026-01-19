@@ -37,14 +37,14 @@ router.post('/me', async (req, res) => {
         });
 
         const data = await response.json();
-        console.log("[LeetCode Auth] Session Check Result:", JSON.stringify(data));
+
 
         if (!data.data || !data.data.userStatus || !data.data.userStatus.isSignedIn) {
             return res.status(401).json({ error: "Invalid Session or Not Signed In" });
         }
 
         const username = data.data.userStatus.username.trim();
-        console.log(`[LeetCode Auth] Identified user: '${username}'`);
+
 
         // JUST return the username. Let the frontend fetch the stats using the working GET endpoint.
         res.json({ username: username });
@@ -62,7 +62,7 @@ router.get('/:username', async (req, res) => {
     try {
         const { username } = req.params;
 
-        console.log(`[LeetCode] Fetching stats for: ${username}`);
+
 
         // Parallel fetching
         const [user, contest] = await Promise.all([

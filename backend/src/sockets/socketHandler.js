@@ -12,7 +12,7 @@ export const socketHandler = (io) => {
     };
 
     io.on('connection', (socket) => {
-        console.log('User connected:', socket.id);
+
 
         // JOIN ROOM
         socket.on('joinRoom', async ({ roomId, username, userId, topic, difficulty, isPublic }) => {
@@ -24,7 +24,7 @@ export const socketHandler = (io) => {
                 return;
             }
 
-            console.log(`[CHECK] User ${username} (${userId}) attempting to join ${roomId}`);
+
 
             // 1.5. ENFORCE ONE ROOM PER USER - DISABLED BY USER REQUEST
             // const existingSession = RoomManager.findRoomByUser(userId);
@@ -42,7 +42,7 @@ export const socketHandler = (io) => {
             //         return;
             //     }
             // } else {
-            //     console.log(`[CHECK] User ${userId} is clear.`);
+
             // }
 
             // 2. Prevent Self-Play (Unique Users only) & Handle Reclaims
@@ -59,7 +59,7 @@ export const socketHandler = (io) => {
                         // This allows a user to "Take Over" their session from another tab/device
                         // without getting blocked by "You cannot join a game against yourself".
 
-                        console.log(`[RECLAIM] User ${username} taking over session ${existingUser.id}`);
+
 
                         if (disconnectTimeouts[existingUser.id]) {
                             clearTimeout(disconnectTimeouts[existingUser.id]);
@@ -92,7 +92,7 @@ export const socketHandler = (io) => {
 
             socket.join(roomId);
 
-            console.log(`[JOIN] Socket ${socket.id} joined room "${roomId}"`);
+
 
             let room = RoomManager.createRoom(roomId, topic, difficulty, isPublic);
             // Store userId in the room user object
@@ -183,7 +183,7 @@ export const socketHandler = (io) => {
                 let randomProb = filtered[Math.floor(Math.random() * filtered.length)];
 
                 if (!randomProb) {
-                    console.log("⚠️ API Failed! Using Offline Fallback Pool.");
+
                     const FALLBACK_PROBLEMS = RoomManager.getFallbackProblems();
                     let diffLevel = 2;
                     if (roomDiff === 'Easy') diffLevel = 1;
@@ -195,7 +195,7 @@ export const socketHandler = (io) => {
                     const pick = localFiltered[Math.floor(Math.random() * localFiltered.length)];
                     room.problem = { id: pick.id, title: pick.title, slug: pick.slug };
                 } else {
-                    console.log("Random Problem Selected:", JSON.stringify(randomProb, null, 2));
+
                     room.problem = {
                         id: randomProb.id || (randomProb.stat && randomProb.stat.question_id),
                         title: randomProb.title || (randomProb.stat && randomProb.stat.question__title),
@@ -203,7 +203,7 @@ export const socketHandler = (io) => {
                     };
                 }
 
-                console.log("Room Problem Set:", room.problem);
+
 
                 room.status = 'active';
                 room.startTime = Date.now();
@@ -213,7 +213,7 @@ export const socketHandler = (io) => {
                 console.error("Failed to fetch problem for room", e);
 
                 // FALLBACK ON ERROR
-                console.log("⚠️ API Error! Using Offline Fallback Pool.");
+
                 const FALLBACK_PROBLEMS = RoomManager.getFallbackProblems();
                 let diffLevel = 2; // Default Medium
                 if (room.difficulty === 'Easy') diffLevel = 1;
@@ -241,7 +241,7 @@ export const socketHandler = (io) => {
                     user.score = passedInfo.testcases;
 
                     if (passedInfo.passed && room.status !== 'finished') {
-                        console.log(`[GAME] Winner by Solution: ${user.username}`);
+
                         room.status = 'finished';
                         room.winner = user.username;
 
@@ -291,16 +291,16 @@ export const socketHandler = (io) => {
 
         // DISCONNECT
         socket.on('disconnect', () => {
-            console.log('User disconnected:', socket.id);
+
             const rooms = RoomManager.getRooms();
             for (const rId in rooms) {
                 const room = rooms[rId];
                 const user = room.users.find(u => u.id === socket.id);
                 if (user) {
                     if (room.status === 'active') {
-                        console.log(`[DISCONNECT] User ${user.username} in active game. Starting grace period...`);
+
                         disconnectTimeouts[socket.id] = setTimeout(() => {
-                            console.log(`[TIMEOUT] User ${user.username} grace period expired. Removed.`);
+
                             handleLeave(socket.id, rId, io);
                             delete disconnectTimeouts[socket.id];
                         }, 2000);
@@ -314,13 +314,13 @@ export const socketHandler = (io) => {
         // REJOIN
         socket.on('rejoinRoom', ({ roomId, username, userId }) => {
             roomId = String(roomId);
-            console.log(`[REJOIN] User ${socket.id} (ID: ${userId}) re-joining room ${roomId}`);
+
 
             // 1. ENFORCE ONE ROOM PER USER - DISABLED BY USER REQUEST
             // const existingSession = RoomManager.findRoomByUser(userId);
 
             // if (existingSession) {
-            //     console.log(`[BLOCK-REJOIN] User found in Room ${existingSession.room.id}`);
+
             //     // Allow re-joining the SAME room
             //     if (String(existingSession.room.id) !== String(roomId)) {
             //         socket.emit('error', {
@@ -356,7 +356,7 @@ export const socketHandler = (io) => {
                 socket.join(roomId);
                 io.to(roomId).emit('roomUpdate', room);
             } else {
-                console.log(`[REJOIN] New user entry for ${username} in existing room`);
+
                 room.users.push({ id: socket.id, username, userId, score: 0, status: 'joined' });
                 socket.join(roomId);
                 io.to(roomId).emit('roomUpdate', room);
@@ -366,12 +366,12 @@ export const socketHandler = (io) => {
 
         // KILL SESSION (Force End Previous Room)
         socket.on('killSession', ({ userId }) => {
-            console.log(`[KILL-REQ] User ${socket.id} requesting kill for userId: ${userId}`);
+
             const existingSession = RoomManager.findRoomByUser(userId);
 
             if (existingSession) {
                 const { room, user } = existingSession;
-                console.log(`[KILL-FOUND] Found session in Room ${room.id} (Socket: ${user.id}). Killing...`);
+
 
                 if (disconnectTimeouts[user.id]) {
                     clearTimeout(disconnectTimeouts[user.id]);
@@ -381,7 +381,7 @@ export const socketHandler = (io) => {
                 // Force remove
                 const result = RoomManager.removeUser(room.id, user.id);
                 if (result) {
-                    console.log(`[KILL-SUCCESS] User removed from DB.`);
+
 
                     // No need to send error. The session is dead.
                     // If we send error, it might reach the new socket or confuse the user.
@@ -400,14 +400,14 @@ export const socketHandler = (io) => {
                         io.to(room.id).emit('roomUpdate', room);
                         saveMatchToDB(room, [...room.users, user], winnerText);
                     } else if (room.status === 'waiting' && deleted) {
-                        console.log("Room deleted (waiting phase).");
+
                     }
                 }
 
                 // IMPORTANT: Tell the frontend to Retry
                 socket.emit('sessionKilled', { message: "Previous session ended. Re-joining..." });
             } else {
-                console.log(`[KILL-NONE] No active session found to kill.`);
+
                 socket.emit('sessionKilled', { message: "No active session found. Retrying..." });
             }
         });
@@ -434,18 +434,18 @@ export const socketHandler = (io) => {
                 winner: specificWinner || room.winner
             });
             await match.save();
-            console.log("✅ Match saved to DB:", match._id);
+
         } catch (err) {
             console.error("❌ Failed to save match:", err);
         }
     };
 
     const handleLeave = (socketId, roomId, io) => {
-        console.log(`[LEAVE] Socket ${socketId} leaving Room ${roomId}`);
+
         const result = RoomManager.removeUser(roomId, socketId);
         if (result) {
             const { room, user, deleted } = result;
-            console.log(`[LEAVE-OK] Removed ${user.username}. Room deleted? ${deleted}`);
+
 
             // Notify others
             if (room) io.to(roomId).emit('roomUpdate', room);
@@ -469,7 +469,7 @@ export const socketHandler = (io) => {
                     saveMatchToDB(room, allPlayers, winnerText);
                 } else {
                     // Game Continues!
-                    console.log(`[LEAVE] Game continues with ${room.users.length} players.`);
+
                     io.to(roomId).emit('chatMessage', {
                         username: "System",
                         message: `🚫 ${user.username} left the battle.`,

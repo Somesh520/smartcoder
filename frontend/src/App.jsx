@@ -26,7 +26,7 @@ const socket = io(API_URL, {
 });
 
 socket.on("connect", () => {
-  console.log("✅ Socket Connected:", socket.id);
+
 });
 
 socket.on("connect_error", (err) => {
@@ -195,8 +195,7 @@ function MainApp({ initialRoom }) {
       import('./api').then(api => {
         api.getCurrentUser().then(user => {
           if (user) setUserInfo({ loggedIn: true, ...user });
-        }).catch((err) => {
-          console.error("Failed to restore session:", err);
+        }).catch(() => {
           // Do NOT remove token here. Network error != Invalid Token.
         });
       });
@@ -209,7 +208,7 @@ function MainApp({ initialRoom }) {
 
     // Room Listeners
     const onRoomUpdate = (state) => {
-      console.log("📥 App: Received roomUpdate:", state);
+
       setRoomState(state);
     };
 
@@ -522,7 +521,7 @@ function App() {
     const token = urlParams.get('token');
 
     if (token) {
-      console.log("🔑 Token detected, saving to storage.");
+
       localStorage.setItem('auth_token', token);
       setIsAuthenticated(true); // Force re-render with auth true
 
@@ -533,7 +532,7 @@ function App() {
     }
 
     if (roomId) {
-      console.log("🔗 Room share link detected:", roomId);
+
       setInitialRoom(roomId);
     }
   }, []);
