@@ -16,6 +16,7 @@ export const socketHandler = (io) => {
 
         // JOIN ROOM
         socket.on('joinRoom', async ({ roomId, username, userId, topic, difficulty, isPublic, specificProblem }) => {
+            console.log(`[JoinRoom] Request for ${roomId} by ${username}. SpecificProblem: "${specificProblem}"`);
             roomId = String(roomId);
 
             // 1. Require Registration
@@ -63,6 +64,7 @@ export const socketHandler = (io) => {
 
             let room = RoomManager.createRoom(roomId, topic, difficulty, isPublic);
             if (specificProblem) {
+                console.log(`[JoinRoom] Setting specificProblem for room ${roomId}: ${specificProblem}`);
                 room.specificProblem = specificProblem; // Store constraint
             }
 
@@ -110,6 +112,8 @@ export const socketHandler = (io) => {
                 // 1. SPECIFIC PROBLEM OVERRIDE
                 if (room.specificProblem) {
                     const targetSlug = room.specificProblem.toLowerCase();
+                    console.log(`[StartGame] Searching for specific problem: "${targetSlug}" in ${allProblems.length} problems`);
+
                     const specificMatch = allProblems.find(p => {
                         const pSlug = (p.slug || p.titleSlug || p.stat?.question__title_slug || "").toLowerCase();
                         const pId = String(p.id || p.questionId || p.stat?.question_id || "");
@@ -117,6 +121,8 @@ export const socketHandler = (io) => {
                     });
 
                     if (specificMatch) {
+                        console.log(`[StartGame] Match Found in Cache! ID: ${specificMatch.id || specificMatch.stat?.question_id}`);
+
                         const isPaid = specificMatch.paid_only === true || specificMatch.paid === true;
                         if (!isPaid) {
                             const pSlug = specificMatch.slug || specificMatch.titleSlug || specificMatch.stat?.question__title_slug;
@@ -135,13 +141,43 @@ export const socketHandler = (io) => {
                             io.to(roomId).emit('gameActive', room);
                             return; // Exit early
                         } else {
-                            // Notify fallback
+                            console.warn(`[GameStart] Specific problem is PAID. Falling back.`);
                             io.to(roomId).emit('chatMessage', { username: "System", message: "⚠️ Custom problem is Premium/Locked. Using random instead." });
                         }
                     } else {
-                        console.warn(`[GameStart] Problem NOT found for slug: ${targetSlug}`);
-                        io.to(roomId).emit('chatMessage', { username: "System", message: "⚠️ Custom problem not found. Using random instead." });
+                        // FALLBACK: Fetch Individual Problem Details
+                        console.warn(`[StartGame] Problem NOT found in cache (${allProblems.length} items). Fetching direct details for: ${targetSlug}`);
+
+                        try {
+                            const details = await leetcodeService.fetchProblemDetails(targetSlug);
+                            const q = details?.data?.question;
+
+                            if (q) {
+                                if (q.isPaidOnly) {
+                                    io.to(roomId).emit('chatMessage', { username: "System", message: "⚠️ Custom problem is Premium. Using random." });
+                                } else {
+                                    console.log(`[GameStart] Fetched Direct: ${q.titleSlug}`);
+                                    room.problem = {
+                                        id: q.questionId,
+                                        title: q.title,
+                                        slug: q.titleSlug
+                                    };
+
+                                    room.status = 'active';
+                                    room.startTime = Date.now();
+                                    io.to(roomId).emit('gameActive', room);
+                                    return;
+                                }
+                            } else {
+                                throw new Error("Question data missing");
+                            }
+                        } catch (err) {
+                            console.error(`[StartGame] Direct fetch failed for ${targetSlug}:`, err.message);
+                            io.to(roomId).emit('chatMessage', { username: "System", message: `⚠️ Problem "${targetSlug}" not found. Using random.` });
+                        }
                     }
+                } else {
+                    console.log("[StartGame] No specific problem set. Using random.");
                 }
 
                 // 2. RANDOM FALLBACK (Existing Logic)
