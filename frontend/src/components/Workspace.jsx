@@ -3,7 +3,7 @@ import { fetchProblemDetails, runCode, submitCode, pollResult } from '../api';
 import CodeEditor from './CodeEditor';
 import Console from './Console';
 import ModernSpinner from './ModernSpinner';
-import { Play, Send, Trophy, Zap, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Play, Send, Trophy, Zap, GripVertical } from 'lucide-react';
 
 const DEFAULT_TEMPLATES = {
     'cpp': 'class Solution {\\npublic:\\n    // Write C++ code here\\n};',
@@ -20,6 +20,34 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
     const [consoleOpen, setConsoleOpen] = useState(false);
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    // Resizable Layout State
+    const [leftWidth, setLeftWidth] = useState(40); // Initial 40% width for problem description
+
+    // Resize Handler
+    const startResizing = (mouseDownEvent) => {
+        mouseDownEvent.preventDefault();
+        const startX = mouseDownEvent.clientX;
+        const startWidth = leftWidth;
+
+        const onMouseMove = (mouseMoveEvent) => {
+            const newWidth = startWidth + ((mouseMoveEvent.clientX - startX) / window.innerWidth) * 100;
+            if (newWidth > 20 && newWidth < 80) {
+                setLeftWidth(newWidth);
+            }
+        };
+
+        const onMouseUp = () => {
+            document.removeEventListener("mousemove", onMouseMove);
+            document.removeEventListener("mouseup", onMouseUp);
+            document.body.style.cursor = 'default';
+            // Enable pointer events on iframes/editors if needed
+        };
+
+        document.addEventListener("mousemove", onMouseMove);
+        document.addEventListener("mouseup", onMouseUp);
+        document.body.style.cursor = 'col-resize';
+    };
     const [showInputSection, setShowInputSection] = useState(true);
     const [availableSnippets, setAvailableSnippets] = useState([]);
 
@@ -173,7 +201,8 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
 
             {/* LEFT PANEL - Problem Description */}
             <div style={{
-                flex: 1,
+                width: `${leftWidth}%`,
+                flex: 'none',
                 borderRight: '1px solid rgba(34, 197, 94, 0.2)',
                 display: 'flex',
                 flexDirection: 'column',
@@ -375,9 +404,33 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                 </div>
             </div>
 
+            {/* DRAGGABLE RESIZER */}
+            <div
+                onMouseDown={startResizing}
+                style={{
+                    width: '6px',
+                    margin: '0 2px',
+                    cursor: 'col-resize',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 50
+                }}
+                className="resizer-handle"
+            >
+                <style>{`.resizer-handle:hover > div { background: #3b82f6; }`}</style>
+                <div style={{
+                    width: '2px',
+                    height: '100%',
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    transition: 'background 0.2s',
+                    borderRadius: '2px'
+                }}></div>
+            </div>
+
             {/* RIGHT PANEL - Code Editor */}
             <div style={{
-                flex: 1.5,
+                flex: 1,
                 display: 'flex',
                 flexDirection: 'column',
                 background: 'rgba(14, 14, 20, 0.8)',
