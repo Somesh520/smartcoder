@@ -1,5 +1,6 @@
 import express from 'express';
 import { LeetCode } from 'leetcode-query';
+import * as leetcodeService from '../services/leetcodeService.js';
 
 const router = express.Router();
 const leetcode = new LeetCode(); // Auto-manages sessions/CSRF
@@ -52,6 +53,54 @@ router.post('/me', async (req, res) => {
     } catch (error) {
         console.error("Auto-sync Error:", error);
         res.status(500).json({ error: "Failed to sync with LeetCode session" });
+    }
+});
+
+// 3. SEARCH: Autocomplete problems (GET)
+// Endpoint: /api/leetcode/search?q=two
+router.get('/search', async (req, res) => {
+    try {
+        const query = (req.query.q || "").toLowerCase().trim();
+        if (query.length < 2) return res.json([]);
+
+        let allProblems = await leetcodeService.fetchProblems();
+
+        if (allProblems && allProblems.stat_status_pairs) {
+            allProblems = allProblems.stat_status_pairs;
+        }
+
+        if (!allProblems || !Array.isArray(allProblems)) {
+            console.error("[Search] Critical: allProblems is not an array");
+            return res.json([]);
+        }
+
+        const matches = allProblems
+            .filter(p => {
+                const title = (p.title || p.stat?.question__title || "").toLowerCase();
+                const slug = (p.title_slug || p.stat?.question__title_slug || "").toLowerCase();
+                return title.includes(query) || slug.includes(query);
+            })
+            .slice(0, 10) // Limit to top 10
+            .map(p => {
+                let diff = "Medium";
+                if (p.difficulty === 'Easy' || p.difficulty?.level === 1) diff = 'Easy';
+                else if (p.difficulty === 'Medium' || p.difficulty?.level === 2) diff = 'Medium';
+                else if (p.difficulty === 'Hard' || p.difficulty?.level === 3) diff = 'Hard';
+
+                return {
+                    id: p.stat?.question_id || p.id,
+                    title: p.stat?.question__title || p.title,
+                    slug: p.stat?.question__title_slug || p.title_slug || p.slug,
+                    difficulty: diff,
+                    paid: p.paid_only === true || p.paid === true
+                };
+            });
+
+        res.json(matches);
+
+    } catch (error) {
+        console.error("Search Error:", error);
+        res.status(500).json({ error: "Search failed" });
     }
 });
 

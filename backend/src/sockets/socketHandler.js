@@ -110,19 +110,24 @@ export const socketHandler = (io) => {
                 // 1. SPECIFIC PROBLEM OVERRIDE
                 if (room.specificProblem) {
                     const targetSlug = room.specificProblem.toLowerCase();
-                    const specificMatch = allProblems.find(p =>
-                        (p.stat?.question__title_slug?.toLowerCase() === targetSlug) ||
-                        (String(p.stat?.question_id) === targetSlug)
-                    );
+                    const specificMatch = allProblems.find(p => {
+                        const pSlug = (p.slug || p.titleSlug || p.stat?.question__title_slug || "").toLowerCase();
+                        const pId = String(p.id || p.questionId || p.stat?.question_id || "");
+                        return pSlug === targetSlug || pId === targetSlug;
+                    });
 
                     if (specificMatch) {
-                        const isPaid = specificMatch.paid_only === true;
+                        const isPaid = specificMatch.paid_only === true || specificMatch.paid === true;
                         if (!isPaid) {
-                            console.log(`[GameStart] Using Specific Problem: ${specificMatch.stat.question__title_slug}`);
+                            const pSlug = specificMatch.slug || specificMatch.titleSlug || specificMatch.stat?.question__title_slug;
+                            const pTitle = specificMatch.title || specificMatch.stat?.question__title;
+                            const pId = specificMatch.id || specificMatch.questionId || specificMatch.stat?.question_id;
+
+                            console.log(`[GameStart] Using Specific Problem: ${pSlug}`);
                             room.problem = {
-                                id: specificMatch.stat.question_id,
-                                title: specificMatch.stat.question__title,
-                                slug: specificMatch.stat.question__title_slug
+                                id: pId,
+                                title: pTitle,
+                                slug: pSlug
                             };
 
                             room.status = 'active';
@@ -134,6 +139,7 @@ export const socketHandler = (io) => {
                             io.to(roomId).emit('chatMessage', { username: "System", message: "⚠️ Custom problem is Premium/Locked. Using random instead." });
                         }
                     } else {
+                        console.warn(`[GameStart] Problem NOT found for slug: ${targetSlug}`);
                         io.to(roomId).emit('chatMessage', { username: "System", message: "⚠️ Custom problem not found. Using random instead." });
                     }
                 }

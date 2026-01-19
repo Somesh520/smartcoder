@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Users, Plus, Zap, Hash, Globe, Target, Code, Sword, ArrowRight } from 'lucide-react';
+import ProblemAutocomplete from './ProblemAutocomplete';
 
 const Lobby = ({ socket, onJoin, onPracticeSolo, userInfo }) => {
     const [mode, setMode] = useState('create'); // 'create' | 'join'
@@ -207,14 +208,12 @@ const Lobby = ({ socket, onJoin, onPracticeSolo, userInfo }) => {
                             {/* Specific Problem Input */}
                             <div style={inputGroupStyle}>
                                 <label style={labelStyle}><Code size={14} /> CUSTOM PROBLEM (OPTIONAL)</label>
-                                <input
-                                    placeholder="Enter URL or Slug (e.g. two-sum)"
-                                    value={specificProblem}
-                                    onChange={(e) => setSpecificProblem(e.target.value)}
-                                    style={inputStyle}
+                                <ProblemAutocomplete
+                                    onSelect={(slug) => setSpecificProblem(slug)}
+                                    initialValue={specificProblem}
                                 />
                                 <div style={{ fontSize: '11px', color: '#71717a', marginTop: '4px' }}>
-                                    Leave empty to use AI Random Picker
+                                    Search by name. Leave empty to use AI Random Picker.
                                 </div>
                             </div>
 
