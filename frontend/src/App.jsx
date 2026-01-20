@@ -11,7 +11,6 @@ import LandingPage from './components/LandingPage';
 import HistoryPage from './components/HistoryPage';
 import LeetCodePage from './components/LeetCodePage';
 import Documentation from './components/Documentation';
-import Documentation from './components/Documentation';
 
 import LearnPage from './components/LearnPage';
 import SEO from './components/SEO';
