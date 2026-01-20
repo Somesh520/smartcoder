@@ -15,14 +15,19 @@ export const fetchProblems = async () => {
 
   let problems = [];
   if (data.stat_status_pairs) {
+    if (data.stat_status_pairs.length > 0) {
+      console.log("[API] First raw item (pairs):", data.stat_status_pairs[0]);
+    }
     problems = data.stat_status_pairs.map(p => ({
-      id: p.stat.frontend_question_id || p.stat.question_id, // Use Frontend ID to match Solved list
+      id: p.stat.frontend_question_id || p.stat.question_id, // Use Frontend ID
       title: p.stat.question__title,
       slug: p.stat.question__title_slug,
       difficulty: p.difficulty.level === 1 ? 'Easy' : p.difficulty.level === 2 ? 'Medium' : 'Hard'
     }));
   } else if (Array.isArray(data)) {
-    console.log("[API] Is Array, length:", data.length);
+    if (data.length > 0) {
+      console.log("[API] First raw item (array):", data[0]);
+    }
     problems = data.map(p => ({
       id: p.frontendQuestionId || p.questionId || p.id,
       title: p.title || p.questionTitle,
@@ -31,6 +36,7 @@ export const fetchProblems = async () => {
     }));
   }
   console.log("[API] Normalized Problems:", problems.length);
+  if (problems.length > 0) console.log("[API] First Normalized Problem:", problems[0]);
   return problems.filter(p => p.slug && p.title);
 };
 
