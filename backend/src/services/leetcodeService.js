@@ -19,43 +19,50 @@ export const fetchProblems = async () => {
         // Continue to API...
     }
 
-    // 2. Try Primary API
+    // 2. Try Primary API (Alfa with Limit)
     try {
-
-        const response = await axios.get('https://leetcode-api-pied.vercel.app/problems', { timeout: 5000 });
+        console.log("Fetching all problems from Alfa API...");
+        // Fetch up to 3000 problems (Enough to cover all)
+        const response = await axios.get('https://alfa-leetcode-api.onrender.com/problems?limit=3000', { timeout: 15000 });
         const data = response.data;
 
-        // Cache result
-        try { if (redisClient.isOpen) await redisClient.set(cacheKey, JSON.stringify(data), { EX: 3600 }); } catch (e) { }
+        // Alfa returns { totalQuestions: N, problemsetQuestionList: [...] }
+        // We need to normalize this to the format expected by frontend/socketHandler:
+        // Expected: { stat_status_pairs: [ { stat: { question_id, question__title, ... }, difficulty: { level: 1/2/3 } } ] }
+        // OR just return the array and handle it in frontend/api.js (which currently handles both formats).
 
-        return data;
+        // Looking at api.js (Step 392):
+        // if (data.stat_status_pairs) { ... } else if (Array.isArray(data)) { ... }
+
+        // Alfa usually returns `problemsetQuestionList` which is an array.
+        // Let's normalize it to exactly what our app expects for consistency.
+
+        // However, Alfa's structure for problemsetQuestionList is:
+        // { title: "Two Sum", titleSlug: "two-sum", difficulty: "Easy", frontendQuestionId: "1", ... }
+
+        // Frontend `api.js` (lines 23-29) handles `Array.isArray(data)`.
+        // So if we return `data.problemsetQuestionList`, it should work IF we send JUST the array.
+
+        // But wait, `runCode` expects `start_status_pairs` or something else? 
+        // No, `api.js` line 15: `let problems = []`. 
+        // It checks `data.stat_status_pairs`. 
+        // Else `Array.isArray(data)`.
+
+        // So we should return the ARRAY directly if utilizing the second branch.
+        const problemsArray = data.problemsetQuestionList || [];
+
+        // Cache result (as array)
+        try { if (redisClient.isOpen) await redisClient.set(cacheKey, JSON.stringify(problemsArray), { EX: 3600 }); } catch (e) { }
+
+        return problemsArray;
+
     } catch (primaryErr) {
-        console.warn("Primary API Failed:", primaryErr.message);
+        console.warn("Primary API (Alfa) Failed:", primaryErr.message);
 
-        // 3. Try Backup API
+        // 3. Fallback to Pied (Might only return top 50, but better than nothing)
         try {
-
-            const response = await axios.get('https://alfa-leetcode-api.onrender.com/problems', { timeout: 8000 });
-            const data = response.data; // Note: Structure might differ, need to ensure compatibility or normalize
-            // Alfa API returns { totalQuestions: N, count: N, problemsetQuestionList: [...] }
-            // SocketHandler expects { stat_status_pairs: [...] } or normalized array.
-
-            // Let's normalize to what socketHandler expects:
-            // The Primary API returns direct array or specific structure. 
-            // socketHandler.js (line 88): if (allProblems.stat_status_pairs) allProblems = allProblems.stat_status_pairs;
-
-            // If Alfa returns `problemsetQuestionList`, we can wrap it effectively or map it.
-            // Alfa: [ { title: "", titleSlug: "", difficulty: "", ... } ] (It's actually different structure)
-
-            // Actually, safest is to stick to one format or handle differently.
-            // Let's try a different endpoint or just let the offline fallback take over if primary fails.
-            // "alfa-leetcode-api" return structure is cleaner but different.
-
-            // Let's TRY another direct mirror: "https://leetcode-to-openapi.vercel.app/api" ? No.
-
-            // Let's keep it simple: Fix the Redis blocking issue first, which is the main culprit "read ETIMEDOUT".
-            // If Redis times out, it shouldn't crash.
-            throw primaryErr; // Re-throw for now if we don't have a guaranteed compatible backup ready
+            const response = await axios.get('https://leetcode-api-pied.vercel.app/problems', { timeout: 5000 });
+            return response.data;
         } catch (backupErr) {
             console.error("All APIs failed");
             throw primaryErr;
