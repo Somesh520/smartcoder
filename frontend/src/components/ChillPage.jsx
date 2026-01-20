@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Snowbase, Coffee, Music, Gamepad2 } from 'lucide-react'; // Icons for chill vibe
+import { Snowflake, Coffee, Music, Gamepad2 } from 'lucide-react'; // Icons for chill vibe
 
 const ChillPage = () => {
     return (
