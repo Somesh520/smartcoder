@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Search, TrendingUp, Code2, Zap, Target, ChevronRight, CheckCircle } from 'lucide-react';
+import { RefreshCw, Search, TrendingUp, Code2, Zap, Target, ChevronRight, CheckCircle, ChevronLeft } from 'lucide-react';
 import ModernSpinner from './ModernSpinner';
 
 const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectProblem }) => {
     const [filtered, setFiltered] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [hoveredRow, setHoveredRow] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 50;
 
     useEffect(() => {
         setFiltered(problems.filter(p =>
             String(p.title).toLowerCase().includes(searchTerm.toLowerCase()) ||
             String(p.id).includes(searchTerm)
         ));
+        setCurrentPage(1); // Reset to first page on search
     }, [searchTerm, problems]);
 
     const getDifficultyColor = (diff) => {
@@ -215,7 +218,7 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                         </div>
 
                         {/* Table Body */}
-                        {filtered.slice(0, 100).map((p, index) => {
+                        {filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((p, index) => {
                             const diffColors = getDifficultyColor(p.difficulty);
                             const isHovered = hoveredRow === index;
 
@@ -317,6 +320,60 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                                 </div>
                             );
                         })}
+                    </div>
+                )}
+
+                {/* Pagination Controls */}
+                {!loading && filtered.length > 0 && (
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '20px',
+                        marginTop: '30px',
+                        paddingBottom: '20px'
+                    }}>
+                        <button
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            style={{
+                                background: currentPage === 1 ? 'rgba(255, 255, 255, 0.05)' : 'rgba(14, 14, 20, 0.6)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                color: currentPage === 1 ? '#6b7280' : 'white',
+                                padding: '10px 16px',
+                                borderRadius: '8px',
+                                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                                display: 'flex', alignItems: 'center', gap: '8px',
+                                fontSize: '14px', fontWeight: 600,
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            <ChevronLeft size={16} />
+                            Previous
+                        </button>
+
+                        <span style={{ color: '#9ca3af', fontSize: '14px', fontWeight: 500 }}>
+                            Page <span style={{ color: 'white', fontWeight: 700 }}>{currentPage}</span> of <span style={{ color: 'white' }}>{Math.ceil(filtered.length / ITEMS_PER_PAGE)}</span>
+                        </span>
+
+                        <button
+                            onClick={() => setCurrentPage(p => Math.min(Math.ceil(filtered.length / ITEMS_PER_PAGE), p + 1))}
+                            disabled={currentPage >= Math.ceil(filtered.length / ITEMS_PER_PAGE)}
+                            style={{
+                                background: currentPage >= Math.ceil(filtered.length / ITEMS_PER_PAGE) ? 'rgba(255, 255, 255, 0.05)' : 'rgba(14, 14, 20, 0.6)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                color: currentPage >= Math.ceil(filtered.length / ITEMS_PER_PAGE) ? '#6b7280' : 'white',
+                                padding: '10px 16px',
+                                borderRadius: '8px',
+                                cursor: currentPage >= Math.ceil(filtered.length / ITEMS_PER_PAGE) ? 'not-allowed' : 'pointer',
+                                display: 'flex', alignItems: 'center', gap: '8px',
+                                fontSize: '14px', fontWeight: 600,
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            Next
+                            <ChevronRight size={16} />
+                        </button>
                     </div>
                 )}
             </div>
