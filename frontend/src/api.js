@@ -26,18 +26,19 @@ export const fetchProblems = async () => {
     }));
   } else if (Array.isArray(data)) {
     if (data.length > 0) {
-      console.log("[API] First raw item (array):", data[0]);
+      // console.log("[API] First raw item (array):", data[0]);
     }
     problems = data.map(p => ({
-      id: p.frontendQuestionId || p.questionId || p.id,
+      // Alfa API uses 'questionFrontendId', others use 'frontendQuestionId' or 'questionId'
+      id: p.questionFrontendId || p.frontendQuestionId || p.questionId || p.id,
       title: p.title || p.questionTitle,
       slug: p.title_slug || p.titleSlug || p.slug || p.question__title_slug,
       difficulty: p.difficulty || "Medium"
     }));
   }
-  console.log("[API] Normalized Problems:", problems.length);
-  if (problems.length > 0) console.log("[API] First Normalized Problem:", problems[0]);
-  return problems.filter(p => p.slug && p.title);
+  // console.log("[API] Normalized Problems:", problems.length);
+  // if (problems.length > 0) console.log("[API] First Normalized Problem:", problems[0]);
+  return problems.filter(p => p.slug && p.title && p.id);
 };
 
 export const fetchProblemDetails = async (id) => {

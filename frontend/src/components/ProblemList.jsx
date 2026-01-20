@@ -217,14 +217,6 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                             <div></div>
                         </div>
 
-                        {/* DEBUG LOGS */}
-                        {(() => {
-                            if (filtered.length > 0 && currentPage === 1) {
-                                console.log("[ProblemList] First filtered item ID:", filtered[0].id, "Type:", typeof filtered[0].id);
-                                console.log("[ProblemList] Solved Set has First ID?", solvedProblems?.has(String(filtered[0].id)));
-                            }
-                        })()}
-
                         {/* Table Body */}
                         {filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((p, index) => {
                             const diffColors = getDifficultyColor(p.difficulty);
