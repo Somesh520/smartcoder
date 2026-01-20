@@ -20,64 +20,30 @@ export const fetchProblems = async () => {
         // Continue to API...
     }
 
-    // 2. Try Primary API (Alfa with Parallel Pagination)
+    // 2. Try Primary API (Alfa)
     try {
-        console.log("Fetching all problems from Alfa API (Parallel Chunking)...");
+        console.log("Fetching problems from Alfa API (Limit 100)...");
 
-        // Alfa API has a hard limit of 100 problems per request (limit=3000 is ignored/capped).
-        // To get all ~3400 problems, we must fetch in chunks of 50.
-        // We will fetch 70 chunks of 50 = 3500 problems in parallel.
+        // Fetch top 100 problems (User Requested Limit)
+        const response = await axios.get('https://alfa-leetcode-api.onrender.com/problems?limit=100', { timeout: 20000 });
+        const data = response.data;
 
-        const LIMIT = 50;
-        const TOTAL_CHUNKS = 70; // 70 * 50 = 3500 problems (Covers all LeetCode)
-
-        // Generate promises for parallel fetching
-        const chunkPromises = [];
-        for (let i = 0; i < TOTAL_CHUNKS; i++) {
-            const skip = i * LIMIT;
-            chunkPromises.push(
-                axios.get(`https://alfa-leetcode-api.onrender.com/problems?limit=${LIMIT}&skip=${skip}`, { timeout: 60000 })
-                    .then(res => {
-                        return res.data.problemsetQuestionList || (Array.isArray(res.data) ? res.data : []);
-                    })
-                    .catch(err => {
-                        console.warn(`[API] Chunk ${i} (skip ${skip}) failed: ${err.message}`);
-                        return []; // Return empty for failed chunks to avoid crashing Promise.all
-                    })
-            );
+        let problemsArray = [];
+        if (data.problemsetQuestionList) {
+            problemsArray = data.problemsetQuestionList;
+        } else if (Array.isArray(data)) {
+            problemsArray = data;
         }
 
-        // Wait for all chunks
-        const chunks = await Promise.all(chunkPromises);
+        console.log(`[API] Top 100 Fetch Complete. Count: ${problemsArray.length}`);
 
-        // Flatten array
-        let problemsArray = chunks.flat();
-
-        console.log(`[API] Parallel Fetch Complete. Total raw items: ${problemsArray.length}`);
-
-        if (problemsArray.length < 500) {
-            console.warn("[API] Warning: Fetched count seems low, parallel fetch might have failed partially.");
-        }
-
-        // Remove duplicates (just in case)
-        const uniqueMap = new Map();
-        problemsArray.forEach(p => {
-            const id = p.frontendQuestionId || p.questionId || p.questionFrontendId; // Normalized ID check
-            if (id && !uniqueMap.has(id)) {
-                uniqueMap.set(id, p);
-            }
-        });
-
-        problemsArray = Array.from(uniqueMap.values());
-        console.log(`[API] Unique Problems: ${problemsArray.length}`);
-
-        // Cache result (as array)
+        // Cache result
         try { if (redisClient.isOpen) await redisClient.set(cacheKey, JSON.stringify(problemsArray), { EX: 3600 }); } catch (e) { }
 
         return problemsArray;
 
     } catch (primaryErr) {
-        console.error("Parallel Fetch Critical Failure:", primaryErr.message);
+        console.error("Fetch Failure:", primaryErr.message);
         console.warn("Primary API (Alfa) Failed:", primaryErr.message);
 
         // 3. Fallback to Pied (Might only return top 50, but better than nothing)
