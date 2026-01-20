@@ -319,24 +319,6 @@ export const socketHandler = (io) => {
 
         // DISCONNECT
 
-        // --- CHILL ZONE (GLOBAL CHAT) ---
-        socket.on('join_chill_room', ({ username }) => {
-            const CHILL_ROOM = 'chill-zone';
-            socket.join(CHILL_ROOM);
-        });
-
-        socket.on('send_chill_message', ({ username, text, type }) => {
-            const CHILL_ROOM = 'chill-zone';
-            const msg = {
-                id: Date.now() + Math.random(),
-                username,
-                text,
-                type: type || 'user',
-                timestamp: new Date().toISOString()
-            };
-            io.to(CHILL_ROOM).emit('chill_message', msg);
-        });
-
         socket.on('disconnect', () => {
 
             const rooms = RoomManager.getRooms();

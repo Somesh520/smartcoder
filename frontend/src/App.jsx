@@ -11,7 +11,7 @@ import LandingPage from './components/LandingPage';
 import HistoryPage from './components/HistoryPage';
 import LeetCodePage from './components/LeetCodePage';
 import Documentation from './components/Documentation';
-import ChillPage from './components/ChillPage'; // Import Chill Feature
+import Documentation from './components/Documentation';
 
 import LearnPage from './components/LearnPage';
 import SEO from './components/SEO';
@@ -363,7 +363,7 @@ function MainApp({ initialRoom }) {
                   <Route path="history" element={<HistoryPage />} />
                   <Route path="stats" element={<LeetCodePage />} />
                   <Route path="learn" element={<LearnPage />} />
-                  <Route path="chill" element={<ChillPage socket={socket} user={userInfo} />} />
+
                   <Route path="competition/:roomId" element={
                     <CompetitionRoomWrapper
                       socket={socket}
