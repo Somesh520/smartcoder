@@ -363,7 +363,7 @@ function MainApp({ initialRoom }) {
                   <Route path="history" element={<HistoryPage />} />
                   <Route path="stats" element={<LeetCodePage />} />
                   <Route path="learn" element={<LearnPage />} />
-                  <Route path="chill" element={<ChillPage />} />
+                  <Route path="chill" element={<ChillPage socket={socket} user={userInfo} />} />
                   <Route path="competition/:roomId" element={
                     <CompetitionRoomWrapper
                       socket={socket}
