@@ -94,8 +94,12 @@ function MainApp({ initialRoom }) {
       const solved = await fetchSolvedProblems();
       if (solved && Array.isArray(solved)) {
         // Create set of Solved IDs (Frontend IDs)
-        const solvedSet = new Set(solved.map(p => String(p.frontend_id)));
+        // DEBUG: Log first item to check ID structure
+        if (solved.length > 0) console.log("[App] First Solved Item:", solved[0]);
+
+        const solvedSet = new Set(solved.map(p => String(p.frontend_id || p.id))); // Fallback to id
         setSolvedProblems(solvedSet);
+        console.log("[App] Solved Set Size:", solvedSet.size);
       }
 
     } catch (e) {

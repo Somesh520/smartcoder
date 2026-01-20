@@ -11,6 +11,7 @@ export const fetchProblems = async () => {
   });
   if (!res.ok) throw new Error("Backend connection failed");
   const data = await res.json();
+  console.log("[API] Raw Problems Data:", data);
 
   let problems = [];
   if (data.stat_status_pairs) {
@@ -21,6 +22,7 @@ export const fetchProblems = async () => {
       difficulty: p.difficulty.level === 1 ? 'Easy' : p.difficulty.level === 2 ? 'Medium' : 'Hard'
     }));
   } else if (Array.isArray(data)) {
+    console.log("[API] Is Array, length:", data.length);
     problems = data.map(p => ({
       id: p.frontendQuestionId || p.questionId || p.id,
       title: p.title || p.questionTitle,
@@ -28,6 +30,7 @@ export const fetchProblems = async () => {
       difficulty: p.difficulty || "Medium"
     }));
   }
+  console.log("[API] Normalized Problems:", problems.length);
   return problems.filter(p => p.slug && p.title);
 };
 
@@ -97,10 +100,11 @@ export const fetchSolvedProblems = async () => {
     });
 
     if (!res.ok) return [];
-    return await res.json();
+    const solvedData = await res.json();
+    console.log("[API] Solved Problems Data:", solvedData?.length);
+    return solvedData;
   } catch (e) {
     console.error("Failed to fetch solved stats", e);
     return [];
   }
 };
-
