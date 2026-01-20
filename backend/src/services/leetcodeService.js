@@ -3,15 +3,16 @@ import { getHeaders } from '../utils/headers.js';
 import redisClient from '../config/redis.js';
 
 export const fetchProblems = async () => {
-    const cacheKey = 'leetcode:problems';
+    const cacheKey = 'leetcode:problems:full:v1'; // Changed key to invalid old cache
 
     // 1. Try Cache (Safe)
     try {
         if (redisClient.isOpen) {
             const cached = await redisClient.get(cacheKey);
             if (cached) {
-
-                return JSON.parse(cached);
+                const parsed = JSON.parse(cached);
+                console.log(`[Cache] Serving ${parsed.length} problems`);
+                return parsed;
             }
         }
     } catch (cacheErr) {
@@ -21,9 +22,9 @@ export const fetchProblems = async () => {
 
     // 2. Try Primary API (Alfa with Limit)
     try {
-        console.log("Fetching all problems from Alfa API...");
+        console.log("Fetching all problems from Alfa API (Limit 3000)...");
         // Fetch up to 3000 problems (Enough to cover all)
-        const response = await axios.get('https://alfa-leetcode-api.onrender.com/problems?limit=3000', { timeout: 15000 });
+        const response = await axios.get('https://alfa-leetcode-api.onrender.com/problems?limit=3000', { timeout: 20000 });
         const data = response.data;
 
         // Alfa returns { totalQuestions: N, problemsetQuestionList: [...] }
@@ -49,7 +50,19 @@ export const fetchProblems = async () => {
         // Else `Array.isArray(data)`.
 
         // So we should return the ARRAY directly if utilizing the second branch.
-        const problemsArray = data.problemsetQuestionList || [];
+        let problemsArray = [];
+        // Handle Alfa Structure
+        if (response.data.problemsetQuestionList) {
+            problemsArray = response.data.problemsetQuestionList;
+        } else if (Array.isArray(response.data)) {
+            problemsArray = response.data;
+        }
+
+        console.log(`[API] Fetched ${problemsArray.length} problems from Alfa`);
+
+        if (problemsArray.length < 500) {
+            console.warn("[API] Warning: Fetched count seems low, might be partial data.");
+        }
 
         // Cache result (as array)
         try { if (redisClient.isOpen) await redisClient.set(cacheKey, JSON.stringify(problemsArray), { EX: 3600 }); } catch (e) { }
