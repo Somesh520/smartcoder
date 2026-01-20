@@ -14,7 +14,7 @@ import Documentation from './components/Documentation';
 
 import LearnPage from './components/LearnPage';
 import SEO from './components/SEO';
-import { fetchProblems } from './api';
+import { fetchProblems, fetchSolvedProblems } from './api';
 import { io } from 'socket.io-client';
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -79,6 +79,7 @@ function MainApp({ initialRoom }) {
   const [currentProblem, setCurrentProblem] = useState(null);
   const [userInfo, setUserInfo] = useState({ loggedIn: false });
   const [problems, setProblems] = useState([]);
+  const [solvedProblems, setSolvedProblems] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [roomId, setRoomId] = useState("");
   const [username, setUsername] = useState("");
@@ -89,6 +90,14 @@ function MainApp({ initialRoom }) {
     try {
       const data = await fetchProblems();
       setProblems(data);
+
+      const solved = await fetchSolvedProblems();
+      if (solved && Array.isArray(solved)) {
+        // Create set of Solved IDs (Frontend IDs)
+        const solvedSet = new Set(solved.map(p => String(p.frontend_id)));
+        setSolvedProblems(solvedSet);
+      }
+
     } catch (e) {
       console.error(e);
     } finally {
@@ -337,6 +346,7 @@ function MainApp({ initialRoom }) {
                       <SEO title="Problem Set - AlgoDuel" />
                       <ProblemList
                         problems={problems}
+                        solvedProblems={solvedProblems}
                         loading={loading}
                         onRefresh={loadProblems}
                         onSelectProblem={handlePrompt}

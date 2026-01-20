@@ -186,3 +186,36 @@ export const checkSubmission = async (id, { slug, auth_session, auth_csrf }) => 
     const response = await axios.get(url, { headers });
     return response.data;
 };
+
+export const fetchUserSolvedProblems = async ({ auth_session, auth_csrf }) => {
+    // We don't need a specific slug for /problems/all/
+    // But getHeaders usually requires one. We can pass null or empty string if getHeaders handles it,
+    // or just construct headers manually here since we only need Cookie and User-Agent.
+
+    // Manually constructing headers to be safe as getHeaders might enforce Referer with slug
+    const headers = {
+        'Cookie': `LEETCODE_SESSION=${auth_session}; csrftoken=${auth_csrf}`,
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': 'https://leetcode.com/problemset/all/'
+    };
+
+    try {
+        const response = await axios.get('https://leetcode.com/api/problems/all/', { headers, timeout: 10000 });
+        const allProblems = response.data.stat_status_pairs; // Array of problem stats
+
+        // Filter for "ac" (Accepted) status
+        // status can be "ac", "notac" (attempted), or null
+        const solved = allProblems
+            .filter(p => p.status === 'ac')
+            .map(p => ({
+                id: p.stat.question_id,
+                frontend_id: p.stat.frontend_question_id,
+                slug: p.stat.question__title_slug
+            }));
+
+        return solved;
+    } catch (e) {
+        console.error("Fetch Solved Problems Error:", e.message);
+        throw e;
+    }
+};

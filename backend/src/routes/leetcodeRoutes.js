@@ -157,4 +157,20 @@ router.get('/:username', async (req, res) => {
     }
 });
 
+// 6. SOLVED: Get User's Solved Problems (POST)
+router.post('/solved', async (req, res) => {
+    try {
+        const { auth_session, auth_csrf } = req.body;
+        if (!auth_session || !auth_csrf) {
+            return res.status(400).json({ error: "Missing authentication" });
+        }
+
+        const solved = await leetcodeService.fetchUserSolvedProblems({ auth_session, auth_csrf });
+        res.json(solved);
+    } catch (error) {
+        console.error("Solved Fetch Error:", error.message);
+        res.status(500).json({ error: "Failed to fetch solved problems" });
+    }
+});
+
 export default router;

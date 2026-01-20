@@ -74,8 +74,33 @@ export const getCurrentUser = async () => {
   return await res.json();
 };
 
+
 export const logout = async () => {
   localStorage.removeItem('auth_token');
   window.location.href = `${BASE_URL}/auth/logout`;
+};
+
+export const fetchSolvedProblems = async () => {
+  const session = localStorage.getItem('user_session');
+  const csrf = localStorage.getItem('user_csrf');
+
+  if (!session || !csrf || session === "undefined") return [];
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/leetcode/solved`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders() // Include token if available (though auth_session is primary)
+      },
+      body: JSON.stringify({ auth_session: session, auth_csrf: csrf })
+    });
+
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (e) {
+    console.error("Failed to fetch solved stats", e);
+    return [];
+  }
 };
 

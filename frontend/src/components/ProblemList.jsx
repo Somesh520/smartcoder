@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Search, TrendingUp, Code2, Zap, Target, ChevronRight } from 'lucide-react';
+import { RefreshCw, Search, TrendingUp, Code2, Zap, Target, ChevronRight, CheckCircle } from 'lucide-react';
 import ModernSpinner from './ModernSpinner';
 
-const ProblemList = ({ problems, loading, onRefresh, onSelectProblem }) => {
+const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectProblem }) => {
     const [filtered, setFiltered] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [hoveredRow, setHoveredRow] = useState(null);
@@ -253,9 +253,14 @@ const ProblemList = ({ problems, loading, onRefresh, onSelectProblem }) => {
                                     <div style={{
                                         display: 'flex',
                                         alignItems: 'center',
-                                        color: '#22c55e'
+                                        color: solvedProblems?.has(String(p.id)) ? '#22c55e' : '#3f3f46',
+                                        justifyContent: 'center'
                                     }}>
-                                        <Target size={18} />
+                                        {solvedProblems?.has(String(p.id)) ? (
+                                            <CheckCircle size={18} />
+                                        ) : (
+                                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#3f3f46' }}></div>
+                                        )}
                                     </div>
 
                                     {/* Title */}
