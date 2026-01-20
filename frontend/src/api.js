@@ -106,9 +106,14 @@ export const fetchSolvedProblems = async () => {
     });
 
     if (!res.ok) return [];
-    const solvedData = await res.json();
-    console.log("[API] Solved Problems Data:", solvedData?.length);
-    return solvedData;
+    const responseData = await res.json();
+
+    if (responseData.debug) {
+      console.log("[API] Solved Debug Info:", responseData.debug);
+      return responseData.solved || [];
+    }
+
+    return Array.isArray(responseData) ? responseData : [];
   } catch (e) {
     console.error("Failed to fetch solved stats", e);
     return [];

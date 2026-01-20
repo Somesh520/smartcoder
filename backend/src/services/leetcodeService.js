@@ -241,7 +241,16 @@ export const fetchUserSolvedProblems = async ({ auth_session, auth_csrf }) => {
                 slug: p.stat.question__title_slug
             }));
 
-        return solved;
+        // Return debug info wrapper
+        return {
+            solved,
+            debug: {
+                totalRaw: allProblems.length,
+                firstItem: allProblems.length > 0 ? allProblems[0] : null,
+                solvedCount: solved.length
+            }
+        };
+
     } catch (e) {
         console.error("Fetch Solved Problems Error:", e.message);
         throw e;
