@@ -16,7 +16,7 @@ export const fetchProblems = async () => {
   let problems = [];
   if (data.stat_status_pairs) {
     problems = data.stat_status_pairs.map(p => ({
-      id: p.stat.question_id,
+      id: p.stat.frontend_question_id || p.stat.question_id, // Use Frontend ID to match Solved list
       title: p.stat.question__title,
       slug: p.stat.question__title_slug,
       difficulty: p.difficulty.level === 1 ? 'Easy' : p.difficulty.level === 2 ? 'Medium' : 'Hard'

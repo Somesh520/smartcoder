@@ -21,54 +21,39 @@ export const fetchProblems = async () => {
     }
 
     // 2. Try Primary API (Alfa with Limit)
+    // Render free tier sleeps, so we need a long timeout and retry
+    for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+            console.log(`Fetching all problems from Alfa API (Attempt ${attempt})...`);
+
+            const response = await axios.get('https://alfa-leetcode-api.onrender.com/problems?limit=3000', {
+                timeout: 60000 // 60s timeout for cold start
+            });
+
+            const data = response.data;
+            let problemsArray = [];
+
+            if (data.problemsetQuestionList) {
+                problemsArray = data.problemsetQuestionList;
+            } else if (Array.isArray(data)) {
+                problemsArray = data;
+            }
+
+            if (problemsArray.length > 0) {
+                console.log(`[API] Success! Fetched ${problemsArray.length} problems`);
+                // Cache result
+                try { if (redisClient.isOpen) await redisClient.set(cacheKey, JSON.stringify(problemsArray), { EX: 3600 }); } catch (e) { }
+                return problemsArray;
+            }
+        } catch (err) {
+            console.warn(`Alfa API Attempt ${attempt} failed: ${err.message}`);
+            if (attempt === 2) console.warn("Giving up on Alfa API.");
+        }
+    }
+
     try {
-        console.log("Fetching all problems from Alfa API (Limit 3000)...");
-        // Fetch up to 3000 problems (Enough to cover all)
-        const response = await axios.get('https://alfa-leetcode-api.onrender.com/problems?limit=3000', { timeout: 20000 });
-        const data = response.data;
-
-        // Alfa returns { totalQuestions: N, problemsetQuestionList: [...] }
-        // We need to normalize this to the format expected by frontend/socketHandler:
-        // Expected: { stat_status_pairs: [ { stat: { question_id, question__title, ... }, difficulty: { level: 1/2/3 } } ] }
-        // OR just return the array and handle it in frontend/api.js (which currently handles both formats).
-
-        // Looking at api.js (Step 392):
-        // if (data.stat_status_pairs) { ... } else if (Array.isArray(data)) { ... }
-
-        // Alfa usually returns `problemsetQuestionList` which is an array.
-        // Let's normalize it to exactly what our app expects for consistency.
-
-        // However, Alfa's structure for problemsetQuestionList is:
-        // { title: "Two Sum", titleSlug: "two-sum", difficulty: "Easy", frontendQuestionId: "1", ... }
-
-        // Frontend `api.js` (lines 23-29) handles `Array.isArray(data)`.
-        // So if we return `data.problemsetQuestionList`, it should work IF we send JUST the array.
-
-        // But wait, `runCode` expects `start_status_pairs` or something else? 
-        // No, `api.js` line 15: `let problems = []`. 
-        // It checks `data.stat_status_pairs`. 
-        // Else `Array.isArray(data)`.
-
-        // So we should return the ARRAY directly if utilizing the second branch.
-        let problemsArray = [];
-        // Handle Alfa Structure
-        if (response.data.problemsetQuestionList) {
-            problemsArray = response.data.problemsetQuestionList;
-        } else if (Array.isArray(response.data)) {
-            problemsArray = response.data;
-        }
-
-        console.log(`[API] Fetched ${problemsArray.length} problems from Alfa`);
-
-        if (problemsArray.length < 500) {
-            console.warn("[API] Warning: Fetched count seems low, might be partial data.");
-        }
-
-        // Cache result (as array)
-        try { if (redisClient.isOpen) await redisClient.set(cacheKey, JSON.stringify(problemsArray), { EX: 3600 }); } catch (e) { }
-
-        return problemsArray;
-
+        // Fallback or throw
+        throw new Error("Alfa API exhausted");
     } catch (primaryErr) {
         console.warn("Primary API (Alfa) Failed:", primaryErr.message);
 
