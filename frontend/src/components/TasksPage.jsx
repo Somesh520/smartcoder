@@ -50,7 +50,8 @@ const TasksPage = () => {
 
     const handleConnectGoogle = () => {
         // Redirect to incremental auth route
-        window.location.href = "http://localhost:3000/auth/google/tasks";
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+        window.location.href = `${API_URL}/auth/google/tasks`;
     };
 
     const handleCreate = async (e) => {

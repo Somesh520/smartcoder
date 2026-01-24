@@ -60,7 +60,8 @@ const CalendarPage = () => {
     };
 
     const handleConnectGoogle = () => {
-        window.location.href = "http://localhost:3000/auth/google/tasks";
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+        window.location.href = `${API_URL}/auth/google/tasks`; // Assuming tasks route handles both scopes incrementally
     };
 
     const handleCreate = async (e) => {
