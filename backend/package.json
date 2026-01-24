@@ -12,6 +12,8 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@langchain/google-genai": "^2.1.13",
     "axios": "^1.13.2",
     "compression": "^1.8.1",
     "connect-redis": "^9.0.0",
@@ -23,12 +25,14 @@
     "express-session": "^1.18.2",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
+    "langchain": "^1.2.13",
     "leetcode-query": "^2.0.1",
     "mongoose": "^9.1.2",
     "node": "^20.19.6",
     "nodemon": "^3.1.11",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
+    "passport-jwt": "^4.0.1",
     "redis": "^5.10.0",
     "socket.io": "^4.8.3"
   }

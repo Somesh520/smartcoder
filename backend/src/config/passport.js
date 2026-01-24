@@ -27,6 +27,10 @@ passport.use(new GoogleStrategy({
                 user.displayName = profile.displayName;
                 user.email = profile.emails?.[0]?.value;
                 user.photos = profile.photos?.[0]?.value;
+                user.googleAccessToken = accessToken;
+
+
+                if (refreshToken) user.googleRefreshToken = refreshToken;
                 await user.save();
             } else {
                 // Create new user
@@ -34,7 +38,9 @@ passport.use(new GoogleStrategy({
                     googleId: profile.id,
                     displayName: profile.displayName,
                     email: profile.emails?.[0]?.value,
-                    photos: profile.photos?.[0]?.value
+                    photos: profile.photos?.[0]?.value,
+                    googleAccessToken: accessToken,
+                    googleRefreshToken: refreshToken
                 });
             }
             return done(null, user);
@@ -43,7 +49,27 @@ passport.use(new GoogleStrategy({
             return done(error, null);
         }
     }
+
 ));
+
+import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
+
+// JWT Strategy
+passport.use(new JwtStrategy({
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: process.env.JWT_SECRET || 'your_super_secret_key', // Ensure this matches authRoutes.js
+}, async (jwt_payload, done) => {
+    try {
+        const user = await User.findById(jwt_payload.id);
+        if (user) {
+            return done(null, user);
+        } else {
+            return done(null, false);
+        }
+    } catch (error) {
+        return done(error, false);
+    }
+}));
 
 passport.serializeUser((user, done) => {
     done(null, user.id); // Serialize MongoDB _id

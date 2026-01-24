@@ -8,6 +8,15 @@ router.get('/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
+// Trigger Google Auth for TASKS (Incremental Auth)
+router.get('/google/tasks',
+    passport.authenticate('google', {
+        scope: ['profile', 'email', 'https://www.googleapis.com/auth/tasks', 'https://www.googleapis.com/auth/calendar'],
+        accessType: 'offline',
+        prompt: 'consent'
+    })
+);
+
 import jwt from 'jsonwebtoken';
 
 // Google Auth Callback

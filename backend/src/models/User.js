@@ -16,6 +16,12 @@ const userSchema = new mongoose.Schema({
     photos: {
         type: String
     },
+    googleAccessToken: {
+        type: String
+    },
+    googleRefreshToken: {
+        type: String
+    },
     createdAt: {
         type: Date,
         default: Date.now

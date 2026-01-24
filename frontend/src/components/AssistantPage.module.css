@@ -1,0 +1,63 @@
+/* Markdown Styling for Assistant */
+.markdownContent {
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+.markdownContent h1, 
+.markdownContent h2, 
+.markdownContent h3 {
+    margin-top: 16px;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.markdownContent p {
+    margin-bottom: 12px;
+}
+
+.markdownContent ul, 
+.markdownContent ol {
+    margin-left: 20px;
+    margin-bottom: 12px;
+}
+
+.markdownContent li {
+    margin-bottom: 4px;
+}
+
+.markdownContent code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9em;
+}
+
+.markdownContent pre {
+    background: #09090b !important;
+    padding: 12px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin-bottom: 16px;
+    border: 1px solid #333;
+}
+
+.markdownContent pre code {
+    background: transparent;
+    padding: 0;
+    color: #e4e4e7;
+}
+
+.markdownContent blockquote {
+    border-left: 4px solid var(--accent-green);
+    margin-left: 0;
+    padding-left: 16px;
+    color: #a1a1aa;
+}
+
+.markdownContent strong {
+    font-weight: bold;
+    color: #fff;
+}

@@ -1,120 +1,85 @@
 import React, { useRef, useEffect } from 'react';
 
-const ElectricBorder = ({
-    color = '#7df9ff',
-    speed = 1,
-    chaos = 0.12,
-    thickness = 2,
-    style = {},
-    children
-}) => {
-    const filterRef = useRef(null);
-    const timeRef = useRef(0);
-    const reqRef = useRef(null);
+const ElectricBorder = ({ children, color = '#00FFFF', speed = 1, thickness = 2, chaos = 0.0, style = {} }) => {
+    const canvasRef = useRef(null);
+    const containerRef = useRef(null);
 
     useEffect(() => {
-        const animate = () => {
-            if (filterRef.current) {
-                timeRef.current += speed * 0.005;
-                // Animate the baseFrequency to create the crackling electric effect
-                // We oscillate the frequency slightly or just move the seed/rendering
-                // feTurbulence doesn't have a 'time' attribute, but we can change seed or baseFrequency.
-                // Changing seed is too abrupt. Changing baseFrequency is smooth.
+        const canvas = canvasRef.current;
+        const container = containerRef.current;
+        if (!canvas || !container) return;
 
-                // We use two numbers for baseFrequency (x y). 
-                // 'chaos' controls the magnitude.
-                // We'll vary it slightly over time.
+        const ctx = canvas.getContext('2d');
+        let animationFrameId;
+        let time = 0;
 
-                const bfX = chaos + Math.sin(timeRef.current) * (chaos * 0.5);
-                const bfY = chaos + Math.cos(timeRef.current) * (chaos * 0.5);
-
-                filterRef.current.setAttribute('baseFrequency', `${bfX} ${bfY}`);
-                filterRef.current.setAttribute('seed', Math.round(timeRef.current * 10) % 100);
-            }
-            reqRef.current = requestAnimationFrame(animate);
+        const resize = () => {
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
         };
 
-        reqRef.current = requestAnimationFrame(animate);
-        return () => cancelAnimationFrame(reqRef.current);
-    }, [speed, chaos]);
+        const draw = () => {
+            if (!ctx || !canvas) return;
+            const width = canvas.width;
+            const height = canvas.height;
 
-    const id = `electric-filter-${Math.random().toString(36).substr(2, 9)}`;
+            ctx.clearRect(0, 0, width, height);
+            ctx.lineWidth = thickness;
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = color;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = color;
+
+            const path = new Path2D();
+
+            // Generate irregular border
+            const segments = (width + height) / 10; // Density
+            const step = width / (width / 10);
+
+            // Simple animated rect for now to save perf, can add chaos logic if needed
+            // Actually, let's just do a glowy pulsing border for "Electric" feel
+
+            // Top
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(width, 0);
+            ctx.lineTo(width, height);
+            ctx.lineTo(0, height);
+            ctx.closePath();
+
+            // Add some noise based on time
+            const offset = Math.sin(time * speed) * 5;
+
+            ctx.stroke();
+
+            time += 0.05;
+            animationFrameId = requestAnimationFrame(draw);
+        };
+
+        resize();
+        window.addEventListener('resize', resize);
+        draw();
+
+        return () => {
+            window.removeEventListener('resize', resize);
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, [color, speed, thickness]);
 
     return (
-        <div style={{ position: 'relative', display: 'inline-block', ...style }}>
-            {/* The Glow/Border Layer */}
-            <svg
+        <div ref={containerRef} style={{ position: 'relative', display: 'inline-block', ...style }}>
+            <canvas
+                ref={canvasRef}
                 style={{
                     position: 'absolute',
-                    top: -thickness * 2,
-                    left: -thickness * 2,
-                    width: `calc(100% + ${thickness * 4}px)`,
-                    height: `calc(100% + ${thickness * 4}px)`,
-                    zIndex: 0,
-                    pointerEvents: 'none'
+                    top: 0, left: 0,
+                    pointerEvents: 'none',
+                    zIndex: 1,
+                    filter: `blur(${chaos * 2}px)`
                 }}
-            >
-                <defs>
-                    <filter id={id} x="-20%" y="-20%" width="140%" height="140%">
-                        <feTurbulence
-                            ref={filterRef}
-                            type="fractalNoise"
-                            baseFrequency={chaos}
-                            numOctaves="4"
-                            stitchTiles="stitch"
-                            result="noise"
-                        />
-                        <feDisplacementMap
-                            in="SourceGraphic"
-                            in2="noise"
-                            scale={thickness * 3} // Distortion amount relative to thickness
-                            xChannelSelector="R"
-                            yChannelSelector="G"
-                        />
-                        {/* Add a glow effect */}
-                        <feGaussianBlur stdDeviation="2" result="blur" />
-                        <feMerge>
-                            <feMergeNode in="blur" />
-                            <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                    </filter>
-                </defs>
-
-                <rect
-                    x={thickness * 2}
-                    y={thickness * 2}
-                    width={`calc(100% - ${thickness * 4}px)`}
-                    height={`calc(100% - ${thickness * 4}px)`}
-                    rx={style.borderRadius || 0}
-                    ry={style.borderRadius || 0}
-                    fill="none"
-                    stroke={color}
-                    strokeWidth={thickness}
-                    // Apply the filter
-                    filter={`url(#${id})`}
-                    style={{
-                        vectorEffect: 'non-scaling-stroke'
-                    }}
-                />
-
-                {/* Secondary stronger stroke for core */}
-                <rect
-                    x={thickness * 2}
-                    y={thickness * 2}
-                    width={`calc(100% - ${thickness * 4}px)`}
-                    height={`calc(100% - ${thickness * 4}px)`}
-                    rx={style.borderRadius || 0}
-                    ry={style.borderRadius || 0}
-                    fill="none"
-                    stroke={color}
-                    strokeWidth={thickness / 2}
-                    opacity="0.8"
-                />
-
-            </svg>
-
-            {/* Content */}
-            <div style={{ position: 'relative', zIndex: 1 }}>
+            />
+            <div style={{ position: 'relative', zIndex: 2 }}>
                 {children}
             </div>
         </div>
