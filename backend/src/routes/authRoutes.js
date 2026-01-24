@@ -13,7 +13,8 @@ router.get('/google/tasks',
     passport.authenticate('google', {
         scope: ['profile', 'email', 'https://www.googleapis.com/auth/tasks', 'https://www.googleapis.com/auth/calendar'],
         accessType: 'offline',
-        prompt: 'consent'
+        prompt: 'consent',
+        state: 'tasks'  // <--- Pass state to identify this flow
     })
 );
 
@@ -41,7 +42,12 @@ router.get('/google/callback',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
-        res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}?token=${token}`);
+        // Check state to see where to redirect
+        if (req.query.state === 'tasks') {
+            res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/app/tasks?token=${token}`);
+        } else {
+            res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}?token=${token}`);
+        }
     }
 );
 
