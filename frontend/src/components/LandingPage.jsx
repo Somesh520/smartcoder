@@ -497,7 +497,7 @@ const LandingPage = () => {
                             © 2024 AlgoDuel System. All rights reserved.
                         </div>
                         <div style={{ display: 'flex', gap: '30px' }}>
-                            <span onClick={() => openModal('Privacy Policy', 'We value your privacy. We collect minimal data (username, email) solely for authentication and matchmaking purposes. We do not sell your data.')} style={{ cursor: 'pointer', transition: 'color 0.2s' }} onMouseEnter={e => e.target.style.color = 'white'} onMouseLeave={e => e.target.style.color = '#52525b'}>Privacy Policy</span>
+                            <Link to="/privacy" style={{ cursor: 'pointer', transition: 'color 0.2s', textDecoration: 'none', color: '#52525b' }} onMouseEnter={e => e.target.style.color = 'white'} onMouseLeave={e => e.target.style.color = '#52525b'}>Privacy Policy</Link>
                             <span onClick={() => openModal('Terms of Service', 'By using AlgoDuel, you agree to our fair play rules. No cheating, no macros, no abuse. Violations result in immediate bans.')} style={{ cursor: 'pointer', transition: 'color 0.2s' }} onMouseEnter={e => e.target.style.color = 'white'} onMouseLeave={e => e.target.style.color = '#52525b'}>Terms of Service</span>
                             <span onClick={() => openModal('Cookies', 'We use essential cookies to maintain your login session. No third-party tracking cookies are used.')} style={{ cursor: 'pointer', transition: 'color 0.2s' }} onMouseEnter={e => e.target.style.color = 'white'} onMouseLeave={e => e.target.style.color = '#52525b'}>Cookies</span>
                         </div>

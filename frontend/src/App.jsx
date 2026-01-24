@@ -17,6 +17,7 @@ import NotesPage from './components/NotesPage';
 import TasksPage from './components/TasksPage';
 import CalendarPage from './components/CalendarPage';
 import AssistantPage from './components/AssistantPage';
+import PrivacyPolicyPage from './components/PrivacyPolicyPage';
 import SEO from './components/SEO';
 import { fetchProblems, fetchSolvedProblems } from './api';
 import { io } from 'socket.io-client';
@@ -585,6 +586,7 @@ function App() {
             <MainApp initialRoom={initialRoom} />
           </ErrorBoundary>
         } />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
       </Routes>
     </BrowserRouter>
   );
