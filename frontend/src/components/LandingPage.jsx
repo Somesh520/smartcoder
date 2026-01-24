@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Header from './Header'; // Ensure Header is imported if used, or standard imports
 import ElectricBorder from './ElectricBorder';
@@ -16,6 +16,18 @@ const LandingPage = () => {
     const [activeStep, setActiveStep] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState({ title: '', body: '' });
+    const [intro, setIntro] = useState(true);
+    const [carouselIndex, setCarouselIndex] = useState(0);
+    const [carouselPaused, setCarouselPaused] = useState(false);
+
+    useEffect(() => {
+        // Splash Screen Timer
+        window.scrollTo(0, 0); // Force top on reload
+        const timer = setTimeout(() => {
+            setIntro(false);
+        }, 2200);
+        return () => clearTimeout(timer);
+    }, []);
 
     const openModal = (title, body) => {
         setModalContent({ title, body });
@@ -39,6 +51,34 @@ const LandingPage = () => {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    // Carousel auto-play (advances every 4 seconds when not paused)
+    useEffect(() => {
+        if (carouselPaused) return;
+        const timer = setInterval(() => {
+            setCarouselIndex(prev => (prev + 1) % 6);
+        }, 4000);
+        return () => clearInterval(timer);
+    }, [carouselPaused]);
+
+    // Scroll-triggered reveal animations
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('revealed');
+                    }
+                });
+            },
+            { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+        );
+
+        const elements = document.querySelectorAll('.reveal');
+        elements.forEach((el) => observer.observe(el));
+
+        return () => observer.disconnect();
+    }, [intro]); // Re-run after splash screen
 
     const scrollToSection = (id) => {
         const el = document.getElementById(id);
@@ -73,6 +113,37 @@ const LandingPage = () => {
                     }
                 }
             `}</style>
+
+            {/* SPLASH SCREEN */}
+            <div style={{
+                position: 'fixed', inset: 0, zIndex: 9999,
+                background: '#050505',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                transition: 'opacity 0.8s ease-in-out, visibility 0.8s',
+                opacity: intro ? 1 : 0,
+                pointerEvents: intro ? 'all' : 'none',
+                visibility: intro ? 'visible' : 'hidden'
+            }}>
+                <div style={{
+                    width: '80px', height: '8px', background: '#27272a', borderRadius: '100px', overflow: 'hidden',
+                    marginBottom: '20px'
+                }}>
+                    <div style={{
+                        width: '100%', height: '100%', background: '#00FFFF',
+                        animation: 'loadingBar 2s cubic-bezier(0.85, 0, 0.15, 1) forwards'
+                    }} />
+                </div>
+                <div style={{
+                    fontFamily: 'monospace', fontSize: '14px', color: '#00FFFF', letterSpacing: '4px',
+                    animation: 'blink 0.2s infinite alternate'
+                }}>
+                    INITIALIZING SYSTEM...
+                </div>
+                <style>{`
+                    @keyframes loadingBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0); } }
+                    @keyframes blink { from { opacity: 0.5; } to { opacity: 1; } }
+                `}</style>
+            </div>
             {/* NAVBAR */}
             <nav className="landing-nav" style={{
                 position: 'fixed', top: 0, left: 0, right: 0,
@@ -89,12 +160,14 @@ const LandingPage = () => {
                     onClick={() => scrollToSection('hero')}
                     style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}
                 >
-                    <div style={{
-                        width: '32px', height: '32px',
-                        background: 'conic-gradient(from 180deg at 50% 50%, #00FFFF 0deg, #FF7BAC 180deg, #00FFFF 360deg)',
-                        borderRadius: '8px',
-                        boxShadow: '0 0 20px rgba(0, 255, 255, 0.3)'
-                    }} />
+                    <img
+                        src="/logo.svg"
+                        alt="AlgoDuel Logo"
+                        style={{
+                            width: '36px', height: '36px',
+                            filter: 'drop-shadow(0 0 10px rgba(0, 255, 255, 0.4))'
+                        }}
+                    />
                     <span style={{ fontWeight: 800, fontSize: '20px', letterSpacing: '-0.5px' }}>
                         ALGO<span style={{ color: '#00FFFF' }}>DUEL</span>
                     </span>
@@ -104,6 +177,7 @@ const LandingPage = () => {
                     <NavBtn onClick={() => scrollToSection('mission')}>Mission</NavBtn>
                     <NavBtn onClick={() => scrollToSection('workflow')}>Architecture</NavBtn>
                     <NavBtn onClick={() => scrollToSection('features')}>Engine</NavBtn>
+                    <NavBtn onClick={() => scrollToSection('showcase')}>Showcase</NavBtn>
                     <NavBtn onClick={() => scrollToSection('studio')}>Studio</NavBtn>
                 </div>
 
@@ -126,13 +200,33 @@ const LandingPage = () => {
                 height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                 position: 'relative', overflow: 'hidden'
             }}>
-                {/* Background Grid */}
+                {/* Animated Floating Particles */}
+                <div style={{ position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden' }}>
+                    {[...Array(30)].map((_, i) => (
+                        <div key={i} className="particle" style={{
+                            position: 'absolute',
+                            width: `${Math.random() * 20 + 8}px`,
+                            height: `${Math.random() * 20 + 8}px`,
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            opacity: Math.random() * 0.3 + 0.1,
+                            animation: `float ${Math.random() * 10 + 15}s linear infinite`,
+                            animationDelay: `${Math.random() * 5}s`
+                        }}>
+                            <span style={{ fontFamily: 'monospace', fontSize: '16px', color: i % 3 === 0 ? '#00FFFF' : i % 3 === 1 ? '#FF7BAC' : '#a1a1aa' }}>
+                                {['{', '}', '()', '=>', '//', '[]', '&&', '||', '++', '==='][i % 10]}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Background Grid (Faded) */}
                 <div style={{
                     position: 'absolute', inset: 0,
-                    backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)',
-                    backgroundSize: '50px 50px',
-                    maskImage: 'radial-gradient(ellipse at center, black 40%, transparent 80%)',
-                    zIndex: 0
+                    backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px)',
+                    backgroundSize: '60px 60px',
+                    maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 70%)',
+                    zIndex: 1
                 }} />
 
                 <div style={{ zIndex: 10, textAlign: 'center', padding: '0 20px', maxWidth: '1000px' }}>
@@ -147,17 +241,17 @@ const LandingPage = () => {
                         </span>
                     </div>
 
-                    <h1 style={{
+                    <h1 className="glitch-text" data-text="DS ALGO. BATTLE. DOMINATE." style={{
                         fontSize: 'clamp(50px, 8vw, 120px)', fontWeight: '900', margin: '0 0 20px 0',
                         lineHeight: '0.9', letterSpacing: '-0.04em', textTransform: 'uppercase',
-                        color: 'white', fontFamily: "'Inter', sans-serif"
+                        color: 'white', fontFamily: "'Inter', sans-serif", position: 'relative'
                     }}>
-                        DS Algo.<br />
-                        Battle.<br />
-                        <span style={{
+                        <span className="glitch-layer">DS Algo.</span><br />
+                        <span className="glitch-layer">Battle.</span><br />
+                        <span className="glitch-layer" style={{
                             color: 'transparent', WebkitTextStroke: '2px #FF7BAC',
                             background: 'linear-gradient(180deg, #FF7BAC 0%, transparent 100%)',
-                            WebkitBackgroundClip: 'text', opacity: 0.8
+                            WebkitBackgroundClip: 'text', opacity: 0.9
                         }}>Dominate.</span>
                     </h1>
 
@@ -190,9 +284,9 @@ const LandingPage = () => {
             {/* MISSION SECTION (Problem/Solution) */}
             <section id="mission" style={{ padding: '120px 20px', background: '#050505' }}>
                 <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-                    <SectionLabel>The Mission</SectionLabel>
+                    <SectionLabel className="reveal">The Mission</SectionLabel>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', marginBottom: '120px' }}>
+                    <div className="reveal" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', marginBottom: '120px' }}>
                         <div>
                             <h2 style={{ fontSize: '36px', fontWeight: 800, marginBottom: '20px', lineHeight: '1.2' }}>
                                 The Problem.<br />
@@ -219,7 +313,7 @@ const LandingPage = () => {
                         </div>
                     </div>
 
-                    <div style={{ background: '#0a0a0c', border: '1px solid #1f1f23', borderRadius: '24px', padding: '60px', textAlign: 'center' }}>
+                    <div className="reveal" style={{ background: '#0a0a0c', border: '1px solid #1f1f23', borderRadius: '24px', padding: '60px', textAlign: 'center' }}>
                         <h3 style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '4px', color: '#FF7BAC', marginBottom: '20px', textTransform: 'uppercase' }}>
                             Why We Are Different
                         </h3>
@@ -247,7 +341,7 @@ const LandingPage = () => {
             </section>
 
             {/* USER JOURNEY (THE WORKFLOW) */}
-            <section id="journey" style={{ padding: '120px 20px', background: '#080808' }}>
+            <section id="journey" style={{ padding: '120px 20px', background: '#050505' }}>
                 <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
                     <SectionLabel>The Workflow</SectionLabel>
                     <h2 style={{ fontSize: '48px', fontWeight: 800, marginBottom: '20px', color: 'white' }}>
@@ -278,7 +372,7 @@ const LandingPage = () => {
             </section>
 
             {/* WORKFLOW (ROOM EXPERIENCE) SECTION */}
-            <section id="workflow" style={{ padding: '120px 20px', background: '#080808' }}>
+            <section id="workflow" style={{ padding: '120px 20px', background: '#050505' }}>
                 <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
                     <SectionLabel>The Experience</SectionLabel>
                     <h2 style={{ fontSize: '48px', fontWeight: 800, marginBottom: '80px', letterSpacing: '-1px' }}>
@@ -421,53 +515,387 @@ const LandingPage = () => {
 
             </section >
 
-
-
-            {/* STUDIO SECTION */}
-            < section id="studio" style={{ padding: '160px 20px', background: 'radial-gradient(circle at 50% 10%, #111, #050505)' }}>
-                <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-                    <h2 style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '4px', textTransform: 'uppercase', color: '#FF7BAC', marginBottom: '20px' }}>
-                        The Studio
+            {/* INTERFACE SHOWCASE (INTERACTIVE CAROUSEL) */}
+            <section id="showcase" style={{ padding: '120px 0', background: '#050505', overflow: 'hidden', position: 'relative' }}>
+                <div className="reveal" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px', marginBottom: '60px' }}>
+                    <SectionLabel>The Interface</SectionLabel>
+                    <h2 style={{ fontSize: '48px', fontWeight: 800, color: 'white' }}>
+                        Designed for <span style={{ color: '#00FFFF' }}>Speed.</span>
                     </h2>
-                    <h3 style={{ fontSize: '60px', fontWeight: 900, marginBottom: '40px', color: 'white' }}>
-                        Designed by Somesh.
+                    <p style={{ fontSize: '18px', color: '#a1a1aa', marginTop: '20px' }}>
+                        Every pixel is crafted to keep you in the flow. Dark mode by default.
+                    </p>
+                </div>
+
+                {/* CAROUSEL */}
+                {(() => {
+                    const slides = [
+                        { src: "/screenshots/dashboard.png", label: "Ranked Dashboard", desc: "Track your Elo, streaks, and solve history." },
+                        { src: "/screenshots/lobby.png", label: "Battle Lobby", desc: "Create private rooms and invite friends instantly." },
+                        { src: "/screenshots/calendar.png", label: "Smart Calendar", desc: "Syncs directly with your Google Calendar." },
+                        { src: "/screenshots/tasks.png", label: "Task Synchronization", desc: "Manage Google Tasks without leaving your IDE." },
+                        { src: "/screenshots/patterns.png", label: "Pattern Archives", desc: "Master 15+ coding patterns with curated lists." },
+                        { src: "/screenshots/assistant.png", label: "AI Neural Core", desc: "Real-time AI assistance for complex problems." }
+                    ];
+                    return (
+                        <div
+                            className="reveal"
+                            style={{ position: 'relative', maxWidth: '1000px', margin: '0 auto', padding: '0 60px' }}
+                            onMouseEnter={() => setCarouselPaused(true)}
+                            onMouseLeave={() => setCarouselPaused(false)}
+                        >
+                            {/* PREV ARROW */}
+                            <button
+                                onClick={() => setCarouselIndex((carouselIndex - 1 + slides.length) % slides.length)}
+                                style={{
+                                    position: 'absolute', left: '0', top: '50%', transform: 'translateY(-50%)',
+                                    width: '50px', height: '50px', borderRadius: '50%', background: 'rgba(0,255,255,0.1)',
+                                    border: '1px solid #00FFFF', color: '#00FFFF', cursor: 'pointer', zIndex: 10,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px',
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.background = '#00FFFF'; e.currentTarget.style.color = '#050505'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,255,255,0.1)'; e.currentTarget.style.color = '#00FFFF'; }}
+                            >
+                                ‹
+                            </button>
+
+                            {/* SLIDES CONTAINER */}
+                            <div style={{ overflow: 'hidden', borderRadius: '16px', border: '1px solid #333' }}>
+                                <div style={{
+                                    display: 'flex',
+                                    transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                                    transform: `translateX(-${carouselIndex * 100}%)`
+                                }}>
+                                    {slides.map((item, i) => (
+                                        <div key={i} style={{ flex: '0 0 100%', position: 'relative' }}>
+                                            <img src={item.src} alt={item.label} style={{ width: '100%', display: 'block' }} />
+                                            <div style={{
+                                                position: 'absolute', bottom: 0, left: 0, right: 0,
+                                                background: 'linear-gradient(to top, rgba(0,0,0,0.95), transparent)',
+                                                padding: '60px 30px 30px'
+                                            }}>
+                                                <h3 style={{ fontSize: '28px', fontWeight: 800, color: 'white', marginBottom: '8px' }}>{item.label}</h3>
+                                                <p style={{ fontSize: '16px', color: '#a1a1aa' }}>{item.desc}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* NEXT ARROW */}
+                            <button
+                                onClick={() => setCarouselIndex((carouselIndex + 1) % slides.length)}
+                                style={{
+                                    position: 'absolute', right: '0', top: '50%', transform: 'translateY(-50%)',
+                                    width: '50px', height: '50px', borderRadius: '50%', background: 'rgba(0,255,255,0.1)',
+                                    border: '1px solid #00FFFF', color: '#00FFFF', cursor: 'pointer', zIndex: 10,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px',
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.background = '#00FFFF'; e.currentTarget.style.color = '#050505'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,255,255,0.1)'; e.currentTarget.style.color = '#00FFFF'; }}
+                            >
+                                ›
+                            </button>
+
+                            {/* NAVIGATION DOTS */}
+                            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '30px' }}>
+                                {slides.map((_, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => setCarouselIndex(i)}
+                                        style={{
+                                            width: carouselIndex === i ? '32px' : '10px', height: '10px',
+                                            borderRadius: '100px', border: 'none', cursor: 'pointer',
+                                            background: carouselIndex === i ? '#00FFFF' : '#333',
+                                            boxShadow: carouselIndex === i ? '0 0 15px #00FFFF' : 'none',
+                                            transition: 'all 0.3s'
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })()}
+            </section>
+
+            {/* SOCIAL PROOF COUNTERS */}
+            <section style={{
+                padding: '100px 20px',
+                background: '#050505',
+                borderTop: '1px solid rgba(0,255,255,0.1)',
+                borderBottom: '1px solid rgba(0,255,255,0.1)'
+            }}>
+                <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+                    <div className="stats-grid reveal" style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(4, 1fr)',
+                        gap: '40px',
+                        textAlign: 'center'
+                    }}>
+                        {[
+                            { value: '500+', label: 'Problems Solved', icon: '⚡' },
+                            { value: '1v1', label: 'Battle Modes', icon: '⚔️' },
+                            { value: '99.9%', label: 'Uptime', icon: '🟢' },
+                            { value: '< 50ms', label: 'Execution Time', icon: '🚀' }
+                        ].map((stat, i) => (
+                            <div key={i} className="stat-card" style={{
+                                padding: '40px',
+                                background: 'rgba(255,255,255,0.02)',
+                                border: '1px solid #222',
+                                borderRadius: '16px',
+                                transition: 'all 0.3s'
+                            }}
+                                onMouseEnter={e => {
+                                    e.currentTarget.style.borderColor = '#00FFFF';
+                                    e.currentTarget.style.transform = 'translateY(-5px)';
+                                    e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,255,255,0.1)';
+                                }}
+                                onMouseLeave={e => {
+                                    e.currentTarget.style.borderColor = '#222';
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.boxShadow = 'none';
+                                }}
+                            >
+                                <div style={{ fontSize: '32px', marginBottom: '15px' }}>{stat.icon}</div>
+                                <div style={{
+                                    fontSize: '42px', fontWeight: 900, color: '#00FFFF',
+                                    fontFamily: 'monospace', letterSpacing: '-2px', marginBottom: '10px'
+                                }} className="counter-value">
+                                    {stat.value}
+                                </div>
+                                <div style={{
+                                    fontSize: '12px', fontWeight: 700, letterSpacing: '2px',
+                                    textTransform: 'uppercase', color: '#71717a'
+                                }}>
+                                    {stat.label}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* STUDIO SECTION - PREMIUM DESIGN */}
+            < section id="studio" style={{
+                padding: '160px 20px',
+                background: '#050505',
+                position: 'relative',
+                overflow: 'hidden'
+            }}>
+                {/* Animated Background Gradient Orbs */}
+                <div style={{
+                    position: 'absolute', top: '-200px', left: '50%', transform: 'translateX(-50%)',
+                    width: '600px', height: '600px',
+                    background: 'radial-gradient(circle, rgba(0,255,255,0.08) 0%, transparent 70%)',
+                    filter: 'blur(60px)', pointerEvents: 'none'
+                }} />
+                <div style={{
+                    position: 'absolute', bottom: '-100px', right: '-100px',
+                    width: '400px', height: '400px',
+                    background: 'radial-gradient(circle, rgba(255,123,172,0.06) 0%, transparent 70%)',
+                    filter: 'blur(50px)', pointerEvents: 'none'
+                }} />
+
+                <div className="reveal" style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+
+                    {/* Profile Avatar with Glow Ring */}
+                    <div style={{
+                        marginBottom: '40px',
+                        display: 'inline-block',
+                        position: 'relative'
+                    }}>
+                        <div className="avatar-glow" style={{
+                            width: '120px', height: '120px',
+                            borderRadius: '50%',
+                            background: 'conic-gradient(from 0deg, #00FFFF, #FF7BAC, #00FFFF)',
+                            padding: '3px',
+                            animation: 'spin-slow 8s linear infinite'
+                        }}>
+                            <div style={{
+                                width: '100%', height: '100%',
+                                borderRadius: '50%',
+                                background: '#050505',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontSize: '48px', fontWeight: 900, color: '#00FFFF'
+                            }}>
+                                S
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 style={{
+                        fontSize: '12px', fontWeight: 700, letterSpacing: '4px',
+                        textTransform: 'uppercase', color: '#FF7BAC', marginBottom: '20px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px'
+                    }}>
+                        <span style={{ width: '30px', height: '1px', background: 'linear-gradient(90deg, transparent, #FF7BAC)' }} />
+                        The Studio
+                        <span style={{ width: '30px', height: '1px', background: 'linear-gradient(90deg, #FF7BAC, transparent)' }} />
+                    </h2>
+
+                    <h3 className="gradient-text-animated" style={{
+                        fontSize: 'clamp(40px, 8vw, 72px)',
+                        fontWeight: 900,
+                        marginBottom: '30px',
+                        background: 'linear-gradient(135deg, #fff 0%, #00FFFF 50%, #FF7BAC 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundSize: '200% 200%',
+                        animation: 'gradient-shift 4s ease infinite'
+                    }}>
+                        Crafted by Somesh.
                     </h3>
-                    <p style={{ fontSize: '18px', color: '#a1a1aa', lineHeight: '1.8', marginBottom: '60px' }}>
-                        AlgoDuel is a project born from a passion for high-performance systems and competitive coding.
-                        Crafted with attention to detail, from the database schema to the pixel-perfect UI.
+
+                    <p style={{
+                        fontSize: '18px', color: '#a1a1aa', lineHeight: '1.9',
+                        marginBottom: '50px', maxWidth: '650px', margin: '0 auto 50px'
+                    }}>
+                        AlgoDuel is a passion project built with obsessive attention to detail —<br />
+                        from <span style={{ color: '#00FFFF' }}>real-time WebSocket battles</span> to <span style={{ color: '#FF7BAC' }}>pixel-perfect UI</span>.
                     </p>
 
-                    <div style={{ display: 'inline-flex', gap: '20px', borderTop: '1px solid #333', paddingTop: '40px' }}>
-                        <SocialLink label="GITHUB" href="https://github.com/Somesh520" />
-                        <SocialLink label="LINKEDIN" href="https://www.linkedin.com/in/somesh-tiwari-236555322/" />
-                        <SocialLink label="PORTFOLIO" href="https://someshxd.netlify.app/" />
+                    {/* Tech Pills */}
+                    <div style={{
+                        display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap',
+                        marginBottom: '50px'
+                    }}>
+                        {['React', 'Node.js', 'MongoDB', 'Socket.io', 'Docker'].map((tech, i) => (
+                            <span key={i} style={{
+                                padding: '8px 18px',
+                                background: 'rgba(255,255,255,0.03)',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: '100px',
+                                fontSize: '12px',
+                                fontWeight: 600,
+                                color: '#71717a',
+                                letterSpacing: '1px'
+                            }}>
+                                {tech}
+                            </span>
+                        ))}
+                    </div>
+
+                    {/* Social Links - Premium Style */}
+                    <div style={{
+                        display: 'flex', gap: '20px', justifyContent: 'center',
+                        paddingTop: '40px',
+                        borderTop: '1px solid rgba(255,255,255,0.1)'
+                    }}>
+                        {[
+                            { label: 'GitHub', href: 'https://github.com/Somesh520', icon: '⌘' },
+                            { label: 'LinkedIn', href: 'https://www.linkedin.com/in/somesh-tiwari-236555322/', icon: '◉' },
+                            { label: 'Portfolio', href: 'https://someshxd.netlify.app/', icon: '◈' }
+                        ].map((link, i) => (
+                            <a key={i} href={link.href} target="_blank" rel="noopener noreferrer"
+                                className="studio-link"
+                                style={{
+                                    padding: '14px 28px',
+                                    background: 'transparent',
+                                    border: '1px solid #333',
+                                    borderRadius: '8px',
+                                    color: '#a1a1aa',
+                                    textDecoration: 'none',
+                                    fontSize: '13px',
+                                    fontWeight: 700,
+                                    letterSpacing: '1px',
+                                    textTransform: 'uppercase',
+                                    transition: 'all 0.3s ease',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px'
+                                }}
+                                onMouseEnter={e => {
+                                    e.currentTarget.style.borderColor = '#00FFFF';
+                                    e.currentTarget.style.color = '#00FFFF';
+                                    e.currentTarget.style.boxShadow = '0 0 25px rgba(0,255,255,0.2)';
+                                    e.currentTarget.style.transform = 'translateY(-3px)';
+                                }}
+                                onMouseLeave={e => {
+                                    e.currentTarget.style.borderColor = '#333';
+                                    e.currentTarget.style.color = '#a1a1aa';
+                                    e.currentTarget.style.boxShadow = 'none';
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                }}
+                            >
+                                <span style={{ fontSize: '16px' }}>{link.icon}</span>
+                                {link.label}
+                            </a>
+                        ))}
                     </div>
                 </div>
             </section >
 
-            {/* FOOTER */}
-            < footer style={{ borderTop: '1px solid #1f1f23', background: '#080808', paddingTop: '80px', paddingBottom: '40px' }}>
+            {/* FOOTER - PREMIUM DESIGN */}
+            < footer style={{
+                borderTop: '1px solid rgba(0,255,255,0.1)',
+                background: '#050505',
+                paddingTop: '100px',
+                paddingBottom: '40px',
+                position: 'relative'
+            }}>
+                {/* Top Glow Line */}
+                <div style={{
+                    position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
+                    width: '300px', height: '1px',
+                    background: 'linear-gradient(90deg, transparent, #00FFFF, transparent)',
+                    boxShadow: '0 0 20px #00FFFF'
+                }} />
+
                 <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '60px', marginBottom: '80px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '60px', marginBottom: '80px' }}>
 
                         {/* BRAND COLUMN */}
                         <div style={{ gridColumn: 'span 1' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-                                <div style={{ width: '24px', height: '24px', background: '#00FFFF', borderRadius: '6px' }} />
-                                <span style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.5px' }}>ALGODUEL</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                                <img
+                                    src="/logo.svg"
+                                    alt="AlgoDuel Logo"
+                                    style={{
+                                        width: '36px', height: '36px',
+                                        filter: 'drop-shadow(0 0 10px rgba(0, 255, 255, 0.3))'
+                                    }}
+                                />
+                                <span style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.5px' }}>
+                                    ALGO<span style={{ color: '#00FFFF' }}>DUEL</span>
+                                </span>
                             </div>
-                            <p style={{ color: '#71717a', fontSize: '14px', lineHeight: '1.6', marginBottom: '20px' }}>
-                                The operating system for competitive developers. Build your rank. Prove your worth.
+                            <p style={{ color: '#71717a', fontSize: '14px', lineHeight: '1.7', marginBottom: '30px' }}>
+                                The operating system for competitive developers.<br />
+                                <span style={{ color: '#a1a1aa' }}>Build your rank. Prove your worth.</span>
                             </p>
-                            <div style={{ display: 'flex', gap: '10px' }}>
-                                <SocialIcon><Twitter size={16} /></SocialIcon>
-                                <SocialIcon><Github size={16} /></SocialIcon>
-                                <SocialIcon><Globe size={16} /></SocialIcon>
-                            </div>
+
+                            {/* Mini CTA */}
+                            <Link to="/app" style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                                padding: '12px 20px',
+                                background: 'rgba(0,255,255,0.1)',
+                                border: '1px solid rgba(0,255,255,0.3)',
+                                borderRadius: '6px',
+                                color: '#00FFFF',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                letterSpacing: '1px',
+                                textTransform: 'uppercase',
+                                textDecoration: 'none',
+                                transition: 'all 0.3s'
+                            }}
+                                onMouseEnter={e => {
+                                    e.currentTarget.style.background = '#00FFFF';
+                                    e.currentTarget.style.color = '#050505';
+                                }}
+                                onMouseLeave={e => {
+                                    e.currentTarget.style.background = 'rgba(0,255,255,0.1)';
+                                    e.currentTarget.style.color = '#00FFFF';
+                                }}
+                            >
+                                Enter Arena →
+                            </Link>
                         </div>
 
-                        {/* LINKS COLUMNS */}
+                        {/* PLATFORM LINKS */}
                         <div>
                             <FooterHeader>Platform</FooterHeader>
                             <FooterLink onClick={() => openModal("Live Arena", "Experience real-time 1v1 coding battles. \n\n- Synchronized Editor\n- Voice Chat Integration\n- Instant Test Case Feedback")}>Live Arena</FooterLink>
@@ -476,30 +904,74 @@ const LandingPage = () => {
                             <FooterLink onClick={() => openModal("IDE Features", "Pro-grade coding environment in your browser.\n\n- Monaco Editor (VS Code based)\n- Vim/Emacs Keybindings\n- Multiple Themes (Dracula, Monokai, GitHub)")}>IDE Features</FooterLink>
                         </div>
 
+                        {/* RESOURCES LINKS */}
                         <div>
                             <FooterHeader>Resources</FooterHeader>
-                            <Link to="/docs" style={{ color: '#a1a1aa', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#a1a1aa'}>Documentation</Link>
+                            <Link to="/docs" style={{ color: '#71717a', textDecoration: 'none', fontSize: '14px', transition: 'all 0.2s', cursor: 'pointer', display: 'block', marginBottom: '12px' }} onMouseEnter={(e) => e.target.style.color = '#00FFFF'} onMouseLeave={(e) => e.target.style.color = '#71717a'}>Documentation</Link>
                             <FooterLink onClick={() => openModal("API Reference", "Our REST and WebSocket APIs are rate-limited to 100 req/min. Authentication via JWT required for all endpoints.")}>API Reference</FooterLink>
                             <FooterLink onClick={() => openModal("Guidelines", "Be respectful. No cheating. Ensure fair play. Bans are permanent for macro usage or multiple account abuse.")}>Community Guidelines</FooterLink>
                             <FooterLink onClick={() => openModal("System Status", "All Systems Operational. 99.9% Uptime this month.\n\n- Matchmaking: ONLINE\n- Execution Engine: ONLINE\n- Voice Server: ONLINE")}>System Status</FooterLink>
                         </div>
 
+                        {/* CONNECT COLUMN */}
+                        <div>
+                            <FooterHeader>Connect</FooterHeader>
+                            <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+                                {[
+                                    { href: 'https://github.com/Somesh520', icon: '⌘' },
+                                    { href: 'https://www.linkedin.com/in/somesh-tiwari-236555322/', icon: '◉' },
+                                    { href: 'https://someshxd.netlify.app/', icon: '◈' }
+                                ].map((link, i) => (
+                                    <a key={i} href={link.href} target="_blank" rel="noopener noreferrer"
+                                        style={{
+                                            width: '40px', height: '40px',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            background: 'rgba(255,255,255,0.03)',
+                                            border: '1px solid #222',
+                                            borderRadius: '8px',
+                                            color: '#71717a',
+                                            textDecoration: 'none',
+                                            fontSize: '16px',
+                                            transition: 'all 0.3s'
+                                        }}
+                                        onMouseEnter={e => {
+                                            e.currentTarget.style.borderColor = '#00FFFF';
+                                            e.currentTarget.style.color = '#00FFFF';
+                                            e.currentTarget.style.boxShadow = '0 0 15px rgba(0,255,255,0.2)';
+                                        }}
+                                        onMouseLeave={e => {
+                                            e.currentTarget.style.borderColor = '#222';
+                                            e.currentTarget.style.color = '#71717a';
+                                            e.currentTarget.style.boxShadow = 'none';
+                                        }}
+                                    >
+                                        {link.icon}
+                                    </a>
+                                ))}
+                            </div>
+                            <p style={{ color: '#52525b', fontSize: '12px', lineHeight: '1.6' }}>
+                                Built with 💻 by Somesh
+                            </p>
+                        </div>
 
                     </div>
 
                     {/* BOTTOM BAR */}
                     <div style={{
-                        borderTop: '1px solid #1f1f23', paddingTop: '40px',
+                        borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '30px',
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px',
-                        fontSize: '12px', color: '#52525b', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600
+                        fontSize: '11px', color: '#3f3f46', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 600
                     }}>
-                        <div>
-                            © 2024 AlgoDuel System. All rights reserved.
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ width: '6px', height: '6px', background: '#22c55e', borderRadius: '50%', boxShadow: '0 0 8px #22c55e' }} />
+                            <span>All Systems Operational</span>
+                            <span style={{ color: '#27272a' }}>•</span>
+                            <span>© 2024 AlgoDuel</span>
                         </div>
-                        <div style={{ display: 'flex', gap: '30px' }}>
-                            <Link to="/privacy" style={{ cursor: 'pointer', transition: 'color 0.2s', textDecoration: 'none', color: '#52525b' }} onMouseEnter={e => e.target.style.color = 'white'} onMouseLeave={e => e.target.style.color = '#52525b'}>Privacy Policy</Link>
-                            <Link to="/terms" style={{ cursor: 'pointer', transition: 'color 0.2s', textDecoration: 'none', color: '#52525b' }} onMouseEnter={e => e.target.style.color = 'white'} onMouseLeave={e => e.target.style.color = '#52525b'}>Terms of Service</Link>
-                            <span onClick={() => openModal('Cookies', 'We use essential cookies to maintain your login session. No third-party tracking cookies are used.')} style={{ cursor: 'pointer', transition: 'color 0.2s' }} onMouseEnter={e => e.target.style.color = 'white'} onMouseLeave={e => e.target.style.color = '#52525b'}>Cookies</span>
+                        <div style={{ display: 'flex', gap: '25px' }}>
+                            <Link to="/privacy" style={{ cursor: 'pointer', transition: 'color 0.2s', textDecoration: 'none', color: '#3f3f46' }} onMouseEnter={e => e.target.style.color = '#00FFFF'} onMouseLeave={e => e.target.style.color = '#3f3f46'}>Privacy</Link>
+                            <Link to="/terms" style={{ cursor: 'pointer', transition: 'color 0.2s', textDecoration: 'none', color: '#3f3f46' }} onMouseEnter={e => e.target.style.color = '#00FFFF'} onMouseLeave={e => e.target.style.color = '#3f3f46'}>Terms</Link>
+                            <span onClick={() => openModal('Cookies', 'We use essential cookies to maintain your login session. No third-party tracking cookies are used.')} style={{ cursor: 'pointer', transition: 'color 0.2s' }} onMouseEnter={e => e.target.style.color = '#00FFFF'} onMouseLeave={e => e.target.style.color = '#3f3f46'}>Cookies</span>
                         </div>
                     </div>
                 </div>
@@ -523,6 +995,115 @@ const LandingPage = () => {
                     .desktop-only {
                         display: block;
                     }
+                }
+
+                /* FLOATING PARTICLE ANIMATION */
+                @keyframes float {
+                    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+                    10% { opacity: 0.3; }
+                    90% { opacity: 0.3; }
+                    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+                }
+                .particle {
+                    pointer-events: none;
+                }
+
+                /* GLITCH TEXT EFFECT */
+                .glitch-text {
+                    animation: subtle-glitch 8s infinite;
+                }
+                .glitch-layer {
+                    position: relative;
+                    display: inline-block;
+                }
+                .glitch-text:hover .glitch-layer {
+                    animation: glitch-flicker 0.3s steps(2) infinite;
+                }
+                @keyframes subtle-glitch {
+                    0%, 90%, 100% { text-shadow: none; }
+                    92% { text-shadow: -2px 0 #FF7BAC, 2px 0 #00FFFF; }
+                    94% { text-shadow: 2px 0 #FF7BAC, -2px 0 #00FFFF; }
+                    96% { text-shadow: none; }
+                }
+                @keyframes glitch-flicker {
+                    0% { transform: translate(0); text-shadow: -3px 0 #FF7BAC, 3px 0 #00FFFF; }
+                    25% { transform: translate(-2px, 1px); text-shadow: 3px 0 #FF7BAC, -3px 0 #00FFFF; }
+                    50% { transform: translate(2px, -1px); text-shadow: -3px 0 #FF7BAC, 3px 0 #00FFFF; }
+                    75% { transform: translate(-1px, 2px); text-shadow: 3px 0 #FF7BAC, -3px 0 #00FFFF; }
+                    100% { transform: translate(0); text-shadow: -3px 0 #FF7BAC, 3px 0 #00FFFF; }
+                }
+
+                /* RESPONSIVE STATS GRID */
+                @media (max-width: 900px) {
+                    .stats-grid {
+                        grid-template-columns: repeat(2, 1fr) !important;
+                    }
+                }
+                @media (max-width: 500px) {
+                    .stats-grid {
+                        grid-template-columns: 1fr !important;
+                        gap: 20px !important;
+                    }
+                    .stat-card {
+                        padding: 25px !important;
+                    }
+                    .counter-value {
+                        font-size: 32px !important;
+                    }
+                }
+
+                /* SCROLL-TRIGGERED REVEAL ANIMATIONS */
+                .reveal {
+                    opacity: 0;
+                    transform: translateY(40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .reveal.revealed {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                .reveal-left {
+                    opacity: 0;
+                    transform: translateX(-40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .reveal-left.revealed {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                .reveal-right {
+                    opacity: 0;
+                    transform: translateX(40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .reveal-right.revealed {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                .reveal-scale {
+                    opacity: 0;
+                    transform: scale(0.9);
+                    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+                }
+                .reveal-scale.revealed {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+                /* Staggered delay classes */
+                .delay-1 { transition-delay: 0.1s; }
+                .delay-2 { transition-delay: 0.2s; }
+                .delay-3 { transition-delay: 0.3s; }
+                .delay-4 { transition-delay: 0.4s; }
+
+                /* STUDIO SECTION ANIMATIONS */
+                @keyframes spin-slow {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+                @keyframes gradient-shift {
+                    0% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
+                    100% { background-position: 0% 50%; }
                 }
             `}</style >
 
@@ -683,5 +1264,7 @@ const SocialIcon = ({ children }) => (
         {children}
     </div>
 );
+
+
 
 export default LandingPage;
