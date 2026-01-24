@@ -18,6 +18,7 @@ import TasksPage from './components/TasksPage';
 import CalendarPage from './components/CalendarPage';
 import AssistantPage from './components/AssistantPage';
 import PrivacyPolicyPage from './components/PrivacyPolicyPage';
+import TermsPage from './components/TermsPage';
 import SEO from './components/SEO';
 import { fetchProblems, fetchSolvedProblems } from './api';
 import { io } from 'socket.io-client';
@@ -587,6 +588,7 @@ function App() {
           </ErrorBoundary>
         } />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
       </Routes>
     </BrowserRouter>
   );
