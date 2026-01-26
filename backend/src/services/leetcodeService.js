@@ -3,7 +3,7 @@ import { getHeaders } from '../utils/headers.js';
 import redisClient from '../config/redis.js';
 
 export const fetchProblems = async () => {
-    const cacheKey = 'leetcode:problems:all:v2'; // New cache key for all problems
+    const cacheKey = 'leetcode:problems:all:v3'; // New cache key to invalidate old data
 
     // 1. Try Cache (Safe)
     try {

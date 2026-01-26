@@ -6,10 +6,14 @@ const getAuthHeaders = () => {
 };
 
 export const fetchProblems = async () => {
-
-
+  // Add cache-busting timestamp and no-cache headers
   const res = await fetch(`${BASE_URL}/problems`, {
-    headers: getAuthHeaders()
+    headers: {
+      ...getAuthHeaders(),
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache'
+    },
+    cache: 'no-store'
   });
   if (!res.ok) throw new Error("Backend connection failed");
   const data = await res.json();
@@ -52,7 +56,12 @@ export const fetchProblems = async () => {
     }));
   }
   console.log("[API] Normalized Problems Count:", problems.length);
-  return problems.filter(p => p.slug && p.title && p.id);
+
+  // Filter valid problems and sort by ID (ascending: 1, 2, 3...)
+  const validProblems = problems.filter(p => p.slug && p.title && p.id);
+  validProblems.sort((a, b) => Number(a.id) - Number(b.id));
+
+  return validProblems;
 };
 
 export const fetchProblemDetails = async (id) => {
