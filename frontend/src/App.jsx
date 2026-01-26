@@ -306,14 +306,21 @@ function MainApp({ initialRoom }) {
     const { problemId } = useParams();
     const location = useLocation();
 
-    // Use currentProblem if matches, otherwise create stub from URL
-    const problem = currentProblem && (currentProblem.id == problemId || currentProblem.slug == problemId)
-      ? currentProblem
-      : { id: problemId, slug: problemId, title: "Loading Problem..." };
+    // Priority: 1) selectedProblem from state, 2) currentProblem if matches, 3) stub from URL
+    let problem;
+    if (location.state?.selectedProblem) {
+      problem = location.state.selectedProblem;
+    } else if (currentProblem && (currentProblem.id == problemId || currentProblem.slug == problemId)) {
+      problem = currentProblem;
+    } else {
+      problem = { id: problemId, slug: problemId, title: "Loading Problem..." };
+    }
 
     const customHandleBack = () => {
       if (location.state?.from === 'learn') {
         navigate('/app/learn');
+      } else if (location.state?.from === 'stats') {
+        navigate('/app/stats');
       } else {
         handleBack();
       }
