@@ -104,47 +104,110 @@ router.get('/search', async (req, res) => {
     }
 });
 
-// 2. PUBLIC PROXY: Fetch stats by username (GET)
-// Note: This must be defined AFTER specific routes if we used generic paths, 
-// but since we have /:username, it would swallow /me if defined first.
+// PIED API BASE URL
+const PIED_API = 'https://leetcode-api-pied.vercel.app';
+
+// 4. DAILY CHALLENGE: Get today's LeetCode daily problem (GET)
+router.get('/daily', async (req, res) => {
+    try {
+        const response = await fetch(`${PIED_API}/daily`);
+        const data = await response.json();
+
+        res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+        res.json({
+            date: data.date,
+            questionId: data.question?.questionFrontendId,
+            title: data.question?.title,
+            titleSlug: data.question?.titleSlug,
+            difficulty: data.question?.difficulty,
+            link: data.link,
+            acRate: data.question?.acRate,
+            topicTags: data.question?.topicTags || [],
+            content: data.question?.content
+        });
+    } catch (error) {
+        console.error("Daily Challenge Error:", error);
+        res.status(500).json({ error: "Failed to fetch daily challenge" });
+    }
+});
+
+// 5. SUBMISSIONS: Get user's recent submissions (GET)
+router.get('/submissions/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+        const limit = req.query.limit || 20;
+
+        const response = await fetch(`${PIED_API}/user/${username}/submissions`);
+        const data = await response.json();
+
+        // Format and limit submissions
+        const submissions = (Array.isArray(data) ? data : []).slice(0, limit).map(s => ({
+            id: s.id,
+            title: s.title,
+            titleSlug: s.titleSlug,
+            status: s.statusDisplay,
+            lang: s.langName || s.lang,
+            runtime: s.runtime,
+            memory: s.memory,
+            timestamp: s.timestamp,
+            url: s.url
+        }));
+
+        res.setHeader('Cache-Control', 'no-store');
+        res.json(submissions);
+    } catch (error) {
+        console.error("Submissions Error:", error);
+        res.status(500).json({ error: "Failed to fetch submissions" });
+    }
+});
+
+// 2. PUBLIC PROXY: Fetch stats by username (GET) - Using Pied API
 router.get('/:username', async (req, res) => {
     try {
         const { username } = req.params;
 
+        // Skip if it's a reserved route
+        if (['search', 'me', 'daily', 'solved', 'submissions'].includes(username)) {
+            return res.status(400).json({ error: "Invalid username" });
+        }
 
+        const response = await fetch(`${PIED_API}/user/${username}`);
 
-        // Parallel fetching
-        const [user, contest] = await Promise.all([
-            leetcode.user(username),
-            leetcode.user_contest_info(username)
-        ]);
-
-        if (!user || !user.matchedUser) {
+        if (!response.ok) {
             return res.status(404).json({ error: "User not found" });
         }
 
-        const matchedUser = user.matchedUser;
-        const submitStats = matchedUser.submitStats.acSubmissionNum;
+        const user = await response.json();
+
+        if (!user || !user.username) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const submitStats = user.submitStats?.acSubmissionNum || [];
+        const totalStats = user.submitStats?.totalSubmissionNum || [];
 
         const getCount = (diff) => submitStats.find(s => s.difficulty === diff)?.count || 0;
-        const totalSubmissions = matchedUser.submitStats.totalSubmissionNum.find(s => s.difficulty === "All")?.count || 1;
+        const getTotalSubmissions = (diff) => totalStats.find(s => s.difficulty === diff)?.submissions || 1;
 
         const responseData = {
-            username: matchedUser.username,
+            username: user.username,
+            realName: user.profile?.realName,
+            avatar: user.profile?.userAvatar,
+            country: user.profile?.countryName,
             totalSolved: getCount("All"),
             easySolved: getCount("Easy"),
             mediumSolved: getCount("Medium"),
             hardSolved: getCount("Hard"),
-            acceptanceRate: submitStats.length > 0 ? ((getCount("All") / totalSubmissions) * 100).toFixed(2) : "0.00",
-            ranking: matchedUser.profile.ranking,
-            contributionPoints: matchedUser.contributions.points,
-            reputation: matchedUser.profile.reputation,
-            submissionCalendar: matchedUser.submissionCalendar,
-            streak: 0,
-            longestStreak: 0
+            acceptanceRate: getTotalSubmissions("All") > 0
+                ? ((getCount("All") / getTotalSubmissions("All")) * 100).toFixed(2)
+                : "0.00",
+            ranking: user.profile?.ranking,
+            reputation: user.profile?.reputation,
+            githubUrl: user.githubUrl,
+            linkedinUrl: user.linkedinUrl,
+            twitterUrl: user.twitterUrl
         };
 
-        // DISABLE CACHING
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');

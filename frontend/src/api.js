@@ -145,6 +145,52 @@ export const fetchSolvedProblems = async () => {
 };
 
 // ==========================================
+// LEETCODE PIED API ENDPOINTS  
+// ==========================================
+
+// Fetch today's daily challenge
+export const fetchDailyChallenge = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/leetcode/daily`, {
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    console.error("Failed to fetch daily challenge", e);
+    return null;
+  }
+};
+
+// Fetch user's recent submissions
+export const fetchUserSubmissions = async (username, limit = 10) => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/leetcode/submissions/${username}?limit=${limit}`, {
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (e) {
+    console.error("Failed to fetch submissions", e);
+    return [];
+  }
+};
+
+// Fetch user stats by username
+export const fetchUserStats = async (username) => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/leetcode/${username}`, {
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    console.error("Failed to fetch user stats", e);
+    return null;
+  }
+};
+
+// ==========================================
 // SECOND BRAIN API
 // ==========================================
 
