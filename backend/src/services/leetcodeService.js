@@ -3,7 +3,7 @@ import { getHeaders } from '../utils/headers.js';
 import redisClient from '../config/redis.js';
 
 export const fetchProblems = async () => {
-    const cacheKey = 'leetcode:problems:full:v1'; // Changed key to invalid old cache
+    const cacheKey = 'leetcode:problems:all:v2'; // New cache key for all problems
 
     // 1. Try Cache (Safe)
     try {
@@ -20,36 +20,55 @@ export const fetchProblems = async () => {
         // Continue to API...
     }
 
-    // 2. Try Primary API (Alfa)
+    // 2. Try Primary: LeetCode's Official API (Returns ALL ~3800 problems)
     try {
-        console.log("Fetching problems from Alfa API (Limit 100)...");
+        console.log("Fetching ALL problems from LeetCode Official API...");
 
-        // Fetch top 100 problems (User Requested Limit)
-        const response = await axios.get('https://alfa-leetcode-api.onrender.com/problems?limit=100', { timeout: 20000 });
+        const response = await axios.get('https://leetcode.com/api/problems/all/', {
+            timeout: 30000,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Referer': 'https://leetcode.com'
+            }
+        });
+
         const data = response.data;
-
         let problemsArray = [];
-        if (data.problemsetQuestionList) {
-            problemsArray = data.problemsetQuestionList;
-        } else if (Array.isArray(data)) {
-            problemsArray = data;
+
+        if (data.stat_status_pairs && Array.isArray(data.stat_status_pairs)) {
+            problemsArray = data.stat_status_pairs;
         }
 
-        console.log(`[API] Top 100 Fetch Complete. Count: ${problemsArray.length}`);
+        console.log(`[API] LeetCode Official Fetch Complete. Count: ${problemsArray.length}`);
 
-        // Cache result
-        try { if (redisClient.isOpen) await redisClient.set(cacheKey, JSON.stringify(problemsArray), { EX: 3600 }); } catch (e) { }
+        // Cache result for 6 hours (problems don't change often)
+        try {
+            if (redisClient.isOpen) {
+                await redisClient.set(cacheKey, JSON.stringify(problemsArray), { EX: 21600 });
+            }
+        } catch (e) { }
 
         return problemsArray;
 
     } catch (primaryErr) {
-        console.error("Fetch Failure:", primaryErr.message);
-        console.warn("Primary API (Alfa) Failed:", primaryErr.message);
+        console.error("LeetCode Official API Failed:", primaryErr.message);
 
-        // 3. Fallback to Pied (Might only return top 50, but better than nothing)
+        // 3. Fallback to Alfa API (but request more problems)
         try {
-            const response = await axios.get('https://leetcode-api-pied.vercel.app/problems', { timeout: 5000 });
-            return response.data;
+            console.log("Trying Alfa API fallback...");
+            const response = await axios.get('https://alfa-leetcode-api.onrender.com/problems?limit=5000', { timeout: 30000 });
+            const data = response.data;
+
+            let problemsArray = [];
+            if (data.problemsetQuestionList) {
+                problemsArray = data.problemsetQuestionList;
+            } else if (Array.isArray(data)) {
+                problemsArray = data;
+            }
+
+            console.log(`[API] Alfa Fallback Complete. Count: ${problemsArray.length}`);
+            return problemsArray;
+
         } catch (backupErr) {
             console.error("All APIs failed");
             throw primaryErr;

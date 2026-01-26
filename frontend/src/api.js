@@ -6,7 +6,7 @@ const getAuthHeaders = () => {
 };
 
 export const fetchProblems = async () => {
-  const res = await fetch(`${BASE_URL}/problems?t=${Date.now()}`, {
+  const res = await fetch(`${BASE_URL}/problems`, {
     headers: getAuthHeaders()
   });
   if (!res.ok) throw new Error("Backend connection failed");
@@ -14,30 +14,42 @@ export const fetchProblems = async () => {
   console.log("[API] Raw Problems Data:", data);
 
   let problems = [];
+
+  // Check if response is wrapped object with stat_status_pairs
   if (data.stat_status_pairs) {
     if (data.stat_status_pairs.length > 0) {
       console.log("[API] First raw item (pairs):", data.stat_status_pairs[0]);
     }
     problems = data.stat_status_pairs.map(p => ({
-      id: p.stat.frontend_question_id || p.stat.question_id, // Use Frontend ID
+      id: p.stat.frontend_question_id || p.stat.question_id,
       title: p.stat.question__title,
       slug: p.stat.question__title_slug,
       difficulty: p.difficulty.level === 1 ? 'Easy' : p.difficulty.level === 2 ? 'Medium' : 'Hard'
     }));
-  } else if (Array.isArray(data)) {
+  }
+  // Check if it's an array of stat_status_pairs format (has .stat property)
+  else if (Array.isArray(data) && data.length > 0 && data[0].stat) {
+    console.log("[API] Detected stat_status_pairs array format, count:", data.length);
+    problems = data.map(p => ({
+      id: p.stat.frontend_question_id || p.stat.question_id,
+      title: p.stat.question__title,
+      slug: p.stat.question__title_slug,
+      difficulty: p.difficulty?.level === 1 ? 'Easy' : p.difficulty?.level === 2 ? 'Medium' : 'Hard'
+    }));
+  }
+  // Alfa API flat format
+  else if (Array.isArray(data)) {
     if (data.length > 0) {
       // console.log("[API] First raw item (array):", data[0]);
     }
     problems = data.map(p => ({
-      // Alfa API uses 'questionFrontendId', others use 'frontendQuestionId' or 'questionId'
       id: p.questionFrontendId || p.frontendQuestionId || p.questionId || p.id,
       title: p.title || p.questionTitle,
       slug: p.title_slug || p.titleSlug || p.slug || p.question__title_slug,
       difficulty: p.difficulty || "Medium"
     }));
   }
-  // console.log("[API] Normalized Problems:", problems.length);
-  // if (problems.length > 0) console.log("[API] First Normalized Problem:", problems[0]);
+  console.log("[API] Normalized Problems Count:", problems.length);
   return problems.filter(p => p.slug && p.title && p.id);
 };
 
