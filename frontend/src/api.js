@@ -6,6 +6,8 @@ const getAuthHeaders = () => {
 };
 
 export const fetchProblems = async () => {
+
+
   const res = await fetch(`${BASE_URL}/problems`, {
     headers: getAuthHeaders()
   });
