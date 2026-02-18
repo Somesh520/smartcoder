@@ -1,15 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { fetchProblemDetails, runCode, submitCode, pollResult } from '../api';
+import React, { useState, useEffect, useRef } from 'react';
+import { fetchProblemDetails, runCode, submitCode, pollResult, fetchAIAssist } from '../api';
 import CodeEditor from './CodeEditor';
 import Console from './Console';
 import ModernSpinner from './ModernSpinner';
-import { ArrowLeft, Play, Send, Trophy, Zap, GripVertical } from 'lucide-react';
+import { ArrowLeft, Play, Send, Trophy, Zap, Sparkles, X, Loader2, Lightbulb, Bug, Rocket, Code2 } from 'lucide-react';
 
 const DEFAULT_TEMPLATES = {
     'cpp': 'class Solution {\\npublic:\\n    // Write C++ code here\\n};',
     'java': 'class Solution {\\n    public void solve() {\\n        // Write Java code here\\n    }\\n}',
     'python': 'class Solution(object):\\n    def solve(self):\\n        # Write Python code here\\n        pass',
     'javascript': 'var solve = function() {\\n    // Write JS code here\\n};'
+};
+
+// Simple markdown to HTML converter for AI responses
+const formatMarkdown = (text) => {
+    return text
+        // Code blocks
+        .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+        // Headers
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+        // Bold & italic
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        // Inline code
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        // Bullet points
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+        // Numbered lists
+        .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+        // Line breaks
+        .replace(/\n\n/g, '<br/><br/>')
+        .replace(/\n/g, '<br/>');
 };
 
 const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
@@ -20,6 +44,13 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
     const [consoleOpen, setConsoleOpen] = useState(false);
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    // AI Assistant State
+    const [aiOpen, setAiOpen] = useState(false);
+    const [aiMessage, setAiMessage] = useState('');
+    const [aiResponse, setAiResponse] = useState('');
+    const [aiLoading, setAiLoading] = useState(false);
+    const aiResponseRef = useRef(null);
 
     // Resizable Layout State
     const [leftWidth, setLeftWidth] = useState(40); // Initial 40% width for problem description
@@ -103,6 +134,34 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
         if (roomId) {
             localStorage.setItem(`code_${roomId}_${problem.id}_lang`, newLang);
             localStorage.setItem(`code_${roomId}_${problem.id}`, resetCode);
+        }
+    };
+
+    // AI Assistant Handler
+    const handleAIAssist = async (quickAction) => {
+        const msg = quickAction || aiMessage;
+        if (!msg.trim() && !quickAction) return;
+
+        setAiLoading(true);
+        setAiResponse('');
+
+        const result = await fetchAIAssist({
+            code,
+            language,
+            problemTitle: problem?.title || '',
+            problemDescription: details?.content || details?.questionHtml || '',
+            userMessage: msg
+        });
+
+        setAiLoading(false);
+        if (result?.response) {
+            setAiResponse(result.response);
+            setAiMessage('');
+            setTimeout(() => {
+                if (aiResponseRef.current) aiResponseRef.current.scrollTop = 0;
+            }, 100);
+        } else {
+            setAiResponse('⚠️ AI service unavailable. Please try again.');
         }
     };
 
@@ -533,12 +592,255 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                         >
                             <Send size={14} /> Submit
                         </button>
+                        {/* AI Star Button */}
+                        <button
+                            onClick={() => setAiOpen(!aiOpen)}
+                            style={{
+                                background: aiOpen
+                                    ? 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)'
+                                    : 'linear-gradient(135deg, rgba(167,139,250,0.15) 0%, rgba(124,58,237,0.15) 100%)',
+                                color: aiOpen ? '#fff' : '#a78bfa',
+                                border: '1px solid rgba(167,139,250,0.4)',
+                                padding: '8px 14px',
+                                borderRadius: '6px',
+                                fontSize: '13px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                transition: 'all 0.3s',
+                                boxShadow: aiOpen
+                                    ? '0 0 20px rgba(167,139,250,0.5)'
+                                    : '0 0 10px rgba(167,139,250,0.2)',
+                                animation: !aiOpen ? 'ai-pulse 2s infinite' : 'none'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+                                e.currentTarget.style.boxShadow = '0 5px 25px rgba(167,139,250,0.5)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                                e.currentTarget.style.boxShadow = aiOpen
+                                    ? '0 0 20px rgba(167,139,250,0.5)'
+                                    : '0 0 10px rgba(167,139,250,0.2)';
+                            }}
+                        >
+                            <Sparkles size={14} />
+                            AI
+                        </button>
                     </div>
                 </div>
 
-                {/* Code Editor Area */}
-                <div style={{ flex: 1, overflow: 'hidden', paddingBottom: '40px' }}>
-                    <CodeEditor code={code} onChange={handleCodeChange} language={language} />
+                {/* AI Pulse Animation */}
+                <style>{`
+                    @keyframes ai-pulse {
+                        0%, 100% { box-shadow: 0 0 10px rgba(167,139,250,0.2); }
+                        50% { box-shadow: 0 0 20px rgba(167,139,250,0.4), 0 0 40px rgba(167,139,250,0.1); }
+                    }
+                    .ai-response-content h1, .ai-response-content h2, .ai-response-content h3 {
+                        color: #e5e7eb; font-weight: 700; margin: 16px 0 8px 0;
+                    }
+                    .ai-response-content h2 { font-size: 16px; color: #a78bfa; }
+                    .ai-response-content h3 { font-size: 14px; color: #60a5fa; }
+                    .ai-response-content p { margin: 8px 0; line-height: 1.6; }
+                    .ai-response-content ul, .ai-response-content ol {
+                        margin: 8px 0; padding-left: 20px;
+                    }
+                    .ai-response-content li { margin: 4px 0; }
+                    .ai-response-content code {
+                        background: rgba(99,102,241,0.15); color: #c4b5fd;
+                        padding: 2px 6px; border-radius: 4px;
+                        font-family: 'JetBrains Mono', monospace; font-size: 12px;
+                    }
+                    .ai-response-content pre {
+                        background: #0d1117; border: 1px solid #27272a;
+                        border-radius: 8px; padding: 14px; margin: 12px 0;
+                        overflow-x: auto;
+                    }
+                    .ai-response-content pre code {
+                        background: none; padding: 0; color: #e5e7eb;
+                        font-size: 13px; line-height: 1.5;
+                    }
+                    .ai-response-content strong { color: #f9fafb; }
+                    .ai-response-content em { color: #a78bfa; }
+                `}</style>
+
+                {/* Code Editor Area + AI Panel */}
+                <div style={{ flex: 1, overflow: 'hidden', display: 'flex', position: 'relative' }}>
+                    {/* Editor */}
+                    <div style={{ flex: 1, overflow: 'hidden', paddingBottom: '40px' }}>
+                        <CodeEditor code={code} onChange={handleCodeChange} language={language} />
+                    </div>
+
+                    {/* AI Panel - Slides from right */}
+                    {aiOpen && (
+                        <div style={{
+                            width: '380px',
+                            background: 'linear-gradient(180deg, #0f0f18 0%, #13131f 100%)',
+                            borderLeft: '1px solid rgba(167,139,250,0.2)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            animation: 'slideIn 0.3s ease-out',
+                            boxShadow: '-4px 0 20px rgba(0,0,0,0.3)'
+                        }}>
+                            <style>{`@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`}</style>
+
+                            {/* AI Panel Header */}
+                            <div style={{
+                                padding: '14px 16px',
+                                borderBottom: '1px solid rgba(167,139,250,0.15)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                background: 'linear-gradient(135deg, rgba(167,139,250,0.1) 0%, rgba(99,102,241,0.05) 100%)'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <Sparkles size={16} color="#a78bfa" />
+                                    <span style={{ color: '#e5e7eb', fontWeight: 700, fontSize: '14px' }}>SmartCoder AI</span>
+                                </div>
+                                <button
+                                    onClick={() => setAiOpen(false)}
+                                    style={{
+                                        background: 'rgba(255,255,255,0.05)',
+                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        color: '#9ca3af',
+                                        width: '28px', height: '28px',
+                                        borderRadius: '6px',
+                                        cursor: 'pointer',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239,68,68,0.2)'; e.currentTarget.style.color = '#ef4444'; }}
+                                    onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#9ca3af'; }}
+                                >
+                                    <X size={14} />
+                                </button>
+                            </div>
+
+                            {/* Quick Actions */}
+                            <div style={{ padding: '12px 16px', display: 'flex', gap: '8px', flexWrap: 'wrap', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                {[
+                                    { label: 'Solve', icon: <Code2 size={12} />, msg: 'Solve this problem completely with the most optimal approach. Give me the full code.', color: '#22c55e' },
+                                    { label: 'Hint', icon: <Lightbulb size={12} />, msg: 'Give me a hint for this problem. Don\'t give the full solution, just guide me on the approach.', color: '#f59e0b' },
+                                    { label: 'Debug', icon: <Bug size={12} />, msg: 'My code has issues. Find the bugs and fix them. Explain what was wrong.', color: '#ef4444' },
+                                    { label: 'Optimize', icon: <Rocket size={12} />, msg: 'Optimize my current solution for better time and space complexity.', color: '#3b82f6' },
+                                ].map(action => (
+                                    <button
+                                        key={action.label}
+                                        onClick={() => handleAIAssist(action.msg)}
+                                        disabled={aiLoading}
+                                        style={{
+                                            background: `${action.color}15`,
+                                            border: `1px solid ${action.color}40`,
+                                            color: action.color,
+                                            padding: '5px 10px',
+                                            borderRadius: '6px',
+                                            fontSize: '11px',
+                                            fontWeight: 700,
+                                            cursor: aiLoading ? 'not-allowed' : 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px',
+                                            transition: 'all 0.2s',
+                                            opacity: aiLoading ? 0.5 : 1
+                                        }}
+                                    >
+                                        {action.icon}
+                                        {action.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* AI Response Area */}
+                            <div ref={aiResponseRef} style={{
+                                flex: 1,
+                                overflowY: 'auto',
+                                padding: '16px',
+                                fontSize: '13px',
+                                color: '#d1d5db',
+                                lineHeight: '1.6'
+                            }}>
+                                {aiLoading ? (
+                                    <div style={{
+                                        display: 'flex', flexDirection: 'column',
+                                        alignItems: 'center', justifyContent: 'center',
+                                        height: '200px', gap: '12px'
+                                    }}>
+                                        <Loader2 size={28} color="#a78bfa" style={{ animation: 'spin 1s linear infinite' }} />
+                                        <span style={{ color: '#a78bfa', fontWeight: 600, fontSize: '13px' }}>Thinking...</span>
+                                        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                                    </div>
+                                ) : aiResponse ? (
+                                    <div
+                                        className="ai-response-content"
+                                        dangerouslySetInnerHTML={{ __html: formatMarkdown(aiResponse) }}
+                                    />
+                                ) : (
+                                    <div style={{
+                                        display: 'flex', flexDirection: 'column',
+                                        alignItems: 'center', justifyContent: 'center',
+                                        height: '100%', gap: '16px', opacity: 0.6
+                                    }}>
+                                        <Sparkles size={40} color="#a78bfa" style={{ opacity: 0.4 }} />
+                                        <div style={{ textAlign: 'center' }}>
+                                            <div style={{ fontWeight: 700, color: '#a78bfa', marginBottom: '4px' }}>SmartCoder AI</div>
+                                            <div style={{ fontSize: '12px', color: '#6b7280' }}>Click a quick action or type below</div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* AI Input */}
+                            <div style={{
+                                padding: '12px 16px',
+                                borderTop: '1px solid rgba(167,139,250,0.15)',
+                                display: 'flex',
+                                gap: '8px'
+                            }}>
+                                <input
+                                    type="text"
+                                    value={aiMessage}
+                                    onChange={(e) => setAiMessage(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && !aiLoading && handleAIAssist()}
+                                    placeholder="Ask AI anything..."
+                                    disabled={aiLoading}
+                                    style={{
+                                        flex: 1,
+                                        background: 'rgba(255,255,255,0.05)',
+                                        border: '1px solid rgba(167,139,250,0.2)',
+                                        color: '#e5e7eb',
+                                        padding: '10px 14px',
+                                        borderRadius: '8px',
+                                        fontSize: '13px',
+                                        outline: 'none',
+                                        fontFamily: 'inherit',
+                                        transition: 'border-color 0.2s'
+                                    }}
+                                    onFocus={(e) => e.target.style.borderColor = 'rgba(167,139,250,0.5)'}
+                                    onBlur={(e) => e.target.style.borderColor = 'rgba(167,139,250,0.2)'}
+                                />
+                                <button
+                                    onClick={() => handleAIAssist()}
+                                    disabled={aiLoading || !aiMessage.trim()}
+                                    style={{
+                                        background: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)',
+                                        border: 'none',
+                                        color: '#fff',
+                                        width: '40px', height: '40px',
+                                        borderRadius: '8px',
+                                        cursor: (aiLoading || !aiMessage.trim()) ? 'not-allowed' : 'pointer',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        opacity: (aiLoading || !aiMessage.trim()) ? 0.5 : 1,
+                                        transition: 'all 0.2s',
+                                        flexShrink: 0
+                                    }}
+                                >
+                                    <Send size={16} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Console */}

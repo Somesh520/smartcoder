@@ -8,62 +8,59 @@ const getUrl = (model) => `https://generativelanguage.googleapis.com/v1beta/mode
 
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
-router.post('/autocomplete', async (req, res) => {
+// AI Assistant: Understands problem + user code, gives contextual help
+router.post('/assist', async (req, res) => {
     try {
-        const { code, language, cursorLine, cursorColumn } = req.body;
-
-        if (!code || !language) {
-            return res.status(400).json({ error: "Missing code or language" });
-        }
+        const { code, language, problemTitle, problemDescription, userMessage } = req.body;
 
         if (!GEMINI_API_KEY) {
             return res.status(500).json({ error: "Gemini API key not configured" });
         }
 
-        const lines = code.split('\n');
-        const beforeCursor = lines.slice(0, cursorLine).join('\n');
-        const currentLine = lines[cursorLine - 1] || '';
-        const afterCursor = lines.slice(cursorLine).join('\n');
+        // Clean HTML tags from problem description
+        const cleanDesc = (problemDescription || '')
+            .replace(/<[^>]*>/g, ' ')
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .slice(0, 3000); // Limit to avoid token overflow
 
-        const prompt = `You are an expert code autocomplete engine for ${language}. You are helping a programmer solve a LeetCode problem.
+        const prompt = `You are SmartCoder AI — an expert coding assistant helping solve LeetCode problems. You are helpful, concise, and give production-quality code.
 
-Given the code context below, predict and complete ONLY the next few tokens/lines the programmer is likely to type. 
+PROBLEM: ${problemTitle || 'Unknown'}
+DESCRIPTION: ${cleanDesc || 'No description available'}
 
-RULES:
-- Output ONLY the completion text (what comes after the cursor), nothing else
-- Do NOT repeat any existing code
-- Do NOT add explanations, comments, or markdown
-- Keep completions short and relevant (1-3 lines max)
-- If the cursor is mid-line, complete that line first
-- Match the existing code style and indentation
-- If unsure, return empty string
-
-CODE BEFORE CURSOR:
+USER'S CURRENT CODE (${language}):
 \`\`\`${language}
-${beforeCursor}
+${code || '// No code yet'}
 \`\`\`
 
-CURRENT LINE (cursor at column ${cursorColumn}):
-${currentLine}
+USER'S REQUEST: ${userMessage || 'Help me solve this problem'}
 
-CODE AFTER CURSOR:
-\`\`\`${language}
-${afterCursor}
-\`\`\`
-
-COMPLETION:`;
+INSTRUCTIONS:
+- Analyze the problem and the user's current code
+- If user asks for help/hints, give a clear approach explanation with steps
+- If user asks to solve/complete, provide the complete working solution
+- If user's code has bugs, identify and fix them
+- Always explain your approach briefly before the code
+- Format your response in clean markdown
+- Use \`\`\` code blocks for any code
+- Keep explanations concise but clear
+- If giving a solution, make sure it's optimized and correct`;
 
         const payload = {
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: {
-                temperature: 0.1,
-                maxOutputTokens: 128,
-                topP: 0.95,
-                stopSequences: ['\n\n\n', '```']
+                temperature: 0.3,
+                maxOutputTokens: 2048,
+                topP: 0.95
             }
         };
 
-        // Try models in order (lite first for lower quota usage)
+        // Try models in order
         let data = null;
         for (const model of MODELS) {
             const response = await fetch(getUrl(model), {
@@ -76,30 +73,21 @@ COMPLETION:`;
                 data = await response.json();
                 break;
             } else if (response.status !== 429) {
-                // Non-rate-limit error, don't retry
                 data = await response.json();
                 break;
             }
-            // 429 = rate limited, try next model
         }
 
         if (!data) {
-            return res.json({ suggestion: '' });
+            return res.json({ response: 'AI service temporarily unavailable. Please try again.' });
         }
 
-        const suggestion = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-        // Clean up: remove markdown fences and trailing whitespace
-        const cleaned = suggestion
-            .replace(/^```[\w]*\n?/gm, '')
-            .replace(/```$/gm, '')
-            .trimEnd();
-
-        res.json({ suggestion: cleaned });
+        const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Could not generate response.';
+        res.json({ response: answer });
 
     } catch (error) {
-        console.error("AI Autocomplete Error:", error.message);
-        res.status(500).json({ error: "Autocomplete failed" });
+        console.error("AI Assist Error:", error.message);
+        res.status(500).json({ error: "AI Assistant failed" });
     }
 });
 

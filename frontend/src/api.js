@@ -204,18 +204,18 @@ export const fetchUserCalendar = async (username) => {
   }
 };
 
-// AI Autocomplete
-export const fetchAIAutocomplete = async ({ code, language, cursorLine, cursorColumn }) => {
+// AI Assistant
+export const fetchAIAssist = async ({ code, language, problemTitle, problemDescription, userMessage }) => {
   try {
-    const res = await fetch(`${BASE_URL}/api/ai/autocomplete`, {
+    const res = await fetch(`${BASE_URL}/api/ai/assist`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ code, language, cursorLine, cursorColumn })
+      body: JSON.stringify({ code, language, problemTitle, problemDescription, userMessage })
     });
     if (!res.ok) return null;
     return await res.json();
   } catch (e) {
-    console.error("AI autocomplete failed", e);
+    console.error("AI assist failed", e);
     return null;
   }
 };
