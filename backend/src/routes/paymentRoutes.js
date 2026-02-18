@@ -1,6 +1,7 @@
 import express from 'express';
 import { verifyToken } from '../middleware/authMiddleware.js';
 import PaymentRequest from '../models/PaymentRequest.js';
+import User from '../models/User.js';
 
 const router = express.Router();
 
@@ -87,8 +88,8 @@ router.post('/admin/approve', verifyToken, verifyAdmin, async (req, res) => {
         res.json({ message: "Approved & Credits Added", newCredits: user ? user.credits : 0 });
 
     } catch (e) {
-        console.error(e);
-        res.status(500).json({ error: "Approval Failed" });
+        console.error("Approval Error:", e);
+        res.status(500).json({ error: "Approval Failed", details: e.message });
     }
 });
 
