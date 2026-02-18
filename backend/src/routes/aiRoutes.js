@@ -91,7 +91,13 @@ REMEMBER: Follow the language rule strictly.`;
                 temperature: 0.3,
                 maxOutputTokens: 2048,
                 topP: 0.95
-            }
+            },
+            safetySettings: [
+                { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+            ]
         };
 
         // Try models in order
@@ -125,9 +131,14 @@ REMEMBER: Follow the language rule strictly.`;
             return res.json({ response: 'AI service temporarily unavailable. Please try again.' });
         }
 
-        const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Could not generate response.';
+        const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-        if (answer && answer !== 'Could not generate response.') {
+        if (!answer) {
+            console.error("[AI Error] Full Response:", JSON.stringify(data, null, 2));
+            return res.json({ response: 'Could not generate response.', debug: data });
+        }
+
+        if (answer) {
             user.credits = Math.max(0, user.credits - 1);
             await user.save();
         }
