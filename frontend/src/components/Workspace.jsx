@@ -23,7 +23,21 @@ const formatMarkdown = (text) => {
         const id = `ai-code-${++codeBlockCounter}`;
         const placeholder = `__CODE_BLOCK_${codeBlockCounter}__`;
         const escaped = code.replace(/</g, '&lt;').replace(/>/g, '&gt;').trim();
-        codeMap[placeholder] = `<div class="ai-code-wrapper"><div class="ai-code-header"><span class="ai-code-lang">${lang || 'code'}</span><button class="ai-copy-btn" onclick="(function(){var el=document.getElementById('${id}');navigator.clipboard.writeText(el.innerText);var btn=event.target;btn.textContent='Copied!';setTimeout(function(){btn.textContent='Copy'},1500)})()">Copy</button></div><pre><code id="${id}">${escaped}</code></pre></div>`;
+        codeMap[placeholder] = `
+<div class="ai-code-wrapper">
+  <div class="ai-code-header">
+    <div class="ai-code-dots">
+      <span class="ai-dot ai-dot-red"></span>
+      <span class="ai-dot ai-dot-yellow"></span>
+      <span class="ai-dot ai-dot-green"></span>
+    </div>
+    <div class="ai-code-actions">
+      <span class="ai-code-lang">${lang || 'text'}</span>
+      <button class="ai-copy-btn" onclick="(function(){var el=document.getElementById('${id}');navigator.clipboard.writeText(el.innerText);var btn=event.target;btn.textContent='Copied!';setTimeout(function(){btn.textContent='Copy'},1500)})()">Copy</button>
+    </div>
+  </div>
+  <pre><code id="${id}">${escaped}</code></pre>
+</div>`.replace(/\n/g, ''); // Minify specifically for the map value to avoid breaks
         return placeholder;
     });
 
@@ -692,26 +706,43 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                     .ai-response-content strong { color: #f9fafb; }
                     .ai-response-content em { color: #a78bfa; }
                     .ai-code-wrapper {
-                        border: 1px solid #27272a; border-radius: 8px;
-                        margin: 12px 0; overflow: hidden;
+                        border: 1px solid rgba(167,139,250,0.1); 
+                        border-radius: 12px;
+                        margin: 16px 0; overflow: hidden;
+                        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+                        background: #0d1117;
+                        transition: transform 0.2s;
+                    }
+                    .ai-code-wrapper:hover {
+                        border-color: rgba(167,139,250,0.3);
                     }
                     .ai-code-header {
                         display: flex; justify-content: space-between; align-items: center;
-                        padding: 6px 12px; background: #161b22;
-                        border-bottom: 1px solid #27272a;
+                        padding: 10px 16px; background: #1c1c24;
+                        border-bottom: 1px solid rgba(167,139,250,0.05);
                     }
+                    .ai-code-dots { display: flex; gap: 6px; }
+                    .ai-dot { width: 10px; height: 10px; border-radius: 50%; opacity: 0.8; transition: opacity 0.2s; }
+                    .ai-code-wrapper:hover .ai-dot { opacity: 1; }
+                    .ai-dot-red { background: #ff5f56; box-shadow: 0 0 8px rgba(255,95,86,0.4); }
+                    .ai-dot-yellow { background: #ffbd2e; box-shadow: 0 0 8px rgba(255,189,46,0.4); }
+                    .ai-dot-green { background: #27c93f; box-shadow: 0 0 8px rgba(39,201,63,0.4); }
+                    
+                    .ai-code-actions { display: flex; align-items: center; gap: 12px; }
+                    
                     .ai-code-lang {
-                        font-size: 11px; color: #8b949e; font-weight: 600;
-                        text-transform: uppercase; letter-spacing: 0.5px;
+                        font-family: 'JetBrains Mono', monospace;
+                        font-size: 11px; color: #9ca3af; font-weight: 700;
+                        text-transform: uppercase; letter-spacing: 1px;
                     }
                     .ai-copy-btn {
-                        background: rgba(99,102,241,0.15); color: #a78bfa;
-                        border: 1px solid rgba(167,139,250,0.3); padding: 3px 10px;
-                        border-radius: 4px; font-size: 11px; font-weight: 600;
+                        background: rgba(255,255,255,0.05); color: #d1d5db;
+                        border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px;
+                        border-radius: 6px; font-size: 11px; font-weight: 600;
                         cursor: pointer; transition: all 0.2s;
                     }
                     .ai-copy-btn:hover {
-                        background: rgba(167,139,250,0.3); color: #c4b5fd;
+                        background: rgba(167,139,250,0.2); color: #fff; border-color: rgba(167,139,250,0.4);
                     }
                 `}</style>
 
