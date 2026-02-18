@@ -23,7 +23,7 @@ const formatMarkdown = (text) => {
         const id = `ai-code-${++codeBlockCounter}`;
         const placeholder = `__CODE_BLOCK_${codeBlockCounter}__`;
         const escaped = code.replace(/</g, '&lt;').replace(/>/g, '&gt;').trim();
-        codeMap[placeholder] = `<div class="ai-code-wrapper"><div class="ai-code-header"><span class="ai-code-lang">${lang || 'code'}</span><button class="ai-copy-btn" onclick="(function(){var el=document.getElementById('${id}');navigator.clipboard.writeText(el.textContent);var btn=event.target;btn.textContent='Copied!';setTimeout(function(){btn.textContent='Copy'},1500)})()">Copy</button></div><pre><code id="${id}">${escaped}</code></pre></div>`;
+        codeMap[placeholder] = `<div class="ai-code-wrapper"><div class="ai-code-header"><span class="ai-code-lang">${lang || 'code'}</span><button class="ai-copy-btn" onclick="(function(){var el=document.getElementById('${id}');navigator.clipboard.writeText(el.innerText);var btn=event.target;btn.textContent='Copied!';setTimeout(function(){btn.textContent='Copy'},1500)})()">Copy</button></div><pre><code id="${id}">${escaped}</code></pre></div>`;
         return placeholder;
     });
 
@@ -761,6 +761,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                                         <option value="english">English</option>
                                         <option value="hinglish">Hinglish</option>
                                         <option value="hindi">Hindi</option>
+                                        <option value="bhojpuri">Bhojpuri</option>
                                     </select>
                                     <button
                                         onClick={() => setAiOpen(false)}

@@ -33,8 +33,10 @@ router.post('/assist', async (req, res) => {
         const langInstruction = explainLanguage === 'hinglish'
             ? 'CRITICAL RULE: REFER TO THE USER AS "BHAI" OR "DOST". EXPLAIN IN HINGLISH (Hindi mixed with English, casual Indian dev style). Example: "Dekh bhai, pehle ek hashmap banao, phir loop lagao..." KEEP CODE IN PURE PROGRAMMING LANGUAGE.'
             : explainLanguage === 'hindi'
-                ? 'CRITICAL RULE: EXPLAIN IN HINDI (Devanagari script). Example: "पहले एक हैशमैप बनाओ..." KEEP CODE IN PURE PROGRAMMING LANGUAGE.'
-                : 'Explain in English.';
+                ? 'CRITICAL RULE: REFER TO THE USER AS "BHAI". EXPLAIN IN HINDI (Devanagari script). Example: "नमस्ते भाई, पहले एक हैशमैप बनाओ..." KEEP CODE IN PURE PROGRAMMING LANGUAGE.'
+                : explainLanguage === 'bhojpuri'
+                    ? 'CRITICAL RULE: REFER TO THE USER AS "BHAIYA" OR "MARD". EXPLAIN IN BHOJPURI (Bihar/UP dialect, casual). Example: "Ka ho bhaiya, ehar dekha. Pehle ego hashmap bana la, tab loop chalaih..." KEEP CODE IN PURE PROGRAMMING LANGUAGE.'
+                    : 'Explain in English.';
 
         const prompt = `You are SmartCoder AI — an expert coding assistant helping solve LeetCode problems.
 You identify as a helpful, smart developer buddy.
