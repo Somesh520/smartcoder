@@ -79,8 +79,19 @@ Explain in ${explainLanguage || 'English'}. Keep code in pure ${language}.`;
 
                 if (!response.ok) {
                     const errText = await response.text();
-                    console.warn(`[AI] Failed ${model}: ${response.status} - ${errText}`);
-                    lastError = { status: response.status, message: errText };
+                    let errMsg = `Status ${response.status}`;
+
+                    try {
+                        const errJson = JSON.parse(errText);
+                        if (response.status === 429) {
+                            errMsg = "Quota Exceeded (429)";
+                        } else {
+                            errMsg = errJson.error?.message || errText;
+                        }
+                    } catch (e) { errMsg = errText; }
+
+                    console.warn(`[AI] Failed ${model}: ${errMsg} -> Switching...`);
+                    lastError = { status: response.status, message: errMsg };
                     continue; // ⬅️ IMPORTANT: Continue to next model on error
                 }
 
