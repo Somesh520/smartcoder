@@ -31,12 +31,19 @@ router.post('/request-topup', verifyToken, async (req, res) => {
 // Admin Middleware (Simple Email Check)
 const verifyAdmin = async (req, res, next) => {
     try {
-        const allowedAdmins = [process.env.ADMIN_EMAIL, 'someshtiwari532@gmail.com'];
-        const userEmail = req.user?.email;
+        const allowedAdmins = [
+            (process.env.ADMIN_EMAIL || '').toLowerCase().trim(),
+            'someshtiwari532@gmail.com'
+        ];
+        const userEmail = req.user?.email?.toLowerCase().trim();
+
+        console.log(`[Admin Check] User: '${userEmail}', Allowed: ${JSON.stringify(allowedAdmins)}`);
 
         if (!userEmail || !allowedAdmins.includes(userEmail)) {
-            console.warn(`[Admin Access Denied] User: ${userEmail}, Allowed: ${allowedAdmins}`);
-            return res.status(403).json({ error: "Access Denied: Admin only" });
+            return res.status(403).json({
+                error: "Access Denied: Admin only",
+                debug: { receivedEmail: userEmail, expected: 'someshtiwari532@gmail.com' }
+            });
         }
         next();
     } catch (e) {
