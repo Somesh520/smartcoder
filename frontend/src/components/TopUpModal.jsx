@@ -56,7 +56,8 @@ const TopUpModal = ({ isOpen, onClose, onSuccess }) => {
         }
     };
 
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=someshtiwari532@okaxis&pn=SmartCoder&am=${selectedPlan.amount}&cu=INR`;
+    const upiLink = `upi://pay?pa=someshtiwari532@okaxis&pn=SmartCoder&am=${selectedPlan.amount}&cu=INR&tn=SmartCoder Credits`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiLink)}`;
 
     return (
         <div style={{
