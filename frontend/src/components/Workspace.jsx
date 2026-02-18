@@ -673,16 +673,22 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                         <CodeEditor code={code} onChange={handleCodeChange} language={language} />
                     </div>
 
-                    {/* AI Panel - Slides from right */}
+                    {/* AI Panel - Overlay from right */}
                     {aiOpen && (
                         <div style={{
-                            width: '380px',
+                            position: 'absolute',
+                            top: 0,
+                            right: 0,
+                            bottom: 0,
+                            width: '360px',
+                            maxWidth: '90%',
+                            zIndex: 100,
                             background: 'linear-gradient(180deg, #0f0f18 0%, #13131f 100%)',
-                            borderLeft: '1px solid rgba(167,139,250,0.2)',
+                            borderLeft: '1px solid rgba(167,139,250,0.25)',
                             display: 'flex',
                             flexDirection: 'column',
-                            animation: 'slideIn 0.3s ease-out',
-                            boxShadow: '-4px 0 20px rgba(0,0,0,0.3)'
+                            animation: 'slideIn 0.25s ease-out',
+                            boxShadow: '-8px 0 30px rgba(0,0,0,0.5), -2px 0 10px rgba(167,139,250,0.1)'
                         }}>
                             <style>{`@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`}</style>
 
