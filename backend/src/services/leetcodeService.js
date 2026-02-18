@@ -165,7 +165,10 @@ export const runCode = async ({ slug, question_id, typed_code, data_input, lang,
     }
 
     const url = `https://leetcode.com/problems/${slug}/interpret_solution/`;
-    const headers = getHeaders(slug, auth_session, auth_csrf);
+    const headers = {
+        ...getHeaders(slug, auth_session, auth_csrf),
+        'Referrer-Policy': 'strict-origin-when-cross-origin'
+    };
 
     const payload = {
         question_id: question_id,
@@ -175,8 +178,13 @@ export const runCode = async ({ slug, question_id, typed_code, data_input, lang,
         judge_type: "large"
     };
 
-    const response = await axios.post(url, payload, { headers });
-    return response.data;
+    try {
+        const response = await axios.post(url, payload, { headers });
+        return response.data;
+    } catch (error) {
+        console.error(`[RunCode] Error for ${slug}:`, error.response?.status, error.response?.data || error.message);
+        throw error;
+    }
 };
 
 export const submitCode = async ({ slug, question_id, typed_code, lang, auth_session, auth_csrf }) => {
