@@ -161,6 +161,31 @@ router.get('/submissions/:username', async (req, res) => {
     }
 });
 
+// CALENDAR: Get user's streak & submission heatmap data (GET)
+router.get('/calendar/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+        const response = await fetch(`${PIED_API}/user/${username}/calendar`);
+
+        if (!response.ok) {
+            return res.status(404).json({ error: "Calendar data not found" });
+        }
+
+        const data = await response.json();
+
+        res.setHeader('Cache-Control', 'public, max-age=1800'); // Cache 30 min
+        res.json({
+            streak: data.streak || 0,
+            totalActiveDays: data.totalActiveDays || 0,
+            activeYears: data.activeYears || [],
+            submissionCalendar: data.submissionCalendar || {}
+        });
+    } catch (error) {
+        console.error("Calendar Error:", error);
+        res.status(500).json({ error: "Failed to fetch calendar data" });
+    }
+});
+
 // 2. PUBLIC PROXY: Fetch stats by username (GET) - Using Pied API
 router.get('/:username', async (req, res) => {
     try {

@@ -13,10 +13,6 @@ import LeetCodePage from './components/LeetCodePage';
 import Documentation from './components/Documentation';
 
 import LearnPage from './components/LearnPage';
-import NotesPage from './components/NotesPage';
-import TasksPage from './components/TasksPage';
-import CalendarPage from './components/CalendarPage';
-import AssistantPage from './components/AssistantPage';
 import PrivacyPolicyPage from './components/PrivacyPolicyPage';
 import TermsPage from './components/TermsPage';
 import SEO from './components/SEO';
@@ -389,11 +385,7 @@ function MainApp({ initialRoom }) {
                     />
                   } />
 
-                  {/* Second Brain Routes */}
-                  <Route path="notes" element={<><SEO title="Notes - AlgoDuel" /><NotesPage /></>} />
-                  <Route path="tasks" element={<><SEO title="Tasks - AlgoDuel" /><TasksPage /></>} />
-                  <Route path="calendar" element={<><SEO title="Calendar - AlgoDuel" /><CalendarPage /></>} />
-                  <Route path="assistant" element={<><SEO title="Assistant - AlgoDuel" /><AssistantPage /></>} />
+
                 </Route>
               </Routes>
             </div>

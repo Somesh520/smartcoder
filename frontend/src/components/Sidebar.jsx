@@ -1,7 +1,7 @@
 import { getCurrentUser, logout, BASE_URL } from '../api';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Code2, Swords, TrendingUp, BookOpen, History, LogOut, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Book, StickyNote, CheckSquare, Calendar, Bot } from 'lucide-react';
+import { Code2, Swords, TrendingUp, BookOpen, History, LogOut, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Book } from 'lucide-react';
 
 const Sidebar = ({ onShowProblemList, onGoDetail }) => {
     const navigate = useNavigate();
@@ -178,38 +178,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail }) => {
                         onClick={() => window.open('/docs', '_blank')}
                     />
 
-                    <div style={{
-                        fontSize: '11px', fontWeight: 700, color: '#52525b',
-                        marginTop: '20px', marginBottom: '10px', paddingLeft: '16px', textTransform: 'uppercase', letterSpacing: '1px',
-                        display: collapsed ? 'none' : 'block'
-                    }}>
-                        Second Brain
-                    </div>
 
-                    <NavItem
-                        icon={StickyNote}
-                        label="Notes"
-                        active={location.pathname.includes('/notes')}
-                        onClick={() => handleNav(() => navigate('/app/notes'))}
-                    />
-                    <NavItem
-                        icon={CheckSquare}
-                        label="Tasks"
-                        active={location.pathname.includes('/tasks')}
-                        onClick={() => handleNav(() => navigate('/app/tasks'))}
-                    />
-                    <NavItem
-                        icon={Calendar}
-                        label="Calendar"
-                        active={location.pathname.includes('/calendar')}
-                        onClick={() => handleNav(() => navigate('/app/calendar'))}
-                    />
-                    <NavItem
-                        icon={Bot}
-                        label="Assistant"
-                        active={location.pathname.includes('/assistant')}
-                        onClick={() => handleNav(() => navigate('/app/assistant'))}
-                    />
                 </div>
 
                 {/* USER PROFILE / LOGOUT */}

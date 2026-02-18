@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Trophy, Flame, CheckCircle2, XCircle, Loader2, Zap, Clock, Code2 } from 'lucide-react';
-import { fetchDailyChallenge, fetchUserSubmissions, fetchUserStats } from '../api';
+import { fetchDailyChallenge, fetchUserSubmissions, fetchUserStats, fetchUserCalendar } from '../api';
 
 const LeetCodeStats = ({ onSelectProblem }) => {
     const [username, setUsername] = useState('');
@@ -9,6 +9,7 @@ const LeetCodeStats = ({ onSelectProblem }) => {
     const [stats, setStats] = useState(null);
     const [dailyChallenge, setDailyChallenge] = useState(null);
     const [submissions, setSubmissions] = useState([]);
+    const [calendarData, setCalendarData] = useState(null);
 
     // Load persisted username on mount
     useEffect(() => {
@@ -31,9 +32,10 @@ const LeetCodeStats = ({ onSelectProblem }) => {
         setError(null);
 
         try {
-            const [statsData, submissionsData] = await Promise.all([
+            const [statsData, submissionsData, calData] = await Promise.all([
                 fetchUserStats(user),
-                fetchUserSubmissions(user, 5)
+                fetchUserSubmissions(user, 5),
+                fetchUserCalendar(user)
             ]);
 
             if (!statsData) throw new Error("User not found");
@@ -53,6 +55,7 @@ const LeetCodeStats = ({ onSelectProblem }) => {
             });
 
             setSubmissions(submissionsData || []);
+            if (calData) setCalendarData(calData);
             localStorage.setItem('leetcode_username', user);
 
         } catch (err) {
@@ -324,6 +327,185 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                         )}
                     </div>
                 </div>
+
+                {/* STREAK & HEATMAP SECTION */}
+                {stats && calendarData && (
+                    <div style={{ marginTop: '30px' }}>
+                        {/* Streak Cards */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+                            <div style={{
+                                background: '#09090b', borderRadius: '20px', border: '1px solid #27272a',
+                                padding: '24px', display: 'flex', alignItems: 'center', gap: '16px', position: 'relative', overflow: 'hidden'
+                            }}>
+                                <div style={{ position: 'absolute', top: '-30%', right: '-10%', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(251,146,60,0.15) 0%, transparent 70%)', filter: 'blur(30px)' }} />
+                                <div style={{
+                                    width: '52px', height: '52px', borderRadius: '14px',
+                                    background: 'linear-gradient(135deg, #f97316 0%, #ef4444 100%)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    boxShadow: '0 0 20px rgba(249,115,22,0.3)', flexShrink: 0
+                                }}>
+                                    <Flame size={26} color="#fff" />
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '11px', color: '#71717a', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px', fontWeight: 700 }}>Current Streak</div>
+                                    <div style={{ fontSize: '32px', fontWeight: 900, color: 'white', lineHeight: 1 }}>
+                                        {calendarData.streak}
+                                        <span style={{ fontSize: '14px', color: '#f97316', marginLeft: '6px', fontWeight: 600 }}>days</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style={{
+                                background: '#09090b', borderRadius: '20px', border: '1px solid #27272a',
+                                padding: '24px', display: 'flex', alignItems: 'center', gap: '16px', position: 'relative', overflow: 'hidden'
+                            }}>
+                                <div style={{ position: 'absolute', top: '-30%', right: '-10%', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%)', filter: 'blur(30px)' }} />
+                                <div style={{
+                                    width: '52px', height: '52px', borderRadius: '14px',
+                                    background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    boxShadow: '0 0 20px rgba(34,197,94,0.3)', flexShrink: 0
+                                }}>
+                                    <Trophy size={26} color="#fff" />
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '11px', color: '#71717a', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px', fontWeight: 700 }}>Total Active Days</div>
+                                    <div style={{ fontSize: '32px', fontWeight: 900, color: 'white', lineHeight: 1 }}>
+                                        {calendarData.totalActiveDays}
+                                        <span style={{ fontSize: '14px', color: '#22c55e', marginLeft: '6px', fontWeight: 600 }}>days</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Heatmap */}
+                        <div style={{
+                            background: '#09090b', borderRadius: '24px', border: '1px solid #27272a',
+                            padding: '28px', position: 'relative', overflow: 'hidden'
+                        }}>
+                            <div style={{ position: 'absolute', bottom: '-20%', left: '-5%', width: '250px', height: '250px', background: 'radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 70%)', filter: 'blur(50px)' }} />
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#22c55e', fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase' }}>
+                                    <div style={{ width: '20px', height: '2px', background: '#22c55e' }} />
+                                    SUBMISSION ACTIVITY
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#52525b' }}>
+                                    Less
+                                    {[0, 1, 2, 3, 4].map(level => (
+                                        <div key={level} style={{
+                                            width: '12px', height: '12px', borderRadius: '3px',
+                                            background: level === 0 ? '#18181b' : level === 1 ? '#064e3b' : level === 2 ? '#059669' : level === 3 ? '#10b981' : '#34d399'
+                                        }} />
+                                    ))}
+                                    More
+                                </div>
+                            </div>
+                            {(() => {
+                                const calendar = calendarData.submissionCalendar || {};
+                                const today = new Date();
+                                today.setHours(0, 0, 0, 0);
+                                const weeks = 52;
+                                const totalDays = weeks * 7;
+
+                                // Build day data for last 52 weeks
+                                const startDate = new Date(today);
+                                startDate.setDate(startDate.getDate() - totalDays + 1);
+                                // Align to Sunday
+                                startDate.setDate(startDate.getDate() - startDate.getDay());
+
+                                const dayData = [];
+                                const d = new Date(startDate);
+                                while (d <= today) {
+                                    const ts = Math.floor(d.getTime() / 1000).toString();
+                                    dayData.push({
+                                        date: new Date(d),
+                                        count: parseInt(calendar[ts]) || 0
+                                    });
+                                    d.setDate(d.getDate() + 1);
+                                }
+
+                                // Find max for color scaling
+                                const maxCount = Math.max(...dayData.map(d => d.count), 1);
+
+                                const getColor = (count) => {
+                                    if (count === 0) return '#18181b';
+                                    const ratio = count / maxCount;
+                                    if (ratio <= 0.25) return '#064e3b';
+                                    if (ratio <= 0.5) return '#059669';
+                                    if (ratio <= 0.75) return '#10b981';
+                                    return '#34d399';
+                                };
+
+                                // Group into weeks (columns)
+                                const weekColumns = [];
+                                for (let i = 0; i < dayData.length; i += 7) {
+                                    weekColumns.push(dayData.slice(i, i + 7));
+                                }
+
+                                // Month labels
+                                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                                const monthLabels = [];
+                                let lastMonth = -1;
+                                weekColumns.forEach((week, idx) => {
+                                    const firstDay = week[0];
+                                    if (firstDay && firstDay.date.getMonth() !== lastMonth) {
+                                        lastMonth = firstDay.date.getMonth();
+                                        monthLabels.push({ idx, label: months[lastMonth] });
+                                    }
+                                });
+
+                                const cellSize = 13;
+                                const cellGap = 3;
+
+                                return (
+                                    <div style={{ overflowX: 'auto', position: 'relative', zIndex: 1 }}>
+                                        {/* Month labels */}
+                                        <div style={{ display: 'flex', marginBottom: '6px', marginLeft: '36px' }}>
+                                            {monthLabels.map((m, i) => (
+                                                <div key={i} style={{
+                                                    position: 'absolute',
+                                                    left: `${36 + m.idx * (cellSize + cellGap)}px`,
+                                                    fontSize: '10px', color: '#52525b', fontWeight: 600
+                                                }}>
+                                                    {m.label}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div style={{ display: 'flex', gap: `${cellGap}px`, marginTop: '20px' }}>
+                                            {/* Day labels */}
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: `${cellGap}px`, marginRight: '6px', justifyContent: 'flex-start' }}>
+                                                {['', 'Mon', '', 'Wed', '', 'Fri', ''].map((label, i) => (
+                                                    <div key={i} style={{ height: `${cellSize}px`, fontSize: '10px', color: '#3f3f46', display: 'flex', alignItems: 'center', lineHeight: 1, fontWeight: 600 }}>
+                                                        {label}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            {/* Grid */}
+                                            {weekColumns.map((week, wIdx) => (
+                                                <div key={wIdx} style={{ display: 'flex', flexDirection: 'column', gap: `${cellGap}px` }}>
+                                                    {week.map((day, dIdx) => (
+                                                        <div
+                                                            key={dIdx}
+                                                            title={`${day.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}: ${day.count} submission${day.count !== 1 ? 's' : ''}`}
+                                                            style={{
+                                                                width: `${cellSize}px`, height: `${cellSize}px`,
+                                                                borderRadius: '3px',
+                                                                background: getColor(day.count),
+                                                                transition: 'transform 0.1s',
+                                                                cursor: 'default'
+                                                            }}
+                                                            onMouseEnter={e => e.target.style.transform = 'scale(1.3)'}
+                                                            onMouseLeave={e => e.target.style.transform = 'scale(1)'}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+                        </div>
+                    </div>
+                )}
 
                 <style>{`
                     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

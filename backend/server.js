@@ -71,17 +71,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // --- ROUTES ---
-import secondBrainRoutes from './src/routes/secondBrainRoutes.js';
-
-// --- ROUTES ---
 app.use('/', problemRoutes);
 app.use('/auth', authRoutes);
 app.use('/api/leetcode', leetcodeRoutes);
-// Ensure Second Brain routes are protected
-app.use('/api/brain', passport.authenticate('jwt', { session: false }), secondBrainRoutes);
-
-import googleRoutes from './src/routes/googleRoutes.js';
-app.use('/api/google', passport.authenticate('jwt', { session: false }), googleRoutes);
 
 // Socket Logic
 socketHandler(io);
