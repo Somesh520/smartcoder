@@ -12,34 +12,41 @@ const DEFAULT_TEMPLATES = {
     'javascript': 'var solve = function() {\\n    // Write JS code here\\n};'
 };
 
-// Markdown to HTML converter with copy buttons on code blocks
+// Markdown to HTML converter with copy buttons on code blocks and protection against formatting collisions
 let codeBlockCounter = 0;
 const formatMarkdown = (text) => {
     codeBlockCounter = 0;
-    return text
-        // Code blocks with copy button
-        .replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
-            const id = `ai-code-${++codeBlockCounter}`;
-            const escaped = code.replace(/</g, '&lt;').replace(/>/g, '&gt;').trim();
-            return `<div class="ai-code-wrapper"><div class="ai-code-header"><span class="ai-code-lang">${lang || 'code'}</span><button class="ai-copy-btn" onclick="(function(){var el=document.getElementById('${id}');navigator.clipboard.writeText(el.textContent);var btn=event.target;btn.textContent='Copied!';setTimeout(function(){btn.textContent='Copy'},1500)})()">Copy</button></div><pre><code id="${id}">${escaped}</code></pre></div>`;
-        })
-        // Headers
+    const codeMap = {};
+
+    // 1. Extract code blocks and replace with placeholders
+    let processed = text.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+        const id = `ai-code-${++codeBlockCounter}`;
+        const placeholder = `__CODE_BLOCK_${codeBlockCounter}__`;
+        const escaped = code.replace(/</g, '&lt;').replace(/>/g, '&gt;').trim();
+        codeMap[placeholder] = `<div class="ai-code-wrapper"><div class="ai-code-header"><span class="ai-code-lang">${lang || 'code'}</span><button class="ai-copy-btn" onclick="(function(){var el=document.getElementById('${id}');navigator.clipboard.writeText(el.textContent);var btn=event.target;btn.textContent='Copied!';setTimeout(function(){btn.textContent='Copy'},1500)})()">Copy</button></div><pre><code id="${id}">${escaped}</code></pre></div>`;
+        return placeholder;
+    });
+
+    // 2. Format standard markdown (headers, lists, bold, etc.) on the placeholder text
+    processed = processed
         .replace(/^### (.+)$/gm, '<h3>$1</h3>')
         .replace(/^## (.+)$/gm, '<h2>$1</h2>')
         .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-        // Bold & italic
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.+?)\*/g, '<em>$1</em>')
-        // Inline code
         .replace(/`([^`]+)`/g, '<code>$1</code>')
-        // Bullet points
         .replace(/^- (.+)$/gm, '<li>$1</li>')
         .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
-        // Numbered lists
         .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
-        // Line breaks
         .replace(/\n\n/g, '<br/><br/>')
         .replace(/\n/g, '<br/>');
+
+    // 3. Restore code blocks
+    Object.keys(codeMap).forEach(key => {
+        processed = processed.replace(key, codeMap[key]);
+    });
+
+    return processed;
 };
 
 const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
