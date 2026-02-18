@@ -401,26 +401,26 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                             </div>
                             {(() => {
                                 const calendar = calendarData?.submissionCalendar || {};
-                                const today = new Date();
-                                today.setHours(0, 0, 0, 0);
+                                const now = new Date();
+                                // Use UTC dates to match LeetCode's UTC midnight timestamps
+                                const todayUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
                                 const weeks = 52;
                                 const totalDays = weeks * 7;
+                                const msPerDay = 86400000;
 
                                 // Build day data for last 52 weeks
-                                const startDate = new Date(today);
-                                startDate.setDate(startDate.getDate() - totalDays + 1);
-                                // Align to Sunday
-                                startDate.setDate(startDate.getDate() - startDate.getDay());
+                                let startMs = todayUTC - (totalDays - 1) * msPerDay;
+                                // Align to Sunday (0 = Sunday)
+                                const startDay = new Date(startMs).getUTCDay();
+                                startMs -= startDay * msPerDay;
 
                                 const dayData = [];
-                                const d = new Date(startDate);
-                                while (d <= today) {
-                                    const ts = Math.floor(d.getTime() / 1000).toString();
+                                for (let ms = startMs; ms <= todayUTC; ms += msPerDay) {
+                                    const ts = (ms / 1000).toString();
                                     dayData.push({
-                                        date: new Date(d),
+                                        date: new Date(ms),
                                         count: parseInt(calendar[ts]) || 0
                                     });
-                                    d.setDate(d.getDate() + 1);
                                 }
 
                                 // Find max for color scaling

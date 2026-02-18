@@ -3,7 +3,7 @@ import express from 'express';
 const router = express.Router();
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const MODELS = ['gemini-2.0-flash-lite', 'gemini-2.0-flash'];
+const MODELS = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash'];
 const getUrl = (model) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
 
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
