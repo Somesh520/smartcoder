@@ -131,20 +131,29 @@ REMEMBER: Follow the language rule strictly.`;
                         data = await response.json(); // Capture error details if not 429
                         break;
                     }
+                    const errorText = await response.text();
+                    console.warn(`[AI] Failed ${model}: ${response.status} ${response.statusText} - ${errorText}`);
+                    lastError = { status: response.status, message: errorText };
+                    // Continue to next model on ANY error (404, 429, 500)
                 }
             } catch (fetchErr) {
                 console.error(`[AI] Fetch error for ${model}:`, fetchErr.message);
+                lastError = { message: fetchErr.message };
             }
         }
 
         if (!data) {
-            return res.json({ response: 'AI service temporarily unavailable. Please try again.' });
+            console.error("[AI Error] All models failed. Last error:", lastError);
+            return res.json({
+                response: 'AI service temporarily unavailable. Please try again.',
+                debug: lastError
+            });
         }
 
         const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
         if (!answer) {
-            console.error("[AI Error] Full Response:", JSON.stringify(data, null, 2));
+            console.error("[AI Error] No answer in response:", JSON.stringify(data, null, 2));
             return res.json({ response: 'Could not generate response.', debug: data });
         }
 
