@@ -13,6 +13,7 @@ import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-c';
 import 'prismjs/components/prism-cpp';
+import Markdown from 'react-markdown';
 
 const DEFAULT_TEMPLATES = {
     'cpp': 'class Solution {\\npublic:\\n    // Write C++ code here\\n};',
@@ -22,17 +23,23 @@ const DEFAULT_TEMPLATES = {
 };
 
 // Markdown to HTML converter with copy buttons on code blocks and protection against formatting collisions
-let codeBlockCounter = 0;
-const formatMarkdown = (text) => {
-    codeBlockCounter = 0;
-    const codeMap = {};
+// Custom CodeBlock Component for ReactMarkdown
+const CodeBlock = ({ node, inline, className, children, ...props }) => {
+    const match = /language-(\w+)/.exec(className || '');
+    const lang = match ? match[1] : 'text';
+    const code = String(children).replace(/\n$/, '');
 
-    // 1. Extract code blocks and replace with placeholders
-    let processed = text.replace(/```\s*([^\n\r]*)\n([\s\S]*?)```/g, (match, lang, code) => {
-        const id = `ai-code-${++codeBlockCounter}`;
-        const placeholder = `__CODE_BLOCK_${codeBlockCounter}__`;
+    // Manage copy state locally
+    const [copied, setCopied] = useState(false);
 
-        const cleanLang = (lang || 'text').trim().toLowerCase();
+    if (!inline && match) {
+        const handleCopy = () => {
+            navigator.clipboard.writeText(code);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        };
+
+        const cleanLang = lang.trim().toLowerCase();
         const prismLangMap = {
             'c++': 'cpp', 'cpp': 'cpp',
             'js': 'javascript', 'javascript': 'javascript',
@@ -45,44 +52,26 @@ const formatMarkdown = (text) => {
         // Highlight logic
         const highlighted = Prism.highlight(code, grammar, activeLang);
 
-        codeMap[placeholder] = `
-<div class="ai-code-wrapper">
-  <div class="ai-code-header">
-    <div class="ai-code-dots">
-      <span class="ai-dot ai-dot-red"></span>
-      <span class="ai-dot ai-dot-yellow"></span>
-      <span class="ai-dot ai-dot-green"></span>
-    </div>
-    <div class="ai-code-actions">
-      <span class="ai-code-lang">${cleanLang}</span>
-      <button class="ai-copy-btn" onclick="(function(){var el=document.getElementById('${id}');navigator.clipboard.writeText(el.innerText);var btn=event.target;btn.textContent='Copied!';setTimeout(function(){btn.textContent='Copy'},1500)})()">Copy</button>
-    </div>
-  </div>
-  <pre><code id="${id}" class="language-${activeLang}">${highlighted}</code></pre>
-</div>`.replace(/\n/g, '');
-        return placeholder;
-    });
-
-    // 2. Format standard markdown (headers, lists, bold, etc.) on the placeholder text
-    processed = processed
-        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g, '<em>$1</em>')
-        .replace(/`([^`]+)`/g, '<code>$1</code>')
-        .replace(/^- (.+)$/gm, '<li>$1</li>')
-        .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
-        .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
-        .replace(/\n\n/g, '<br/><br/>')
-        .replace(/\n/g, '<br/>');
-
-    // 3. Restore code blocks
-    Object.keys(codeMap).forEach(key => {
-        processed = processed.replace(key, codeMap[key]);
-    });
-
-    return processed;
+        return (
+            <div className="ai-code-wrapper">
+                <div className="ai-code-header">
+                    <div className="ai-code-dots">
+                        <span className="ai-dot ai-dot-red"></span>
+                        <span className="ai-dot ai-dot-yellow"></span>
+                        <span className="ai-dot ai-dot-green"></span>
+                    </div>
+                    <div className="ai-code-actions">
+                        <span className="ai-code-lang">{activeLang}</span>
+                        <button className="ai-copy-btn" onClick={handleCopy}>
+                            {copied ? 'Copied!' : 'Copy'}
+                        </button>
+                    </div>
+                </div>
+                <pre style={{ margin: 0, padding: '16px', background: 'transparent' }}><code className={`language-${activeLang}`} dangerouslySetInnerHTML={{ __html: highlighted }} /></pre>
+            </div>
+        );
+    }
+    return <code className={className} {...props}>{children}</code>;
 };
 
 const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
@@ -912,10 +901,16 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                                         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
                                     </div>
                                 ) : aiResponse ? (
-                                    <div
-                                        className="ai-response-content"
-                                        dangerouslySetInnerHTML={{ __html: formatMarkdown(aiResponse) }}
-                                    />
+                                    <div className="ai-response-content">
+                                        <Markdown
+                                            components={{
+                                                pre: ({ children }) => <>{children}</>,
+                                                code: CodeBlock
+                                            }}
+                                        >
+                                            {aiResponse}
+                                        </Markdown>
+                                    </div>
                                 ) : (
                                     <div style={{
                                         display: 'flex', flexDirection: 'column',
