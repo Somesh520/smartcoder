@@ -5,6 +5,15 @@ import Console from './Console';
 import ModernSpinner from './ModernSpinner';
 import { ArrowLeft, Play, Send, Trophy, Zap, Sparkles, X, Loader2, Lightbulb, Bug, Rocket, Code2 } from 'lucide-react';
 
+import Prism from 'prismjs';
+import 'prismjs/themes/prism-tomorrow.css';
+import 'prismjs/components/prism-clike';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-python';
+import 'prismjs/components/prism-java';
+import 'prismjs/components/prism-c';
+import 'prismjs/components/prism-cpp';
+
 const DEFAULT_TEMPLATES = {
     'cpp': 'class Solution {\\npublic:\\n    // Write C++ code here\\n};',
     'java': 'class Solution {\\n    public void solve() {\\n        // Write Java code here\\n    }\\n}',
@@ -22,7 +31,20 @@ const formatMarkdown = (text) => {
     let processed = text.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
         const id = `ai-code-${++codeBlockCounter}`;
         const placeholder = `__CODE_BLOCK_${codeBlockCounter}__`;
-        const escaped = code.replace(/</g, '&lt;').replace(/>/g, '&gt;').trim();
+
+        const cleanLang = (lang || 'text').trim().toLowerCase();
+        const prismLangMap = {
+            'c++': 'cpp', 'cpp': 'cpp',
+            'js': 'javascript', 'javascript': 'javascript',
+            'py': 'python', 'python': 'python',
+            'java': 'java', 'c': 'c'
+        };
+        const activeLang = prismLangMap[cleanLang] || 'text';
+        const grammar = Prism.languages[activeLang] || Prism.languages.clike || Prism.languages.text;
+
+        // Highlight logic
+        const highlighted = Prism.highlight(code, grammar, activeLang);
+
         codeMap[placeholder] = `
 <div class="ai-code-wrapper">
   <div class="ai-code-header">
@@ -32,12 +54,12 @@ const formatMarkdown = (text) => {
       <span class="ai-dot ai-dot-green"></span>
     </div>
     <div class="ai-code-actions">
-      <span class="ai-code-lang">${lang || 'text'}</span>
+      <span class="ai-code-lang">${cleanLang}</span>
       <button class="ai-copy-btn" onclick="(function(){var el=document.getElementById('${id}');navigator.clipboard.writeText(el.innerText);var btn=event.target;btn.textContent='Copied!';setTimeout(function(){btn.textContent='Copy'},1500)})()">Copy</button>
     </div>
   </div>
-  <pre><code id="${id}">${escaped}</code></pre>
-</div>`.replace(/\n/g, ''); // Minify specifically for the map value to avoid breaks
+  <pre><code id="${id}" class="language-${activeLang}">${highlighted}</code></pre>
+</div>`.replace(/\n/g, '');
         return placeholder;
     });
 

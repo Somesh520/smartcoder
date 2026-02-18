@@ -58,6 +58,8 @@ INSTRUCTIONS:
 4. If the user's code is present, ANALYZE IT first.
 5. Be direct. No filler words like "Here is the solution..." or "I understand...".
 6. Jump straight to the explanation or code.
+7. DETECT THE PROGRAMMING LANGUAGE from usage if not clear.
+8. ALWAYS ANSWER IN THE SAME PROGRAMMING LANGUAGE as the user's code, unless explicitly asked to translate.
 
 ${langInstruction}
 REMEMBER: Follow the language rule strictly.`;
