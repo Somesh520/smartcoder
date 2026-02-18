@@ -11,6 +11,14 @@ const paymentRequestSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    amount: {
+        type: Number,
+        required: true
+    },
+    credits: {
+        type: Number,
+        required: true
+    },
     status: {
         type: String,
         enum: ['pending', 'approved', 'rejected'],

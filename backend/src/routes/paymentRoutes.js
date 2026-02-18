@@ -7,14 +7,16 @@ const router = express.Router();
 // Request Top-up
 router.post('/request-topup', verifyToken, async (req, res) => {
     try {
-        const { transactionId } = req.body;
-        if (!transactionId) {
-            return res.status(400).json({ error: "Transaction ID is required" });
+        const { transactionId, amount, credits } = req.body;
+        if (!transactionId || !amount || !credits) {
+            return res.status(400).json({ error: "All fields are required" });
         }
 
         const newRequest = new PaymentRequest({
             userId: req.user._id,
-            transactionId
+            transactionId,
+            amount,
+            credits
         });
 
         await newRequest.save();
