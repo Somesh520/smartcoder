@@ -773,146 +773,147 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                                         <X size={14} />
                                     </button>
                                 </div>
+                            </div>
 
-                                {/* Quick Actions */}
-                                <div style={{ padding: '12px 16px', display: 'flex', gap: '8px', flexWrap: 'wrap', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                    {[
-                                        { label: 'Solve', icon: <Code2 size={12} />, msg: 'Solve this problem completely with the most optimal approach. Give me the full code.', color: '#22c55e' },
-                                        { label: 'Hint', icon: <Lightbulb size={12} />, msg: 'Give me a hint for this problem. Don\'t give the full solution, just guide me on the approach.', color: '#f59e0b' },
-                                        { label: 'Debug', icon: <Bug size={12} />, msg: 'My code has issues. Find the bugs and fix them. Explain what was wrong.', color: '#ef4444' },
-                                        { label: 'Optimize', icon: <Rocket size={12} />, msg: 'Optimize my current solution for better time and space complexity.', color: '#3b82f6' },
-                                    ].map(action => (
-                                        <button
-                                            key={action.label}
-                                            onClick={() => handleAIAssist(action.msg)}
-                                            disabled={aiLoading}
-                                            style={{
-                                                background: `${action.color}15`,
-                                                border: `1px solid ${action.color}40`,
-                                                color: action.color,
-                                                padding: '5px 10px',
-                                                borderRadius: '6px',
-                                                fontSize: '11px',
-                                                fontWeight: 700,
-                                                cursor: aiLoading ? 'not-allowed' : 'pointer',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '4px',
-                                                transition: 'all 0.2s',
-                                                opacity: aiLoading ? 0.5 : 1
-                                            }}
-                                        >
-                                            {action.icon}
-                                            {action.label}
-                                        </button>
-                                    ))}
-                                </div>
-
-                                {/* AI Response Area */}
-                                <div ref={aiResponseRef} style={{
-                                    flex: 1,
-                                    overflowY: 'auto',
-                                    padding: '16px',
-                                    fontSize: '13px',
-                                    color: '#d1d5db',
-                                    lineHeight: '1.6'
-                                }}>
-                                    {aiLoading ? (
-                                        <div style={{
-                                            display: 'flex', flexDirection: 'column',
-                                            alignItems: 'center', justifyContent: 'center',
-                                            height: '200px', gap: '12px'
-                                        }}>
-                                            <Loader2 size={28} color="#a78bfa" style={{ animation: 'spin 1s linear infinite' }} />
-                                            <span style={{ color: '#a78bfa', fontWeight: 600, fontSize: '13px' }}>Thinking...</span>
-                                            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-                                        </div>
-                                    ) : aiResponse ? (
-                                        <div
-                                            className="ai-response-content"
-                                            dangerouslySetInnerHTML={{ __html: formatMarkdown(aiResponse) }}
-                                        />
-                                    ) : (
-                                        <div style={{
-                                            display: 'flex', flexDirection: 'column',
-                                            alignItems: 'center', justifyContent: 'center',
-                                            height: '100%', gap: '16px', opacity: 0.6
-                                        }}>
-                                            <Sparkles size={40} color="#a78bfa" style={{ opacity: 0.4 }} />
-                                            <div style={{ textAlign: 'center' }}>
-                                                <div style={{ fontWeight: 700, color: '#a78bfa', marginBottom: '4px' }}>SmartCoder AI</div>
-                                                <div style={{ fontSize: '12px', color: '#6b7280' }}>Click a quick action or type below</div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* AI Input */}
-                                <div style={{
-                                    padding: '12px 16px',
-                                    borderTop: '1px solid rgba(167,139,250,0.15)',
-                                    display: 'flex',
-                                    gap: '8px'
-                                }}>
-                                    <input
-                                        type="text"
-                                        value={aiMessage}
-                                        onChange={(e) => setAiMessage(e.target.value)}
-                                        onKeyDown={(e) => e.key === 'Enter' && !aiLoading && handleAIAssist()}
-                                        placeholder="Ask AI anything..."
+                            {/* Quick Actions */}
+                            <div style={{ padding: '12px 16px', display: 'flex', gap: '8px', flexWrap: 'wrap', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                {[
+                                    { label: 'Solve', icon: <Code2 size={12} />, msg: 'Solve this problem completely with the most optimal approach. Give me the full code.', color: '#22c55e' },
+                                    { label: 'Hint', icon: <Lightbulb size={12} />, msg: 'Give me a hint for this problem. Don\'t give the full solution, just guide me on the approach.', color: '#f59e0b' },
+                                    { label: 'Debug', icon: <Bug size={12} />, msg: 'My code has issues. Find the bugs and fix them. Explain what was wrong.', color: '#ef4444' },
+                                    { label: 'Optimize', icon: <Rocket size={12} />, msg: 'Optimize my current solution for better time and space complexity.', color: '#3b82f6' },
+                                ].map(action => (
+                                    <button
+                                        key={action.label}
+                                        onClick={() => handleAIAssist(action.msg)}
                                         disabled={aiLoading}
                                         style={{
-                                            flex: 1,
-                                            background: 'rgba(255,255,255,0.05)',
-                                            border: '1px solid rgba(167,139,250,0.2)',
-                                            color: '#e5e7eb',
-                                            padding: '10px 14px',
-                                            borderRadius: '8px',
-                                            fontSize: '13px',
-                                            outline: 'none',
-                                            fontFamily: 'inherit',
-                                            transition: 'border-color 0.2s'
-                                        }}
-                                        onFocus={(e) => e.target.style.borderColor = 'rgba(167,139,250,0.5)'}
-                                        onBlur={(e) => e.target.style.borderColor = 'rgba(167,139,250,0.2)'}
-                                    />
-                                    <button
-                                        onClick={() => handleAIAssist()}
-                                        disabled={aiLoading || !aiMessage.trim()}
-                                        style={{
-                                            background: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)',
-                                            border: 'none',
-                                            color: '#fff',
-                                            width: '40px', height: '40px',
-                                            borderRadius: '8px',
-                                            cursor: (aiLoading || !aiMessage.trim()) ? 'not-allowed' : 'pointer',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            opacity: (aiLoading || !aiMessage.trim()) ? 0.5 : 1,
+                                            background: `${action.color}15`,
+                                            border: `1px solid ${action.color}40`,
+                                            color: action.color,
+                                            padding: '5px 10px',
+                                            borderRadius: '6px',
+                                            fontSize: '11px',
+                                            fontWeight: 700,
+                                            cursor: aiLoading ? 'not-allowed' : 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px',
                                             transition: 'all 0.2s',
-                                            flexShrink: 0
+                                            opacity: aiLoading ? 0.5 : 1
                                         }}
                                     >
-                                        <Send size={16} />
+                                        {action.icon}
+                                        {action.label}
                                     </button>
-                                </div>
+                                ))}
                             </div>
-                        )}
-                        </div>
 
-                    {/* Console */}
-                    <Console
-                        isOpen={consoleOpen}
-                        onToggle={() => setConsoleOpen(!consoleOpen)}
-                        result={result}
-                        isLoading={loading}
-                        customInput={customInput}
-                        setCustomInput={setCustomInput}
-                        showInputSection={showInputSection}
-                        setShowInputSection={setShowInputSection}
-                    />
+                            {/* AI Response Area */}
+                            <div ref={aiResponseRef} style={{
+                                flex: 1,
+                                overflowY: 'auto',
+                                padding: '16px',
+                                fontSize: '13px',
+                                color: '#d1d5db',
+                                lineHeight: '1.6'
+                            }}>
+                                {aiLoading ? (
+                                    <div style={{
+                                        display: 'flex', flexDirection: 'column',
+                                        alignItems: 'center', justifyContent: 'center',
+                                        height: '200px', gap: '12px'
+                                    }}>
+                                        <Loader2 size={28} color="#a78bfa" style={{ animation: 'spin 1s linear infinite' }} />
+                                        <span style={{ color: '#a78bfa', fontWeight: 600, fontSize: '13px' }}>Thinking...</span>
+                                        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                                    </div>
+                                ) : aiResponse ? (
+                                    <div
+                                        className="ai-response-content"
+                                        dangerouslySetInnerHTML={{ __html: formatMarkdown(aiResponse) }}
+                                    />
+                                ) : (
+                                    <div style={{
+                                        display: 'flex', flexDirection: 'column',
+                                        alignItems: 'center', justifyContent: 'center',
+                                        height: '100%', gap: '16px', opacity: 0.6
+                                    }}>
+                                        <Sparkles size={40} color="#a78bfa" style={{ opacity: 0.4 }} />
+                                        <div style={{ textAlign: 'center' }}>
+                                            <div style={{ fontWeight: 700, color: '#a78bfa', marginBottom: '4px' }}>SmartCoder AI</div>
+                                            <div style={{ fontSize: '12px', color: '#6b7280' }}>Click a quick action or type below</div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* AI Input */}
+                            <div style={{
+                                padding: '12px 16px',
+                                borderTop: '1px solid rgba(167,139,250,0.15)',
+                                display: 'flex',
+                                gap: '8px'
+                            }}>
+                                <input
+                                    type="text"
+                                    value={aiMessage}
+                                    onChange={(e) => setAiMessage(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && !aiLoading && handleAIAssist()}
+                                    placeholder="Ask AI anything..."
+                                    disabled={aiLoading}
+                                    style={{
+                                        flex: 1,
+                                        background: 'rgba(255,255,255,0.05)',
+                                        border: '1px solid rgba(167,139,250,0.2)',
+                                        color: '#e5e7eb',
+                                        padding: '10px 14px',
+                                        borderRadius: '8px',
+                                        fontSize: '13px',
+                                        outline: 'none',
+                                        fontFamily: 'inherit',
+                                        transition: 'border-color 0.2s'
+                                    }}
+                                    onFocus={(e) => e.target.style.borderColor = 'rgba(167,139,250,0.5)'}
+                                    onBlur={(e) => e.target.style.borderColor = 'rgba(167,139,250,0.2)'}
+                                />
+                                <button
+                                    onClick={() => handleAIAssist()}
+                                    disabled={aiLoading || !aiMessage.trim()}
+                                    style={{
+                                        background: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)',
+                                        border: 'none',
+                                        color: '#fff',
+                                        width: '40px', height: '40px',
+                                        borderRadius: '8px',
+                                        cursor: (aiLoading || !aiMessage.trim()) ? 'not-allowed' : 'pointer',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        opacity: (aiLoading || !aiMessage.trim()) ? 0.5 : 1,
+                                        transition: 'all 0.2s',
+                                        flexShrink: 0
+                                    }}
+                                >
+                                    <Send size={16} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
+
+                {/* Console */}
+                <Console
+                    isOpen={consoleOpen}
+                    onToggle={() => setConsoleOpen(!consoleOpen)}
+                    result={result}
+                    isLoading={loading}
+                    customInput={customInput}
+                    setCustomInput={setCustomInput}
+                    showInputSection={showInputSection}
+                    setShowInputSection={setShowInputSection}
+                />
             </div>
-            );
+        </div>
+    );
 };
 
-            export default Workspace;
+export default Workspace;
