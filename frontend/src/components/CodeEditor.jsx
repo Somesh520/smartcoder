@@ -1,250 +1,222 @@
-import React from 'react';
-import Editor from 'react-simple-code-editor';
-import { highlight, languages } from 'prismjs';
-import 'prismjs/components/prism-clike';
-import 'prismjs/components/prism-javascript';
-import 'prismjs/components/prism-java';
-import 'prismjs/components/prism-python';
-import 'prismjs/components/prism-c';
-import 'prismjs/components/prism-cpp';
-import 'prismjs/themes/prism-tomorrow.css';
+import React, { useRef } from 'react';
+import MonacoEditor from '@monaco-editor/react';
+
+const LANGUAGE_MAP = {
+    'cpp': 'cpp',
+    'c': 'c',
+    'java': 'java',
+    'python': 'python',
+    'python3': 'python',
+    'javascript': 'javascript',
+    'typescript': 'typescript',
+    'go': 'go',
+    'rust': 'rust',
+    'swift': 'swift',
+    'kotlin': 'kotlin',
+    'csharp': 'csharp',
+    'ruby': 'ruby',
+    'scala': 'scala',
+    'php': 'php'
+};
 
 const CodeEditor = ({ code, onChange, language }) => {
-    const highlightCode = (code) => {
-        let grammar = languages.clike;
-        if (language === 'python') grammar = languages.python;
-        if (language === 'javascript') grammar = languages.javascript;
-        if (language === 'java') grammar = languages.java;
-        if (language === 'cpp' || language === 'c') grammar = languages.cpp;
+    const editorRef = useRef(null);
 
-        return highlight(code, grammar || languages.clike, language);
+    const monacoLang = LANGUAGE_MAP[language] || 'cpp';
+
+    const handleEditorDidMount = (editor, monaco) => {
+        editorRef.current = editor;
+
+        // Custom dark theme matching LeetCode
+        monaco.editor.defineTheme('leetcode-dark', {
+            base: 'vs-dark',
+            inherit: true,
+            rules: [
+                { token: 'comment', foreground: '6b7280', fontStyle: 'italic' },
+                { token: 'keyword', foreground: 'a78bfa', fontStyle: 'bold' },
+                { token: 'string', foreground: '22c55e' },
+                { token: 'number', foreground: 'f59e0b' },
+                { token: 'type', foreground: '60a5fa', fontStyle: 'bold' },
+                { token: 'function', foreground: '60a5fa' },
+                { token: 'variable', foreground: 'e5e7eb' },
+                { token: 'operator', foreground: '3b82f6' },
+                { token: 'delimiter', foreground: '9ca3af' },
+                { token: 'constant', foreground: 'f59e0b' },
+                { token: 'identifier', foreground: 'e5e7eb' },
+                { token: 'tag', foreground: 'ef4444' },
+                { token: 'attribute.name', foreground: 'fb923c' },
+                { token: 'attribute.value', foreground: '22c55e' },
+            ],
+            colors: {
+                'editor.background': '#0d1117',
+                'editor.foreground': '#e5e7eb',
+                'editor.lineHighlightBackground': '#161b2240',
+                'editor.selectionBackground': '#3b82f630',
+                'editor.inactiveSelectionBackground': '#3b82f615',
+                'editorLineNumber.foreground': '#4b5563',
+                'editorLineNumber.activeForeground': '#3b82f6',
+                'editorCursor.foreground': '#3b82f6',
+                'editorIndentGuide.background': '#27272a',
+                'editorIndentGuide.activeBackground': '#3b82f640',
+                'editor.selectionHighlightBackground': '#3b82f620',
+                'editorBracketMatch.background': '#3b82f630',
+                'editorBracketMatch.border': '#3b82f680',
+                'editorGutter.background': '#0d111790',
+                'scrollbar.shadow': '#00000000',
+                'scrollbarSlider.background': '#3b82f625',
+                'scrollbarSlider.hoverBackground': '#3b82f640',
+                'scrollbarSlider.activeBackground': '#3b82f660',
+                'editorWidget.background': '#161b22',
+                'editorWidget.border': '#27272a',
+                'editorSuggestWidget.background': '#161b22',
+                'editorSuggestWidget.border': '#27272a',
+                'editorSuggestWidget.selectedBackground': '#3b82f625',
+                'editorSuggestWidget.highlightForeground': '#3b82f6',
+                'list.hoverBackground': '#1e293b',
+                'input.background': '#0d1117',
+                'input.border': '#27272a',
+                'focusBorder': '#3b82f6',
+                'minimap.background': '#0d1117',
+            }
+        });
+
+        monaco.editor.setTheme('leetcode-dark');
+
+        // Keyboard shortcuts
+        editor.addAction({
+            id: 'format-code',
+            label: 'Format Code',
+            keybindings: [
+                monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KeyF
+            ],
+            run: (ed) => {
+                ed.getAction('editor.action.formatDocument')?.run();
+            }
+        });
+
+        // Focus the editor
+        editor.focus();
+    };
+
+    const handleChange = (value) => {
+        if (onChange) onChange(value || '');
     };
 
     return (
-        <div className="code-area" style={{
-            flex: 1,
-            position: 'relative',
-            display: 'flex',
-            overflow: 'hidden',
-            background: 'linear-gradient(135deg, #0d1117 0%, #161b22 100%)',
-            borderRadius: '0 0 8px 8px'
+        <div style={{
+            width: '100%',
+            height: '100%',
+            background: '#0d1117',
+            borderRadius: '0 0 8px 8px',
+            overflow: 'hidden'
         }}>
-            <style>{`
-                /* Code Editor Styling */
-                .code-area {
-                    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace !important;
-                }
-                
-                .code-area textarea, 
-                .code-area pre {
-                    outline: none !important;
-                    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace !important;
-                    font-size: 14px !important;
-                    line-height: 1.6 !important;
-                    letter-spacing: 0.3px;
-                    padding-left: 60px !important;
-                }
-
-                /* Line Numbers using CSS Counter */
-                .editor-wrapper {
-                    position: relative;
-                    counter-reset: line;
-                }
-
-                .editor-wrapper pre {
-                    position: relative;
-                }
-
-                .editor-wrapper pre > code {
-                    display: block;
-                }
-
-                .editor-wrapper pre::before {
-                    content: '';
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    bottom: 0;
-                    width: 55px;
-                    background: rgba(13, 17, 23, 0.8);
-                    border-right: 2px solid rgba(59, 130, 246, 0.3);
-                    pointer-events: none;
-                }
-
-                .editor-wrapper .token-line {
-                    counter-increment: line;
-                    position: relative;
-                }
-
-                .editor-wrapper .token-line::before {
-                    content: counter(line);
-                    position: absolute;
-                    left: -60px;
-                    width: 40px;
-                    text-align: right;
-                    color: #6b7280;
-                    font-weight: 600;
-                    font-size: 13px;
-                    user-select: none;
-                    padding-right: 12px;
-                }
-
-                /* Enhanced Prism Theme */
-                code[class*="language-"],
-                pre[class*="language-"] {
-                    color: #e5e7eb !important;
-                    background: transparent !important;
-                    text-shadow: none !important;
-                    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace !important;
-                    font-size: 14px !important;
-                    line-height: 1.6 !important;
-                }
-
-                /* Syntax Highlighting Colors */
-                .token.comment,
-                .token.prolog,
-                .token.doctype,
-                .token.cdata {
-                    color: #6b7280 !important;
-                    font-style: italic;
-                }
-
-                .token.punctuation {
-                    color: #9ca3af !important;
-                }
-
-                .token.property,
-                .token.tag,
-                .token.boolean,
-                .token.number,
-                .token.constant,
-                .token.symbol,
-                .token.deleted {
-                    color: #f59e0b !important;
-                    font-weight: 500;
-                }
-
-                .token.selector,
-                .token.attr-name,
-                .token.string,
-                .token.char,
-                .token.builtin,
-                .token.inserted {
-                    color: #22c55e !important;
-                }
-
-                .token.operator,
-                .token.entity,
-                .token.url,
-                .language-css .token.string,
-                .style .token.string {
-                    color: #3b82f6 !important;
-                    background: none !important;
-                }
-
-                .token.atrule,
-                .token.attr-value,
-                .token.keyword {
-                    color: #a78bfa !important;
-                    font-weight: 600;
-                }
-
-                .token.function,
-                .token.class-name {
-                    color: #60a5fa !important;
-                    font-weight: 600;
-                }
-
-                .token.regex,
-                .token.important,
-                .token.variable {
-                    color: #fb923c !important;
-                }
-
-                /* Scrollbar Styling */
-                .code-area ::-webkit-scrollbar {
-                    width: 10px;
-                    height: 10px;
-                }
-
-                .code-area ::-webkit-scrollbar-track {
-                    background: rgba(14, 14, 20, 0.5);
-                    border-radius: 5px;
-                }
-
-                .code-area ::-webkit-scrollbar-thumb {
-                    background: rgba(59, 130, 246, 0.3);
-                    border-radius: 5px;
-                    border: 2px solid rgba(14, 14, 20, 0.5);
-                }
-
-                .code-area ::-webkit-scrollbar-thumb:hover {
-                    background: rgba(59, 130, 246, 0.5);
-                }
-
-                /* Selection */
-                .code-area ::selection {
-                    background: rgba(59, 130, 246, 0.3);
-                }
-            `}</style>
-
-            {/* Line Numbers Gutter */}
-            <div style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                bottom: 0,
-                width: '55px',
-                background: 'rgba(13, 17, 23, 0.8)',
-                borderRight: '2px solid rgba(59, 130, 246, 0.3)',
-                padding: '15px 0',
-                overflow: 'hidden',
-                zIndex: 1,
-                pointerEvents: 'none'
-            }}>
-                {code.split('\n').map((_, i) => (
-                    <div
-                        key={i}
-                        style={{
-                            height: '22.4px', // 14px font * 1.6 line-height
-                            textAlign: 'right',
-                            paddingRight: '12px',
-                            color: '#6b7280',
-                            fontSize: '13px',
-                            fontWeight: 600,
-                            userSelect: 'none',
-                            fontFamily: 'JetBrains Mono, Fira Code, Consolas, monospace'
-                        }}
-                    >
-                        {i + 1}
+            <MonacoEditor
+                height="100%"
+                language={monacoLang}
+                value={code}
+                onChange={handleChange}
+                onMount={handleEditorDidMount}
+                loading={
+                    <div style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        height: '100%', background: '#0d1117', color: '#6b7280',
+                        fontFamily: "'Inter', sans-serif", fontSize: '14px'
+                    }}>
+                        Loading editor...
                     </div>
-                ))}
-            </div>
+                }
+                options={{
+                    // Core
+                    fontSize: 14,
+                    fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace",
+                    fontLigatures: true,
+                    tabSize: 4,
+                    insertSpaces: true,
 
-            <div style={{
-                flex: 1,
-                overflow: 'auto',
-                padding: '15px',
-                paddingLeft: '50px',
-                background: 'rgba(13, 17, 23, 0.6)'
-            }}>
-                <Editor
-                    value={code}
-                    onValueChange={onChange}
-                    highlight={code => highlightCode(code)}
-                    padding={0}
-                    style={{
-                        fontFamily: '"JetBrains Mono", "Fira Code", "Consolas", monospace',
-                        fontSize: 14,
-                        minHeight: '100%',
-                        lineHeight: 1.6,
-                        caretColor: '#3b82f6'
-                    }}
-                    textareaId="codeEditor"
-                    className="prism-editor"
-                    tabSize={4}
-                />
-            </div>
+                    // Auto-bracket & auto-close
+                    autoClosingBrackets: 'always',
+                    autoClosingQuotes: 'always',
+                    autoClosingDelete: 'always',
+                    autoSurround: 'languageDefined',
+
+                    // Bracket highlighting
+                    bracketPairColorization: { enabled: true },
+                    guides: {
+                        bracketPairs: true,
+                        indentation: true,
+                        highlightActiveIndentation: true,
+                    },
+                    matchBrackets: 'always',
+
+                    // Auto-indentation
+                    autoIndent: 'full',
+                    formatOnPaste: true,
+                    formatOnType: true,
+
+                    // Suggestions & IntelliSense
+                    suggestOnTriggerCharacters: true,
+                    quickSuggestions: {
+                        other: true,
+                        comments: false,
+                        strings: true
+                    },
+                    acceptSuggestionOnEnter: 'on',
+                    snippetSuggestions: 'inline',
+                    wordBasedSuggestions: 'currentDocument',
+                    parameterHints: { enabled: true },
+
+                    // Code lens & folding
+                    folding: true,
+                    foldingStrategy: 'indentation',
+                    showFoldingControls: 'mouseover',
+
+                    // Line numbers & minimap
+                    lineNumbers: 'on',
+                    lineNumbersMinChars: 3,
+                    glyphMargin: false,
+                    minimap: { enabled: false },
+
+                    // Scrolling
+                    smoothScrolling: true,
+                    scrollBeyondLastLine: false,
+                    scrollbar: {
+                        vertical: 'auto',
+                        horizontal: 'auto',
+                        verticalScrollbarSize: 10,
+                        horizontalScrollbarSize: 10,
+                        useShadows: false
+                    },
+
+                    // UI
+                    renderLineHighlight: 'line',
+                    renderWhitespace: 'none',
+                    cursorBlinking: 'smooth',
+                    cursorSmoothCaretAnimation: 'on',
+                    cursorStyle: 'line',
+                    cursorWidth: 2,
+                    padding: { top: 16, bottom: 16 },
+                    lineHeight: 22,
+                    roundedSelection: true,
+                    selectOnLineNumbers: true,
+                    wordWrap: 'off',
+                    overviewRulerLanes: 0,
+                    hideCursorInOverviewRuler: true,
+                    overviewRulerBorder: false,
+                    contextmenu: true,
+                    mouseWheelZoom: true,
+
+                    // Misc
+                    links: true,
+                    colorDecorators: true,
+                    dragAndDrop: true,
+                    emptySelectionClipboard: true,
+                    find: {
+                        addExtraSpaceOnTop: false,
+                        autoFindInSelection: 'never',
+                        seedSearchStringFromSelection: 'selection'
+                    }
+                }}
+            />
         </div>
     );
 };
