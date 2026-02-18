@@ -11,6 +11,7 @@ import LandingPage from './components/LandingPage';
 import HistoryPage from './components/HistoryPage';
 import LeetCodePage from './components/LeetCodePage';
 import Documentation from './components/Documentation';
+import AdminDashboard from './components/AdminDashboard';
 
 import LearnPage from './components/LearnPage';
 import PrivacyPolicyPage from './components/PrivacyPolicyPage';
@@ -385,7 +386,20 @@ function MainApp({ initialRoom }) {
                     />
                   } />
 
+                  <Route path="competition/:roomId" element={
+                    <CompetitionRoomWrapper
+                      socket={socket}
+                      roomId={roomId}
+                      username={username}
+                      userInfo={userInfo}
+                      roomState={roomState}
+                      onBack={handleBackToLobby}
+                      setRoomId={setRoomId}
+                      setUsername={setUsername}
+                    />
+                  } />
 
+                  <Route path="admin" element={<AdminDashboard onBack={() => navigate('/app')} />} />
                 </Route>
               </Routes>
             </div>

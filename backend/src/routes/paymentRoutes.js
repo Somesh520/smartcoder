@@ -20,10 +20,82 @@ router.post('/request-topup', verifyToken, async (req, res) => {
         });
 
         await newRequest.save();
-        res.status(201).json({ message: "Request submitted successfully! Admin will verify." });
+
+        res.status(201).json({ message: "Request submitted successfully" });
     } catch (error) {
-        console.error("Topup Requests Error:", error);
+        console.error("Payment Request Error:", error); // Updated error message
         res.status(500).json({ error: "Server Error" });
+    }
+});
+
+// Admin Middleware (Simple Email Check)
+const verifyAdmin = async (req, res, next) => {
+    try {
+        if (!req.user || req.user.email !== process.env.ADMIN_EMAIL) {
+            return res.status(403).json({ error: "Access Denied: Admin only" });
+        }
+        next();
+    } catch (e) {
+        res.status(500).json({ error: "Auth Error" });
+    }
+};
+
+// GET Pending Requests (Admin)
+router.get('/admin/pending', verifyToken, verifyAdmin, async (req, res) => {
+    try {
+        const requests = await PaymentRequest.find({ status: 'pending' })
+            .populate('userId', 'displayName email')
+            .sort({ createdAt: -1 });
+        res.json(requests);
+    } catch (e) {
+        res.status(500).json({ error: "Fetch Failed" });
+    }
+});
+
+// Approve Request (Admin)
+router.post('/admin/approve', verifyToken, verifyAdmin, async (req, res) => {
+    try {
+        const { requestId } = req.body;
+        const request = await PaymentRequest.findById(requestId);
+
+        if (!request) return res.status(404).json({ error: "Request not found" });
+        if (request.status !== 'pending') return res.status(400).json({ error: "Request already processed" });
+
+        // Update Request Status
+        request.status = 'approved';
+        await request.save();
+
+        // Add Credits to User
+        const user = await User.findById(request.userId);
+        if (user) {
+            user.credits += request.credits;
+            await user.save();
+        }
+
+        res.json({ message: "Approved & Credits Added", newCredits: user ? user.credits : 0 });
+
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: "Approval Failed" });
+    }
+});
+
+// Reject Request (Admin)
+router.post('/admin/reject', verifyToken, verifyAdmin, async (req, res) => {
+    try {
+        const { requestId } = req.body;
+        const request = await PaymentRequest.findById(requestId);
+
+        if (!request) return res.status(404).json({ error: "Request not found" });
+        if (request.status !== 'pending') return res.status(400).json({ error: "Request already processed" });
+
+        request.status = 'rejected';
+        await request.save();
+
+        res.json({ message: "Request Rejected" });
+
+    } catch (e) {
+        res.status(500).json({ error: "Rejection Failed" });
     }
 });
 
