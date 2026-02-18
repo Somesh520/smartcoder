@@ -28,7 +28,7 @@ const formatMarkdown = (text) => {
     const codeMap = {};
 
     // 1. Extract code blocks and replace with placeholders
-    let processed = text.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+    let processed = text.replace(/```\s*([^\n\r]*)\n([\s\S]*?)```/g, (match, lang, code) => {
         const id = `ai-code-${++codeBlockCounter}`;
         const placeholder = `__CODE_BLOCK_${codeBlockCounter}__`;
 
