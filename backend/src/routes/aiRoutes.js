@@ -67,8 +67,9 @@ Explain in ${explainLanguage || 'English'}. Keep code in pure ${language}.`;
         let data = null;
         let lastError = null;
 
-        // ✅ FIX: Loop Logic 
-        for (const model of MODELS) {
+        // ✅ FIX: Loop Logic with Backoff
+        for (let i = 0; i < MODELS.length; i++) {
+            const model = MODELS[i];
             try {
                 console.log(`[AI] Trying model: ${model}`);
                 const response = await fetch(getUrl(model), {
@@ -85,12 +86,16 @@ Explain in ${explainLanguage || 'English'}. Keep code in pure ${language}.`;
                         const errJson = JSON.parse(errText);
                         if (response.status === 429) {
                             errMsg = "Quota Exceeded (429)";
+                            // Backoff: Wait longer for subsequent failures (1s, 2s, 3s...)
+                            const delay = (i + 1) * 1000;
+                            console.warn(`[AI] Failed ${model}: ${errMsg} -> Waiting ${delay}ms...`);
+                            await new Promise(resolve => setTimeout(resolve, delay));
                         } else {
                             errMsg = errJson.error?.message || errText;
+                            console.warn(`[AI] Failed ${model}: ${errMsg} -> Switching...`);
                         }
                     } catch (e) { errMsg = errText; }
 
-                    console.warn(`[AI] Failed ${model}: ${errMsg} -> Switching...`);
                     lastError = { status: response.status, message: errMsg };
                     continue; // ⬅️ IMPORTANT: Continue to next model on error
                 }
