@@ -1,6 +1,6 @@
 export const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-const getAuthHeaders = () => {
+export const getAuthHeaders = () => {
   const token = localStorage.getItem('auth_token');
   return token ? { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
 };
