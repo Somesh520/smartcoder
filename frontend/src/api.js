@@ -203,3 +203,19 @@ export const fetchUserCalendar = async (username) => {
     return null;
   }
 };
+
+// AI Autocomplete
+export const fetchAIAutocomplete = async ({ code, language, cursorLine, cursorColumn }) => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/ai/autocomplete`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ code, language, cursorLine, cursorColumn })
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    console.error("AI autocomplete failed", e);
+    return null;
+  }
+};

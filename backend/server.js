@@ -17,6 +17,7 @@ import { corsOptions } from './src/config/cors.js';
 import problemRoutes from './src/routes/problemRoutes.js';
 import authRoutes from './src/routes/authRoutes.js';
 import leetcodeRoutes from './src/routes/leetcodeRoutes.js';
+import aiRoutes from './src/routes/aiRoutes.js';
 import { socketHandler } from './src/sockets/socketHandler.js';
 import redisClient from './src/config/redis.js';
 import connectDB from './src/config/db.js';
@@ -74,6 +75,7 @@ app.use(passport.session());
 app.use('/', problemRoutes);
 app.use('/auth', authRoutes);
 app.use('/api/leetcode', leetcodeRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Socket Logic
 socketHandler(io);

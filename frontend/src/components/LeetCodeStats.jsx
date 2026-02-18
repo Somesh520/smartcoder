@@ -329,7 +329,7 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                 </div>
 
                 {/* STREAK & HEATMAP SECTION */}
-                {stats && calendarData && (
+                {stats && (
                     <div style={{ marginTop: '30px' }}>
                         {/* Streak Cards */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
@@ -349,7 +349,7 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                                 <div>
                                     <div style={{ fontSize: '11px', color: '#71717a', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px', fontWeight: 700 }}>Current Streak</div>
                                     <div style={{ fontSize: '32px', fontWeight: 900, color: 'white', lineHeight: 1 }}>
-                                        {calendarData.streak}
+                                        {calendarData?.streak || 0}
                                         <span style={{ fontSize: '14px', color: '#f97316', marginLeft: '6px', fontWeight: 600 }}>days</span>
                                     </div>
                                 </div>
@@ -370,7 +370,7 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                                 <div>
                                     <div style={{ fontSize: '11px', color: '#71717a', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px', fontWeight: 700 }}>Total Active Days</div>
                                     <div style={{ fontSize: '32px', fontWeight: 900, color: 'white', lineHeight: 1 }}>
-                                        {calendarData.totalActiveDays}
+                                        {calendarData?.totalActiveDays || 0}
                                         <span style={{ fontSize: '14px', color: '#22c55e', marginLeft: '6px', fontWeight: 600 }}>days</span>
                                     </div>
                                 </div>
@@ -400,7 +400,7 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                                 </div>
                             </div>
                             {(() => {
-                                const calendar = calendarData.submissionCalendar || {};
+                                const calendar = calendarData?.submissionCalendar || {};
                                 const today = new Date();
                                 today.setHours(0, 0, 0, 0);
                                 const weeks = 52;
