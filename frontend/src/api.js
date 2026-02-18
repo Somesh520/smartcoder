@@ -205,12 +205,12 @@ export const fetchUserCalendar = async (username) => {
 };
 
 // AI Assistant
-export const fetchAIAssist = async ({ code, language, problemTitle, problemDescription, userMessage }) => {
+export const fetchAIAssist = async ({ code, language, problemTitle, problemDescription, userMessage, explainLanguage }) => {
   try {
     const res = await fetch(`${BASE_URL}/api/ai/assist`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ code, language, problemTitle, problemDescription, userMessage })
+      body: JSON.stringify({ code, language, problemTitle, problemDescription, userMessage, explainLanguage })
     });
     if (!res.ok) return null;
     return await res.json();

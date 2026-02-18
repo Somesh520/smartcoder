@@ -11,7 +11,7 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 // AI Assistant: Understands problem + user code, gives contextual help
 router.post('/assist', async (req, res) => {
     try {
-        const { code, language, problemTitle, problemDescription, userMessage } = req.body;
+        const { code, language, problemTitle, problemDescription, userMessage, explainLanguage } = req.body;
 
         if (!GEMINI_API_KEY) {
             return res.status(500).json({ error: "Gemini API key not configured" });
@@ -26,7 +26,13 @@ router.post('/assist', async (req, res) => {
             .replace(/&amp;/g, '&')
             .replace(/\s+/g, ' ')
             .trim()
-            .slice(0, 3000); // Limit to avoid token overflow
+            .slice(0, 3000);
+
+        const langInstruction = explainLanguage === 'hinglish'
+            ? 'IMPORTANT: Explain in Hinglish (Hindi written in English script, casual tone). Example: "Pehle ek hashmap banao, phir loop chalao..." But code must be in the programming language only.'
+            : explainLanguage === 'hindi'
+                ? 'IMPORTANT: Explain in Hindi (Devanagari script). Example: "पहले एक हैशमैप बनाओ, फिर लूप चलाओ..." But code must be in the programming language only.'
+                : 'Explain in English.';
 
         const prompt = `You are SmartCoder AI — an expert coding assistant helping solve LeetCode problems. You are helpful, concise, and give production-quality code.
 
@@ -40,6 +46,8 @@ ${code || '// No code yet'}
 
 USER'S REQUEST: ${userMessage || 'Help me solve this problem'}
 
+${langInstruction}
+
 INSTRUCTIONS:
 - Analyze the problem and the user's current code
 - If user asks for help/hints, give a clear approach explanation with steps
@@ -47,7 +55,7 @@ INSTRUCTIONS:
 - If user's code has bugs, identify and fix them
 - Always explain your approach briefly before the code
 - Format your response in clean markdown
-- Use \`\`\` code blocks for any code
+- Use \`\`\`${language} for code blocks (ALWAYS specify language)
 - Keep explanations concise but clear
 - If giving a solution, make sure it's optimized and correct`;
 
