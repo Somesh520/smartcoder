@@ -25,6 +25,18 @@ const userSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    credits: {
+        type: Number,
+        default: 5
+    },
+    lastReset: {
+        type: Date,
+        default: Date.now
+    },
+    isPremium: {
+        type: Boolean,
+        default: false
     }
 });
 

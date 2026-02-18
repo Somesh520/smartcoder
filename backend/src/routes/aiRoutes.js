@@ -1,4 +1,5 @@
 import express from 'express';
+import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -8,10 +9,30 @@ const getUrl = (model) => `https://generativelanguage.googleapis.com/v1beta/mode
 
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
+
+// Get credits
+router.get('/credits', verifyToken, (req, res) => {
+    res.json({ credits: req.user.credits });
+});
+
 // AI Assistant: Understands problem + user code, gives contextual help
-router.post('/assist', async (req, res) => {
+router.post('/assist', verifyToken, async (req, res) => {
     try {
         const { code, language, problemTitle, problemDescription, userMessage, explainLanguage } = req.body;
+        const user = req.user;
+
+        // Daily Reset Logic
+        const lastReset = new Date(user.lastReset);
+        const now = new Date();
+        if (lastReset.toDateString() !== now.toDateString()) {
+            user.credits = 5;
+            user.lastReset = now;
+            await user.save();
+        }
+
+        if (user.credits <= 0 && !user.isPremium) {
+            return res.status(402).json({ error: "Insufficient credits. Please top-up.", credits: 0 });
+        }
 
         if (!GEMINI_API_KEY) {
             return res.status(500).json({ error: "Gemini API key not configured" });
@@ -96,7 +117,13 @@ REMEMBER: Follow the language rule strictly.`;
         }
 
         const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Could not generate response.';
-        res.json({ response: answer });
+
+        if (answer && answer !== 'Could not generate response.') {
+            user.credits = Math.max(0, user.credits - 1);
+            await user.save();
+        }
+
+        res.json({ response: answer, credits: user.credits });
 
     } catch (error) {
         console.error("AI Assist Error:", error.message);

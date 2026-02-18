@@ -161,7 +161,7 @@ router.get('/submissions/:username', async (req, res) => {
     }
 });
 
-// CALENDAR: Get user's streak & submission heatmap data (GET)
+
 router.get('/calendar/:username', async (req, res) => {
     try {
         const { username } = req.params;

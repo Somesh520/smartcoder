@@ -212,10 +212,13 @@ export const fetchAIAssist = async ({ code, language, problemTitle, problemDescr
       headers: getAuthHeaders(),
       body: JSON.stringify({ code, language, problemTitle, problemDescription, userMessage, explainLanguage })
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      return { error: errorData.error || "AI Error", status: res.status };
+    }
     return await res.json();
   } catch (e) {
     console.error("AI assist failed", e);
-    return null;
+    return { error: "Network Error", status: 500 };
   }
 };

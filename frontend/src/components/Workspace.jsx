@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { fetchProblemDetails, runCode, submitCode, pollResult, fetchAIAssist } from '../api';
+import { fetchProblemDetails, runCode, submitCode, pollResult, fetchAIAssist, BASE_URL } from '../api';
 import CodeEditor from './CodeEditor';
 import Console from './Console';
 import ModernSpinner from './ModernSpinner';
@@ -14,6 +14,7 @@ import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-c';
 import 'prismjs/components/prism-cpp';
 import Markdown from 'react-markdown';
+import TopUpModal from './TopUpModal';
 
 const DEFAULT_TEMPLATES = {
     'cpp': 'class Solution {\\npublic:\\n    // Write C++ code here\\n};',
@@ -90,6 +91,27 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
     const [aiLoading, setAiLoading] = useState(false);
     const [explainLanguage, setExplainLanguage] = useState('hinglish');
     const aiResponseRef = useRef(null);
+
+    // Credit System
+    const [credits, setCredits] = useState(5);
+    const [showTopUpModal, setShowTopUpModal] = useState(false);
+
+    useEffect(() => {
+        const fetchCredits = async () => {
+            try {
+                const token = localStorage.getItem('auth_token');
+                if (!token) return;
+                const res = await fetch(`${BASE_URL}/api/ai/credits`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setCredits(data.credits);
+                }
+            } catch (e) { console.error("Failed to fetch credits", e); }
+        };
+        if (aiOpen) fetchCredits();
+    }, [aiOpen]);
 
     // Resizable Layout State
     const [leftWidth, setLeftWidth] = useState(40); // Initial 40% width for problem description
@@ -199,8 +221,16 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
         });
 
         setAiLoading(false);
+
+        if (result && (result.status === 402 || (result.error && result.error.includes("Insufficient credits")))) {
+            setCredits(0);
+            setShowTopUpModal(true);
+            return;
+        }
+
         if (result?.response) {
             setAiResponse(result.response);
+            if (result.credits !== undefined) setCredits(result.credits);
             setAiMessage('');
             setTimeout(() => {
                 if (aiResponseRef.current) aiResponseRef.current.scrollTop = 0;
@@ -805,6 +835,16 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     <Sparkles size={16} color="#a78bfa" />
                                     <span style={{ color: '#e5e7eb', fontWeight: 700, fontSize: '14px' }}>SmartCoder AI</span>
+                                    <div style={{
+                                        padding: '2px 8px', borderRadius: '12px',
+                                        background: credits > 0 ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
+                                        border: `1px solid ${credits > 0 ? '#22c55e' : '#ef4444'}`,
+                                        fontSize: '11px', fontWeight: 600, color: credits > 0 ? '#4ade80' : '#f87171',
+                                        marginLeft: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
+                                    }} onClick={() => setShowTopUpModal(true)}>
+                                        <Zap size={10} fill={credits > 0 ? "#4ade80" : "#f87171"} />
+                                        {credits} Credits
+                                    </div>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     <select
@@ -990,6 +1030,11 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                     setShowInputSection={setShowInputSection}
                 />
             </div>
+
+            <TopUpModal
+                isOpen={showTopUpModal}
+                onClose={() => setShowTopUpModal(false)}
+            />
         </div>
     );
 };
