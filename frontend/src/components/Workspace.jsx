@@ -159,11 +159,16 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
         setAiLoading(true);
         setAiResponse('');
 
+        if (!details) {
+            alert("Please wait for problem details to load.");
+            return;
+        }
+
         const result = await fetchAIAssist({
             code,
             language,
-            problemTitle: problem?.title || '',
-            problemDescription: details?.content || details?.questionHtml || '',
+            problemTitle: details.title || problem.title || '',
+            problemDescription: details.content || details.questionHtml || '',
             userMessage: msg,
             explainLanguage
         });
@@ -186,6 +191,11 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
 
         if (!userSession || !userCsrf || userSession === "undefined") {
             alert(`⚠️ Not Logged In! Sync with Extension first.`);
+            return;
+        }
+
+        if (!details) {
+            alert("⚠️ Problem details are loading. Please wait.");
             return;
         }
 
@@ -553,20 +563,21 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                     <div style={{ display: 'flex', gap: '10px' }}>
                         <button
                             onClick={() => executeAction('run')}
+                            disabled={!details || loading}
                             style={{
-                                background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                                color: '#fff',
+                                background: (!details || loading) ? '#374151' : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                                color: (!details || loading) ? '#9ca3af' : '#fff',
+                                cursor: (!details || loading) ? 'not-allowed' : 'pointer',
                                 border: '1px solid rgba(59, 130, 246, 0.5)',
                                 padding: '8px 16px',
                                 borderRadius: '6px',
                                 fontSize: '13px',
                                 fontWeight: 600,
-                                cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '6px',
                                 transition: 'all 0.2s',
-                                boxShadow: '0 0 15px rgba(59, 130, 246, 0.3)'
+                                boxShadow: (!details || loading) ? 'none' : '0 0 15px rgba(59, 130, 246, 0.3)'
                             }}
                             onMouseEnter={(e) => {
                                 e.target.style.transform = 'translateY(-2px)';
@@ -581,20 +592,21 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                         </button>
                         <button
                             onClick={() => executeAction('submit')}
+                            disabled={!details || loading}
                             style={{
-                                background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-                                color: '#fff',
+                                background: (!details || loading) ? '#374151' : 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                                color: (!details || loading) ? '#9ca3af' : '#fff',
+                                cursor: (!details || loading) ? 'not-allowed' : 'pointer',
                                 border: '1px solid rgba(34, 197, 94, 0.5)',
                                 padding: '8px 16px',
                                 borderRadius: '6px',
                                 fontSize: '13px',
                                 fontWeight: 600,
-                                cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '6px',
                                 transition: 'all 0.2s',
-                                boxShadow: '0 0 15px rgba(34, 197, 94, 0.3)'
+                                boxShadow: (!details || loading) ? 'none' : '0 0 15px rgba(34, 197, 94, 0.3)'
                             }}
                             onMouseEnter={(e) => {
                                 e.target.style.transform = 'translateY(-2px)';
