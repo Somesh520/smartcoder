@@ -9,10 +9,9 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // ✅ FIX: Sirf Active Models rakho
 const MODELS = [
-    'gemini-1.5-flash',
-    'gemini-1.5-pro',
-    'gemini-1.5-flash-001',
-    'gemini-1.5-pro-001'
+    'gemini-2.5-flash',
+    'gemini-2.5-pro',
+    'gemini-2.0-flash'
 ];
 
 const getUrl = (model) => `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
