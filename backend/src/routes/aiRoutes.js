@@ -50,10 +50,12 @@ ${code || '// No code yet'}
 USER'S REQUEST: ${userMessage || 'Help me solve this problem'}
 
 INSTRUCTIONS:
-1. Analyze the problem and code.
-2. Provide a clear, step-by-step explanation.
-3. If providing code, use \`\`\`${language} blocks.
-4. Be concise and helpful.
+1. FOCUS ONLY ON THE CODE and the specific request.
+2. DO NOT repeat the problem description or user request.
+3. If the user's code is empty, provide a hint or starter code.
+4. If the user's code is present, ANALYZE IT first.
+5. Be direct. No filler words like "Here is the solution..." or "I understand...".
+6. Jump straight to the explanation or code.
 
 ${langInstruction}
 REMEMBER: Follow the language rule strictly.`;
