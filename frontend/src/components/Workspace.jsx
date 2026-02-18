@@ -717,10 +717,20 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                         font-family: 'JetBrains Mono', monospace; font-size: 12px;
                     }
                     .ai-response-content pre {
-                        background: #0d1117; border: 1px solid #27272a;
-                        border-radius: 8px; padding: 14px; margin: 12px 0;
+                        background: #0d1117; 
+                        border: 1px solid rgba(167,139,250,0.1);
+                        width: 100%;
+                        border-radius: 8px; 
+                        padding: 16px; 
+                        margin: 12px 0;
                         overflow-x: auto;
+                        max-height: 450px;
+                        overflow-y: auto;
                     }
+                    .ai-response-content pre::-webkit-scrollbar { height: 6px; width: 6px; }
+                    .ai-response-content pre::-webkit-scrollbar-track { background: #0d1117; }
+                    .ai-response-content pre::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+                    .ai-response-content pre::-webkit-scrollbar-thumb:hover { background: #52525b; }
                     .ai-response-content pre code {
                         background: none; padding: 0; color: #e5e7eb;
                         font-size: 13px; line-height: 1.5;
