@@ -32,7 +32,9 @@ export const runController = async (req, res) => {
         res.json(data);
     } catch (error) {
         console.error("[RUN] Error:", error.message);
-        res.status(500).json({ error: "Run Request Failed" });
+        const status = error.response ? error.response.status : 500;
+        const msg = error.response?.data?.error || error.message || "Run Request Failed";
+        res.status(status).json({ error: msg });
     }
 };
 

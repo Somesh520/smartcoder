@@ -119,6 +119,7 @@ export const fetchProblemDetails = async (id) => {
                 questionId
                 questionFrontendId
                 title
+                titleSlug
                 content
                 mysqlSchemas
                 dataSchemas

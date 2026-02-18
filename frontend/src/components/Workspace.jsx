@@ -197,7 +197,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
         try {
             const fn = type === 'run' ? runCode : submitCode;
             const data = await fn({
-                slug: problem.slug,
+                slug: details?.titleSlug || problem.slug,
                 question_id: details?.questionId || problem.id,
                 lang: language,
                 typed_code: code,
