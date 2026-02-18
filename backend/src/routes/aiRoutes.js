@@ -28,13 +28,16 @@ router.post('/assist', async (req, res) => {
             .trim()
             .slice(0, 3000);
 
+        console.log(`[AI Assist] Request: ${problemTitle}, Lang: ${language}, Explain: ${explainLanguage}`);
+
         const langInstruction = explainLanguage === 'hinglish'
-            ? 'IMPORTANT: Explain in Hinglish (Hindi written in English script, casual tone). Example: "Pehle ek hashmap banao, phir loop chalao..." But code must be in the programming language only.'
+            ? 'CRITICAL RULE: REFER TO THE USER AS "BHAI" OR "DOST". EXPLAIN IN HINGLISH (Hindi mixed with English, casual Indian dev style). Example: "Dekh bhai, pehle ek hashmap banao, phir loop lagao..." KEEP CODE IN PURE PROGRAMMING LANGUAGE.'
             : explainLanguage === 'hindi'
-                ? 'IMPORTANT: Explain in Hindi (Devanagari script). Example: "पहले एक हैशमैप बनाओ, फिर लूप चलाओ..." But code must be in the programming language only.'
+                ? 'CRITICAL RULE: EXPLAIN IN HINDI (Devanagari script). Example: "पहले एक हैशमैप बनाओ..." KEEP CODE IN PURE PROGRAMMING LANGUAGE.'
                 : 'Explain in English.';
 
-        const prompt = `You are SmartCoder AI — an expert coding assistant helping solve LeetCode problems. You are helpful, concise, and give production-quality code.
+        const prompt = `You are SmartCoder AI — an expert coding assistant helping solve LeetCode problems.
+You identify as a helpful, smart developer buddy.
 
 PROBLEM: ${problemTitle || 'Unknown'}
 DESCRIPTION: ${cleanDesc || 'No description available'}
@@ -46,18 +49,14 @@ ${code || '// No code yet'}
 
 USER'S REQUEST: ${userMessage || 'Help me solve this problem'}
 
-${langInstruction}
-
 INSTRUCTIONS:
-- Analyze the problem and the user's current code
-- If user asks for help/hints, give a clear approach explanation with steps
-- If user asks to solve/complete, provide the complete working solution
-- If user's code has bugs, identify and fix them
-- Always explain your approach briefly before the code
-- Format your response in clean markdown
-- Use \`\`\`${language} for code blocks (ALWAYS specify language)
-- Keep explanations concise but clear
-- If giving a solution, make sure it's optimized and correct`;
+1. Analyze the problem and code.
+2. Provide a clear, step-by-step explanation.
+3. If providing code, use \`\`\`${language} blocks.
+4. Be concise and helpful.
+
+${langInstruction}
+REMEMBER: Follow the language rule strictly.`;
 
         const payload = {
             contents: [{ parts: [{ text: prompt }] }],
