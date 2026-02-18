@@ -97,18 +97,27 @@ REMEMBER: Follow the language rule strictly.`;
         // Try models in order
         let data = null;
         for (const model of MODELS) {
-            const response = await fetch(getUrl(model), {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            console.log(`[AI] Trying model: ${model}`);
+            try {
+                const response = await fetch(getUrl(model), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-            if (response.ok) {
-                data = await response.json();
-                break;
-            } else if (response.status !== 429) {
-                data = await response.json();
-                break;
+                if (response.ok) {
+                    data = await response.json();
+                    console.log(`[AI] Success with ${model}`);
+                    break;
+                } else {
+                    console.warn(`[AI] Failed ${model}: ${response.status} ${response.statusText}`);
+                    if (response.status !== 429) {
+                        data = await response.json(); // Capture error details if not 429
+                        break;
+                    }
+                }
+            } catch (fetchErr) {
+                console.error(`[AI] Fetch error for ${model}:`, fetchErr.message);
             }
         }
 
