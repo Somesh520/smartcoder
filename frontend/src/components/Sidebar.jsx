@@ -1,7 +1,7 @@
 import { getCurrentUser, logout, BASE_URL } from '../api';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Code2, Swords, TrendingUp, BookOpen, History, LogOut, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Book } from 'lucide-react';
+import { Code2, Swords, TrendingUp, BookOpen, History, LogOut, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Book, Shield } from 'lucide-react';
 
 const Sidebar = ({ onShowProblemList, onGoDetail }) => {
     const navigate = useNavigate();
@@ -177,6 +177,17 @@ const Sidebar = ({ onShowProblemList, onGoDetail }) => {
                         active={location.pathname.includes('/docs')}
                         onClick={() => window.open('/docs', '_blank')}
                     />
+
+                    {/* ADMIN LINK (Visible only to Somesh) */}
+                    {user && user.email === 'someshtiwari532@gmail.com' && (
+                        <NavItem
+                            icon={Shield}
+                            label="Admin Panel"
+                            active={location.pathname.includes('/admin')}
+                            onClick={() => handleNav(() => navigate('/app/admin'))}
+                            danger
+                        />
+                    )}
 
 
                 </div>
