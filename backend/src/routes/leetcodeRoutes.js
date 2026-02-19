@@ -5,7 +5,7 @@ import * as leetcodeService from '../services/leetcodeService.js';
 const router = express.Router();
 const leetcode = new LeetCode(); // Auto-manages sessions/CSRF
 
-// Dynamic fetch import for compatibility
+
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 

@@ -5,11 +5,6 @@ export class UserManager {
     static addUser(socketId, userData) {
         if (!userData || !userData.userId) return;
 
-        // Check if user already exists (maybe multiple tabs), but simpler to just overwrite or map by userId
-        // For distinct user count, we should map userId -> [socketIds] or just userId -> userData
-        // But for "Online Users" list, showing unique users is better.
-
-        // Let's store by socketId for easy removal on disconnect
         onlineUsers.set(socketId, {
             socketId,
             userId: userData.userId,

@@ -3,7 +3,7 @@ import { fetchProblemDetails, runCode, submitCode, pollResult, fetchAIAssist, BA
 import CodeEditor from './CodeEditor';
 import Console from './Console';
 import ModernSpinner from './ModernSpinner';
-import { ArrowLeft, Play, Send, Trophy, Zap, Sparkles, X, Loader2, Lightbulb, Bug, Rocket, Code2 } from 'lucide-react';
+import { ArrowLeft, Play, Send, Trophy, Zap, Sparkles, X, Loader2, Lightbulb, Bug, Rocket, Code2, Maximize2, Minimize2 } from 'lucide-react';
 
 import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css';
@@ -86,6 +86,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
 
     // AI Assistant State
     const [aiOpen, setAiOpen] = useState(false);
+    const [isAiExpanded, setIsAiExpanded] = useState(false);
     const [aiChatHistory, setAiChatHistory] = useState([
         { role: 'assistant', content: 'Hello! I am SmartCoder AI. How can I help you with your code today? 🚀' }
     ]);
@@ -883,7 +884,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                             top: 0,
                             right: 0,
                             bottom: 0,
-                            width: '400px',
+                            width: isAiExpanded ? '50%' : '400px',
                             maxWidth: '90%',
                             zIndex: 100,
                             background: 'linear-gradient(180deg, #0f0f18 0%, #13131f 100%)',
@@ -928,6 +929,13 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                                         <option value="hindi">Hindi</option>
                                         <option value="bhojpuri">Bhojpuri</option>
                                     </select>
+                                    <button
+                                        onClick={() => setIsAiExpanded(!isAiExpanded)}
+                                        style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer', marginRight: '8px' }}
+                                        title={isAiExpanded ? "Collapse" : "Expand"}
+                                    >
+                                        {isAiExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+                                    </button>
                                     <button onClick={() => setAiOpen(false)} style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer' }}><X size={16} /></button>
                                 </div>
                             </div>
