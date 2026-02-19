@@ -77,13 +77,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // --- ROUTES ---
-app.use('/', problemRoutes);
-app.use('/auth', authRoutes);
+app.use('/api/reviews', reviewRoutes); // ✅ Added Review Routes (Moved UP)
 app.use('/api/leetcode', leetcodeRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/reviews', reviewRoutes); // ✅ Added Review Routes
+
+app.use('/auth', authRoutes);
+app.use('/', problemRoutes);
 
 // Socket Logic
 socketHandler(io);
