@@ -7,6 +7,7 @@ const router = express.Router();
 // Trigger Google Auth
 router.get('/google', (req, res, next) => {
     const returnTo = req.query.return_to;
+    console.log("[Auth] /google hit. return_to:", returnTo);
     const authenticator = passport.authenticate('google', {
         scope: ['profile', 'email'],
         state: returnTo // Pass origin as state to survive the OAuth flow
@@ -55,19 +56,27 @@ router.get('/google/callback',
         });
 
         // Check state to see where to redirect
+        // Check state to see where to redirect
         const state = req.query.state;
+        console.log("[Auth] Callback State:", state);
 
         // If state is 'tasks', it's the incremental auth flow
         if (state === 'tasks') {
-            res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/app/tasks?token=${token}`);
+            const redirectUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/app/tasks?token=${token}`;
+            console.log("[Auth] Redirecting to Tasks:", redirectUrl);
+            res.redirect(redirectUrl);
         }
         // If state looks like a URL (starts with http), it's our return_to origin
         else if (state && state.startsWith('http')) {
-            res.redirect(`${state}?token=${token}`);
+            const redirectUrl = `${state}?token=${token}`;
+            console.log("[Auth] Redirecting to Dynamic Origin:", redirectUrl);
+            res.redirect(redirectUrl);
         }
         // Default fallback to CLIENT_URL
         else {
-            res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}?token=${token}`);
+            const redirectUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}?token=${token}`;
+            console.log("[Auth] Redirecting to Default CLIENT_URL:", redirectUrl);
+            res.redirect(redirectUrl);
         }
     }
 );
