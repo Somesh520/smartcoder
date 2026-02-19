@@ -62,7 +62,7 @@ router.post('/assist', verifyToken, async (req, res) => {
         // 🧠 System Prompt with Persona & Context
         const systemPrompt = `You are SmartCoder AI, an expert programmer with a witty, helpful, and cool persona.
 - **Tone**: Professional yet friendly. Use emojis occasionally (e.g., 🚀, 💡, 🔧).
-- **Language**: Explain in ${explainLanguage || 'English'}.
+- **Language**: You MUST explain in ${explainLanguage || 'English'}. If Hinglish, mix Hindi and English naturally.
 - **Context**: 
   - Problem: ${problemTitle}
   - User's Code (${language}):
@@ -85,8 +85,9 @@ ${code || '// No code written yet'}
             });
         }
 
-        // Add latest user message
-        messages.push({ role: "user", content: userMessage });
+        // Add latest user message with explicit language instruction
+        const langInstruction = explainLanguage ? `\n\n(IMPORTANT: Please reply in ${explainLanguage} language only)` : '';
+        messages.push({ role: "user", content: userMessage + langInstruction });
 
         let answer = null;
         let lastError = null;
