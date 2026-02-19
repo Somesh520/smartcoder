@@ -41,7 +41,8 @@ const Sidebar = ({ onShowProblemList, onGoDetail }) => {
     };
 
     const handleLogin = () => {
-        window.location.href = `${BASE_URL}/auth/google`;
+        const returnTo = encodeURIComponent(window.location.origin);
+        window.location.href = `${BASE_URL}/auth/google?return_to=${returnTo}`;
     };
 
     const NavItem = ({ icon: Icon, label, active, onClick, danger = false }) => (
