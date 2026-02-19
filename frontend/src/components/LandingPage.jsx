@@ -9,21 +9,23 @@ import {
     Github, Twitter, ChevronRight, Play, Server, Database,
     Globe, Cpu, Cpu as Microchip, Star, Brain, Lock
 } from 'lucide-react';
-import { submitReview, fetchReviews, getCurrentUser } from '../api';
-import ReviewModal from './ReviewModal';
+import { fetchReviews, getCurrentUser } from '../api';
+import Hero3D from './Hero3D';
 
 const LandingPage = () => {
     const [scrolled, setScrolled] = useState(false);
     const [intro, setIntro] = useState(true);
     const [reviews, setReviews] = useState([]);
-    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
     const [userInfo, setUserInfo] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState({ title: '', body: '' });
 
     useEffect(() => {
         getCurrentUser().then(user => setUserInfo(user));
-        fetchReviews().then(data => setReviews(data));
+        fetchReviews().then(data => {
+            console.log("Fetched Reviews:", data);
+            setReviews(data);
+        });
 
         // Splash timer
         const timer = setTimeout(() => setIntro(false), 2000);
@@ -31,23 +33,32 @@ const LandingPage = () => {
         const handleScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener('scroll', handleScroll);
 
-        // Scroll Observer
+        return () => {
+            clearTimeout(timer);
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
+    // Scroll Observer for Reviews and other reveal elements
+    useEffect(() => {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) entry.target.classList.add('revealed');
             });
         }, { threshold: 0.1 });
 
-        setTimeout(() => {
+        // Delay to ensure DOM is ready
+        const timeout = setTimeout(() => {
             document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         }, 100);
 
         return () => {
-            clearTimeout(timer);
-            window.removeEventListener('scroll', handleScroll);
+            clearTimeout(timeout);
             observer.disconnect();
         };
-    }, []);
+    }, [reviews]);
+
+
 
     const scrollToSection = (id) => {
         const el = document.getElementById(id);
@@ -114,10 +125,15 @@ const LandingPage = () => {
                     background: 'radial-gradient(circle at 50% 50%, rgba(0, 255, 255, 0.05) 0%, transparent 50%)',
                     zIndex: 0
                 }} />
+
+                {/* 3D SCENE */}
+                <Hero3D />
+
                 <div className="hero-grid" style={{
-                    position: 'absolute', inset: 0, opacity: 0.2,
+                    position: 'absolute', inset: 0, opacity: 0.1,
                     backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-                    backgroundSize: '50px 50px', maskImage: 'radial-gradient(circle, black 30%, transparent 80%)'
+                    backgroundSize: '50px 50px', maskImage: 'radial-gradient(circle, black 30%, transparent 80%)',
+                    zIndex: 0, pointerEvents: 'none'
                 }} />
 
                 <div style={{ textAlign: 'center', position: 'relative', zIndex: 1, padding: '0 20px' }}>
@@ -268,19 +284,14 @@ const LandingPage = () => {
                 </div>
             </section>
 
+
+
             {/* WALL OF LOVE */}
             <section id="reviews" style={{ padding: '100px 20px', borderTop: '1px solid #222' }}>
                 <div style={{ maxWidth: '1200px', margin: '0 auto', textAlign: 'center' }}>
                     <h2 className="reveal" style={{ fontSize: '42px', fontWeight: 800, marginBottom: '60px' }}>
                         Wall of <span style={{ color: '#ec4899' }}>Love.</span>
                     </h2>
-
-                    <button onClick={() => userInfo ? setIsReviewModalOpen(true) : alert("Please log in!")} style={{
-                        padding: '12px 30px', background: '#ec4899', border: 'none', borderRadius: '100px',
-                        color: 'white', fontWeight: 700, marginBottom: '60px', cursor: 'pointer', boxShadow: '0 10px 30px rgba(236,72,153,0.3)'
-                    }}>
-                        <Star size={16} fill="white" style={{ marginRight: 8 }} /> Rate Us
-                    </button>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
                         {reviews.length > 0 ? reviews.map((review, i) => (
@@ -426,12 +437,7 @@ const LandingPage = () => {
                 </div>
             </footer>
 
-            <ReviewModal
-                isOpen={isReviewModalOpen}
-                onClose={() => setIsReviewModalOpen(false)}
-                userInfo={userInfo || {}}
-                onReviewSubmitted={() => fetchReviews().then(data => setReviews(data))}
-            />
+
 
             {/* CONTENT MODAL */}
             {modalOpen && (
