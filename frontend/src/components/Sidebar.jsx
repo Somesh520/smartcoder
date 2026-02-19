@@ -245,15 +245,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail }) => {
                     )}
                 </div>
 
-                {/* DEBUG SECTION */}
-                <div style={{ padding: '8px', fontSize: '10px', color: '#666', borderTop: '1px solid #333', marginTop: '10px' }}>
-                    <div>LS Token: {localStorage.getItem('auth_token') ? '✅ Present' : '❌ Missing'}</div>
-                    <div>Cookie (JS): {document.cookie.includes('token') ? '✅ Visible' : '❌ Hidden/Missing'}</div>
-                    <button
-                        onClick={() => window.location.reload()}
-                        style={{ border: 'none', background: '#333', color: '#ccc', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', marginTop: '4px', cursor: 'pointer' }}
-                    >Sync Session</button>
-                </div>
+
 
                 {/* Collapse Toggle (Sidebar Edge) */}
                 <button
