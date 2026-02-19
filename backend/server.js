@@ -15,7 +15,6 @@ import cookieParser from 'cookie-parser';
 
 import { corsOptions } from './src/config/cors.js';
 import debugRoutes from './src/routes/debugRoutes.js';
-app.use('/debug', debugRoutes);
 
 import problemRoutes from './src/routes/problemRoutes.js';
 import authRoutes from './src/routes/authRoutes.js';
@@ -87,6 +86,7 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.use('/auth', authRoutes);
+app.use('/debug', debugRoutes);
 app.use('/', problemRoutes);
 
 // Socket Logic
