@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     try {
         const reviews = await Review.find()
-            .populate('user', 'displayName photoURL') // Fetch user details
+            .populate('user', 'displayName photos') // Fetch user details
             .sort({ createdAt: -1 })
             .limit(20); // Limit to latest 20 for performance
         res.json(reviews);
