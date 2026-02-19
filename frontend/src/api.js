@@ -113,7 +113,7 @@ export const getCurrentUser = async () => {
       // Only invalidate if it's a definitive token error
       if (errData.message === 'Not authorized, token failed' || errData.message === 'Not authorized, no token' || errData.message === 'User not found') {
         console.warn(`[API] Invalidating Session due to: ${errData.message}`);
-        localStorage.removeItem('auth_token');
+        // localStorage.removeItem('auth_token'); // <--- DISABLED: Don't auto-remove. Let user logout manually.
       }
     } catch (e) {
       console.warn("[API] getCurrentUser 401 (Non-JSON response). NOT invalidating yet to be safe.");
