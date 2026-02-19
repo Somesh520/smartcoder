@@ -908,7 +908,28 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                                         {credits} Credits
                                     </div>
                                 </div>
-                                <button onClick={() => setAiOpen(false)} style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer' }}><X size={16} /></button>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <select
+                                        value={explainLanguage}
+                                        onChange={(e) => setExplainLanguage(e.target.value)}
+                                        style={{
+                                            background: 'rgba(255,255,255,0.05)',
+                                            color: '#e5e7eb',
+                                            border: '1px solid rgba(167,139,250,0.3)',
+                                            borderRadius: '6px',
+                                            padding: '4px 8px',
+                                            fontSize: '12px',
+                                            outline: 'none',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <option value="english">English</option>
+                                        <option value="hinglish">Hinglish</option>
+                                        <option value="hindi">Hindi</option>
+                                        <option value="bhojpuri">Bhojpuri</option>
+                                    </select>
+                                    <button onClick={() => setAiOpen(false)} style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer' }}><X size={16} /></button>
+                                </div>
                             </div>
 
                             {/* Quick Actions Restored */}
