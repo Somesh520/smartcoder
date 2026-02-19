@@ -936,8 +936,8 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                             <div style={{ padding: '12px 16px', display: 'flex', gap: '8px', flexWrap: 'wrap', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                                 {[
                                     { label: 'Solve', icon: <Code2 size={12} />, msg: 'Solve this problem completely with the most optimal approach. Give me the full code.', color: '#22c55e' },
-                                    { label: 'Hint', icon: <Lightbulb size={12} />, msg: 'Give me a hint for this problem. Don\'t give the full solution, just guide me on the approach.', color: '#f59e0b' },
-                                    { label: 'Debug', icon: <Bug size={12} />, msg: 'My code has issues. Find the bugs and fix them. Explain what was wrong.', color: '#ef4444' },
+                                    { label: 'Hint', icon: <Lightbulb size={12} />, msg: 'Give me a hint for this problem. Explain the logic or approach, but DO NOT write the full code solution. Let me try to implement it.', color: '#f59e0b' },
+                                    { label: 'Debug', icon: <Bug size={12} />, msg: 'My code has issues. Find the bugs and explain what is wrong. DO NOT give me the full corrected code, just help me fix it myself.', color: '#ef4444' },
                                     { label: 'Optimize', icon: <Rocket size={12} />, msg: 'Optimize my current solution for better time and space complexity.', color: '#3b82f6' },
                                 ].map(action => (
                                     <button
