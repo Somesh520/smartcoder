@@ -30,6 +30,7 @@ import jwt from 'jsonwebtoken';
 router.get('/google/callback',
     passport.authenticate('google', { failureRedirect: '/' }),
     (req, res) => {
+        console.log("[Auth] /google/callback hit. User:", req.user?.email);
         // Successful authentication, issue JWT
         const token = jwt.sign(
             { id: req.user._id, googleId: req.user.googleId, email: req.user.email },
