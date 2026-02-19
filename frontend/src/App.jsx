@@ -565,8 +565,8 @@ function App() {
     const roomId = urlParams.get('room');
     const token = urlParams.get('token');
 
-    if (token) {
-
+    if (token && token !== "undefined" && token !== "null") {
+      console.log("[App] Received valid token from URL:", token.substring(0, 10) + "...");
       localStorage.setItem('auth_token', token);
       setIsAuthenticated(true); // Force re-render with auth true
 
@@ -574,10 +574,11 @@ function App() {
       urlParams.delete('token');
       const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
       window.history.replaceState({}, document.title, newUrl);
+    } else if (token) {
+      console.warn("[App] Received INVALID token from URL:", token);
     }
 
     if (roomId) {
-
       setInitialRoom(roomId);
     }
   }, []);

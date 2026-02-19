@@ -101,6 +101,7 @@ export const pollResult = async (id, slug, userSession, userCsrf) => {
 export const getCurrentUser = async () => {
   const res = await fetch(`${BASE_URL}/auth/current_user`, { headers: getAuthHeaders() });
   if (res.status === 401) {
+    console.warn(`[API] getCurrentUser 401 - Invalidating Session. Token sent: ${localStorage.getItem('auth_token')?.substring(0, 10)}...`);
     localStorage.removeItem('auth_token');
     return null;
   }
@@ -109,6 +110,7 @@ export const getCurrentUser = async () => {
 
 
 export const logout = async () => {
+  console.log("[API] Logging out...");
   localStorage.removeItem('auth_token');
   window.location.href = `${BASE_URL}/auth/logout`;
 };
