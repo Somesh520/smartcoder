@@ -79,6 +79,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // --- ROUTES ---
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+app.get('/', (req, res) => {
+    res.send("LeetCode Local Server is Running! 🚀");
+});
+app.get('/health', (req, res) => res.status(200).send('OK'));
+
 app.use('/api/reviews', reviewRoutes); // ✅ Added Review Routes (Moved UP)
 app.use('/api/leetcode', leetcodeRoutes);
 app.use('/api/ai', aiRoutes);
@@ -90,12 +96,6 @@ app.use('/', problemRoutes);
 
 // Socket Logic
 socketHandler(io);
-
-app.get('/favicon.ico', (req, res) => res.status(204).end());
-
-app.get('/', (req, res) => {
-    res.send("LeetCode Local Server is Running! 🚀");
-});
 
 server.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
