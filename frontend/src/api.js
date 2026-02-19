@@ -222,3 +222,31 @@ export const fetchAIAssist = async ({ code, language, problemTitle, problemDescr
     return { error: "Network Error", status: 500 };
   }
 };
+
+// ==========================================
+// REVIEWS API
+// ==========================================
+
+export const submitReview = async (rating, comment) => {
+  const res = await fetch(`${BASE_URL}/api/reviews`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ rating, comment })
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || "Failed to submit review");
+  }
+  return await res.json();
+};
+
+export const fetchReviews = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/reviews`);
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (e) {
+    console.error("Failed to fetch reviews", e);
+    return [];
+  }
+};

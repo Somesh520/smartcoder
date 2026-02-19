@@ -82,6 +82,7 @@ app.use('/api/leetcode', leetcodeRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/reviews', reviewRoutes); // ✅ Added Review Routes
 
 // Socket Logic
 socketHandler(io);

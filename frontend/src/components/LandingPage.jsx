@@ -10,6 +10,9 @@ import {
     Globe, Cpu, Cpu as Microchip
 } from 'lucide-react';
 import LeetCodeStats from './LeetCodeStats';
+import { submitReview, fetchReviews, getCurrentUser } from '../api';
+import ReviewModal from './ReviewModal';
+import { Star } from 'lucide-react';
 
 const LandingPage = () => {
     const [scrolled, setScrolled] = useState(false);
@@ -19,6 +22,30 @@ const LandingPage = () => {
     const [intro, setIntro] = useState(true);
     const [carouselIndex, setCarouselIndex] = useState(0);
     const [carouselPaused, setCarouselPaused] = useState(false);
+
+    // Reviews State
+    const [reviews, setReviews] = useState([]);
+    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+    const [userInfo, setUserInfo] = useState(null);
+
+    useEffect(() => {
+        // Fetch User Info
+        getCurrentUser().then(user => setUserInfo(user));
+
+        // Fetch Reviews
+        fetchReviews().then(data => setReviews(data));
+    }, []);
+
+    const handleRateUsClick = () => {
+        if (userInfo) {
+            setIsReviewModalOpen(true);
+        } else {
+            // If not logged in, redirect to login (or show toast - using simple alert for now or modal)
+            openModal("Login Required", "Please login to submit a review!");
+            // Alternatively, redirect to /connect
+            // window.location.href = '/connect'; 
+        }
+    };
 
     useEffect(() => {
         // Splash Screen Timer
@@ -620,7 +647,77 @@ const LandingPage = () => {
                 })()}
             </section>
 
-            {/* SOCIAL PROOF COUNTERS */}
+            {/* WALL OF LOVE (REVIEWS) */}
+            <section id="reviews" style={{ padding: '120px 20px', background: '#08080a', borderTop: '1px solid #1f1f23' }}>
+                <div className="reveal" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+                    <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+                        <SectionLabel>Wall of Love</SectionLabel>
+                        <h2 style={{ fontSize: '48px', fontWeight: 800, color: 'white', marginBottom: '20px' }}>
+                            What Developers <span style={{ color: '#FF7BAC' }}>Say.</span>
+                        </h2>
+
+                        <button
+                            onClick={handleRateUsClick}
+                            style={{
+                                padding: '12px 30px', background: 'linear-gradient(90deg, #FF7BAC, #7c3aed)',
+                                border: 'none', borderRadius: '100px', color: 'white', fontWeight: 700,
+                                fontSize: '16px', cursor: 'pointer', boxShadow: '0 10px 30px rgba(124, 58, 237, 0.4)',
+                                transition: 'transform 0.2s', display: 'inline-flex', alignItems: 'center', gap: '8px'
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                        >
+                            <Star fill="white" size={18} /> Rate Us
+                        </button>
+                    </div>
+
+                    {/* REVIEWS GRID */}
+                    <div style={{
+                        display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '30px',
+                        maskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)'
+                    }}>
+                        {reviews.length > 0 ? reviews.map((review, i) => (
+                            <div key={i} style={{
+                                background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)',
+                                padding: '30px', borderRadius: '20px', position: 'relative'
+                            }}>
+                                <div style={{ display: 'flex', gap: '15px', alignItems: 'center', marginBottom: '20px' }}>
+                                    <img
+                                        src={review.user?.photoURL || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"}
+                                        alt="User"
+                                        style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.1)' }}
+                                    />
+                                    <div>
+                                        <div style={{ fontWeight: 700, color: 'white', fontSize: '16px' }}>{review.user?.displayName || "Anonymous"}</div>
+                                        <div style={{ display: 'flex', gap: '4px' }}>
+                                            {[...Array(5)].map((_, starI) => (
+                                                <Star key={starI} size={12} fill={starI < review.rating ? "#FFB800" : "gray"} color="none" />
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                                <p style={{ color: '#a1a1aa', fontSize: '15px', lineHeight: '1.6', fontStyle: 'italic' }}>
+                                    "{review.comment}"
+                                </p>
+                            </div>
+                        )) : (
+                            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px', color: '#555' }}>
+                                No reviews yet. Be the first to review! 🚀
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* REVIEW MODAL */}
+                <ReviewModal
+                    isOpen={isReviewModalOpen}
+                    onClose={() => setIsReviewModalOpen(false)}
+                    userInfo={userInfo || {}}
+                    onReviewSubmitted={() => {
+                        fetchReviews().then(data => setReviews(data)); // Refresh reviews
+                    }}
+                />
+            </section>
             <section style={{
                 padding: '100px 20px',
                 background: '#050505',
