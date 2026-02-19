@@ -78,7 +78,8 @@ export const runCode = async (data) => {
   const res = await fetch(`${BASE_URL}/run`, {
     method: 'POST',
     headers: getAuthHeaders(),
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
+    credentials: 'include'
   });
   return await res.json();
 };
@@ -87,7 +88,8 @@ export const submitCode = async (data) => {
   const res = await fetch(`${BASE_URL}/submit`, {
     method: 'POST',
     headers: getAuthHeaders(),
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
+    credentials: 'include'
   });
   return await res.json();
 };
@@ -96,7 +98,8 @@ export const pollResult = async (id, slug, userSession, userCsrf) => {
   const res = await fetch(`${BASE_URL}/poll/${id}`, {
     method: 'POST',
     headers: getAuthHeaders(),
-    body: JSON.stringify({ slug, auth_session: userSession, auth_csrf: userCsrf })
+    body: JSON.stringify({ slug, auth_session: userSession, auth_csrf: userCsrf }),
+    credentials: 'include'
   });
   return await res.json();
 };
@@ -149,7 +152,8 @@ export const fetchSolvedProblems = async () => {
         'Content-Type': 'application/json',
         ...getAuthHeaders() // Include token if available (though auth_session is primary)
       },
-      body: JSON.stringify({ auth_session: session, auth_csrf: csrf })
+      body: JSON.stringify({ auth_session: session, auth_csrf: csrf }),
+      credentials: 'include'
     });
 
     if (!res.ok) return [];
@@ -170,7 +174,8 @@ export const fetchSolvedProblems = async () => {
 export const fetchDailyChallenge = async () => {
   try {
     const res = await fetch(`${BASE_URL}/api/leetcode/daily`, {
-      headers: getAuthHeaders()
+      headers: getAuthHeaders(),
+      credentials: 'include'
     });
     if (!res.ok) return null;
     return await res.json();
@@ -184,7 +189,8 @@ export const fetchDailyChallenge = async () => {
 export const fetchUserSubmissions = async (username, limit = 10) => {
   try {
     const res = await fetch(`${BASE_URL}/api/leetcode/submissions/${username}?limit=${limit}`, {
-      headers: getAuthHeaders()
+      headers: getAuthHeaders(),
+      credentials: 'include'
     });
     if (!res.ok) return [];
     return await res.json();
@@ -198,7 +204,8 @@ export const fetchUserSubmissions = async (username, limit = 10) => {
 export const fetchUserStats = async (username) => {
   try {
     const res = await fetch(`${BASE_URL}/api/leetcode/${username}`, {
-      headers: getAuthHeaders()
+      headers: getAuthHeaders(),
+      credentials: 'include'
     });
     if (!res.ok) return null;
     return await res.json();
@@ -212,7 +219,8 @@ export const fetchUserStats = async (username) => {
 export const fetchUserCalendar = async (username) => {
   try {
     const res = await fetch(`${BASE_URL}/api/leetcode/calendar/${username}`, {
-      headers: getAuthHeaders()
+      headers: getAuthHeaders(),
+      credentials: 'include'
     });
     if (!res.ok) return null;
     return await res.json();
@@ -228,7 +236,8 @@ export const fetchAIAssist = async ({ code, language, problemTitle, problemDescr
     const res = await fetch(`${BASE_URL}/api/ai/assist`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ code, language, problemTitle, problemDescription, userMessage, explainLanguage })
+      body: JSON.stringify({ code, language, problemTitle, problemDescription, userMessage, explainLanguage }),
+      credentials: 'include'
     });
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
@@ -249,7 +258,8 @@ export const submitReview = async (rating, comment) => {
   const res = await fetch(`${BASE_URL}/api/reviews`, {
     method: 'POST',
     headers: getAuthHeaders(),
-    body: JSON.stringify({ rating, comment })
+    body: JSON.stringify({ rating, comment }),
+    credentials: 'include'
   });
   if (!res.ok) {
     const err = await res.json();
