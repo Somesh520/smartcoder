@@ -27,18 +27,6 @@ import passport from './src/config/passport.js';
 
 // ...
 
-// --- ROUTES ---
-app.use('/', problemRoutes);
-app.use('/auth', authRoutes);
-app.use('/api/leetcode', leetcodeRoutes);
-app.use('/api/ai', aiRoutes);
-app.use('/api/payment', paymentRoutes);
-app.use('/api/admin', adminRoutes);
-
-// Connect to Database
-connectDB();
-import { limiter } from './src/middleware/rateLimiter.js';
-
 const app = express();
 // Enable trust proxy for Render/Heroku/Nginx
 app.set('trust proxy', 1);
@@ -56,6 +44,9 @@ const io = new Server(server, {
 
 const PORT = process.env.PORT || 3000;
 
+// Connect to Database
+connectDB();
+
 // --- MIDDLEWARE ---
 app.use(helmet());
 app.use(compression());
@@ -64,6 +55,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Rate Limiter (Global)
+import { limiter } from './src/middleware/rateLimiter.js';
 app.use(limiter);
 
 // Session Management (Redis)
@@ -89,6 +81,7 @@ app.use('/auth', authRoutes);
 app.use('/api/leetcode', leetcodeRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Socket Logic
 socketHandler(io);
