@@ -11,10 +11,11 @@ export const fetchProblems = async () => {
   const res = await fetch(`${BASE_URL}/problems`, {
     headers: {
       ...getAuthHeaders(),
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache'
+      // 'Cache-Control': 'no-cache, no-store, must-revalidate',
+      // 'Pragma': 'no-cache'
     },
-    cache: 'no-store'
+    // cache: 'no-store',
+    credentials: 'include'
   });
   if (!res.ok) throw new Error("Backend connection failed");
   const data = await res.json();
@@ -23,6 +24,7 @@ export const fetchProblems = async () => {
   let problems = [];
 
   // Check if response is wrapped object with stat_status_pairs
+  // ... (rest of code)
   if (data.stat_status_pairs) {
     if (data.stat_status_pairs.length > 0) {
       console.log("[API] First raw item (pairs):", data.stat_status_pairs[0]);
@@ -66,7 +68,7 @@ export const fetchProblems = async () => {
 };
 
 export const fetchProblemDetails = async (id) => {
-  const res = await fetch(`${BASE_URL}/problem/${id}`, { headers: getAuthHeaders() });
+  const res = await fetch(`${BASE_URL}/problem/${id}`, { headers: getAuthHeaders(), credentials: 'include' });
   const json = await res.json();
   const data = json.data?.question || json;
   return data;
@@ -100,7 +102,7 @@ export const pollResult = async (id, slug, userSession, userCsrf) => {
 };
 
 export const getCurrentUser = async () => {
-  const res = await fetch(`${BASE_URL}/auth/current_user`, { headers: getAuthHeaders() });
+  const res = await fetch(`${BASE_URL}/auth/current_user`, { headers: getAuthHeaders(), credentials: 'include' });
   if (res.status === 401) {
     try {
       const errData = await res.json();
@@ -122,7 +124,16 @@ export const getCurrentUser = async () => {
 export const logout = async () => {
   console.log("[API] Logging out...");
   localStorage.removeItem('auth_token');
-  window.location.href = `${BASE_URL}/auth/logout`;
+
+  // Attempt to notify server of logout, but don't wait/redirect based on it
+  try {
+    fetch(`${BASE_URL}/auth/logout`, { method: 'GET' }).catch(() => { });
+  } catch (e) {
+    // Ignore network errors during logout
+  }
+
+  // Redirect locally to home
+  window.location.href = '/';
 };
 
 export const fetchSolvedProblems = async () => {
@@ -156,11 +167,6 @@ export const fetchSolvedProblems = async () => {
   }
 };
 
-// ==========================================
-// LEETCODE PIED API ENDPOINTS  
-// ==========================================
-
-// Fetch today's daily challenge
 export const fetchDailyChallenge = async () => {
   try {
     const res = await fetch(`${BASE_URL}/api/leetcode/daily`, {
@@ -174,7 +180,7 @@ export const fetchDailyChallenge = async () => {
   }
 };
 
-// Fetch user's recent submissions
+
 export const fetchUserSubmissions = async (username, limit = 10) => {
   try {
     const res = await fetch(`${BASE_URL}/api/leetcode/submissions/${username}?limit=${limit}`, {

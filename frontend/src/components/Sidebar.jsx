@@ -17,10 +17,8 @@ const Sidebar = ({ onShowProblemList, onGoDetail }) => {
     const [collapsed, setCollapsed] = useState(false);
 
     useEffect(() => {
-        const token = localStorage.getItem('auth_token');
-        if (token) {
-            getCurrentUser().then(setUser).catch(() => setUser(null));
-        }
+        // Cookie Auth: Always try to fetch user. The browser will send the cookie.
+        getCurrentUser().then(setUser).catch(() => setUser(null));
     }, []);
 
     const [showLoginModal, setShowLoginModal] = useState(false);
@@ -32,19 +30,11 @@ const Sidebar = ({ onShowProblemList, onGoDetail }) => {
             return;
         }
 
-        // Auth Check
-        const token = localStorage.getItem('auth_token');
-
-        // Relaxed Check: If token is missing BUT we have a user profile loaded, allow navigation.
-        // This prevents the "Authentication Required" popup when the user looks logged in.
-        if (!token && !user) {
-            console.warn("[Sidebar] Navigation blocked. No Token and No User state.");
+        // Auth Check (Cookie/State based)
+        if (!user) {
+            console.warn("[Sidebar] Navigation blocked. User state missing.");
             setShowLoginModal(true);
             return;
-        }
-
-        if (!token && user) {
-            console.warn("[Sidebar] Token missing but User state present. Allowing navigation (Potential Auth Glitch).", user);
         }
 
         action();

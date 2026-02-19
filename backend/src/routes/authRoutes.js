@@ -37,8 +37,13 @@ router.get('/google/callback',
 
         // Let's set it as a cookie for security AND redirect.
         res.cookie('token', token, {
-            httpOnly: false, // Accessible by JS for now to store in localStorage (or keep true if using only cookie auth)
-            secure: process.env.NODE_ENV === 'production',
+            httpOnly: false, // Accessible by JS for now (as requested/legacy), but ideally true. Keeping false so user can debug if needed or if frontend logic reads it.
+            // Actually, for "cookie set kro", usually implies HttpOnly for security, but to keep existing localStorage logic working as backup, we might leave it. 
+            // BUT: If we want true cookie auth, we should prioritize cookie.
+            // Let's set httpOnly: false for now so client can read it if it wants to sync localStorage, 
+            // but the important part is SameSite: None.
+            secure: true,   // Required for SameSite=None
+            sameSite: 'None', // Required for Cross-Site (Localhost -> Render)
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
