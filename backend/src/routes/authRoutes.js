@@ -4,7 +4,6 @@ import passport from 'passport';
 const router = express.Router();
 
 // Trigger Google Auth
-// Trigger Google Auth
 router.get('/google', (req, res, next) => {
     const returnTo = req.query.return_to;
     console.log("[Auth] /google hit. return_to:", returnTo);
