@@ -299,40 +299,8 @@ function MainApp({ initialRoom }) {
   };
 
   // Workspace Wrapper to handle URL params
-  const WorkspaceWrapper = () => {
-    const { problemId } = useParams();
-    const location = useLocation();
+  // MOVED OUTSIDE MainApp to prevent re-mount loops
 
-    // Priority: 1) selectedProblem from state, 2) currentProblem if matches, 3) stub from URL
-    let problem;
-    if (location.state?.selectedProblem) {
-      problem = location.state.selectedProblem;
-    } else if (currentProblem && (currentProblem.id == problemId || currentProblem.slug == problemId)) {
-      problem = currentProblem;
-    } else {
-      problem = { id: problemId, slug: problemId, title: "Loading Problem..." };
-    }
-
-    const customHandleBack = () => {
-      if (location.state?.from === 'learn') {
-        navigate('/app/learn');
-      } else if (location.state?.from === 'stats') {
-        navigate('/app/stats');
-      } else {
-        handleBack();
-      }
-    };
-
-    return (
-      <>
-        <SEO
-          title={problem.title ? `${problem.title} - AlgoDuel Workspace` : "Workspace - AlgoDuel"}
-          description={`Solve ${problem.title} on AlgoDuel. Real-time execution and competitive environment.`}
-        />
-        <Workspace problem={problem} onBack={customHandleBack} />
-      </>
-    );
-  };
 
   return (
     <div className="app-container" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -367,24 +335,11 @@ function MainApp({ initialRoom }) {
                       />
                     </>
                   } />
-                  <Route path="workspace/:problemId" element={<WorkspaceWrapper />} />
+                  <Route path="workspace/:problemId" element={<WorkspaceWrapper currentProblem={currentProblem} onBack={handleBack} />} />
 
                   <Route path="history" element={<HistoryPage />} />
                   <Route path="stats" element={<LeetCodePage />} />
                   <Route path="learn" element={<LearnPage />} />
-
-                  <Route path="competition/:roomId" element={
-                    <CompetitionRoomWrapper
-                      socket={socket}
-                      roomId={roomId}
-                      username={username}
-                      userInfo={userInfo}
-                      roomState={roomState}
-                      onBack={handleBackToLobby}
-                      setRoomId={setRoomId}
-                      setUsername={setUsername}
-                    />
-                  } />
 
                   <Route path="competition/:roomId" element={
                     <CompetitionRoomWrapper
@@ -542,6 +497,43 @@ function MainApp({ initialRoom }) {
     </div>
   );
 }
+
+// Workspace Wrapper Component (Extracted)
+const WorkspaceWrapper = ({ currentProblem, onBack }) => {
+  const { problemId } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Priority: 1) selectedProblem from state, 2) currentProblem if matches, 3) stub from URL
+  let problem;
+  if (location.state?.selectedProblem) {
+    problem = location.state.selectedProblem;
+  } else if (currentProblem && (currentProblem.id == problemId || currentProblem.slug == problemId)) {
+    problem = currentProblem;
+  } else {
+    problem = { id: problemId, slug: problemId, title: "Loading Problem..." };
+  }
+
+  const customHandleBack = () => {
+    if (location.state?.from === 'learn') {
+      navigate('/app/learn');
+    } else if (location.state?.from === 'stats') {
+      navigate('/app/stats');
+    } else {
+      onBack();
+    }
+  };
+
+  return (
+    <>
+      <SEO
+        title={problem.title ? `${problem.title} - AlgoDuel Workspace` : "Workspace - AlgoDuel"}
+        description={`Solve ${problem.title} on AlgoDuel. Real-time execution and competitive environment.`}
+      />
+      <Workspace problem={problem} onBack={customHandleBack} />
+    </>
+  );
+};
 
 // Wrapper to enforce LeetCode Sync
 function RequireSync() {
