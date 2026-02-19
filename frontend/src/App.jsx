@@ -313,6 +313,7 @@ function MainApp({ initialRoom }) {
               <Sidebar
                 onShowProblemList={() => navigate('/app/problems')}
                 onGoDetail={() => navigate('/app')}
+                user={userInfo}
               />
             )}
             <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', position: 'relative' }}>

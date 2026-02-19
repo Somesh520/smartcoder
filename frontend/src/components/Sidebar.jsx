@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Code2, Swords, TrendingUp, BookOpen, History, LogOut, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Book, Shield, Star, User } from 'lucide-react';
 import ReviewModal from './ReviewModal';
 
-const Sidebar = ({ onShowProblemList, onGoDetail }) => {
+const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const currentView = location.pathname.includes('/competition') ? 'competition' :
@@ -13,13 +13,10 @@ const Sidebar = ({ onShowProblemList, onGoDetail }) => {
     // Disable navigation if in competition
     const isInBattle = currentView === 'competition';
 
-    const [user, setUser] = useState(null);
+    // const [user, setUser] = useState(null); // REMOVED: Managed by App.jsx
     const [collapsed, setCollapsed] = useState(false);
 
-    useEffect(() => {
-        // Cookie Auth: Always try to fetch user. The browser will send the cookie.
-        getCurrentUser().then(setUser).catch(() => setUser(null));
-    }, []);
+    // useEffect(() => { ... }, []); // REMOVED: Managed by App.jsx
 
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
