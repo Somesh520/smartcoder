@@ -14,6 +14,10 @@ export const verifyToken = async (req, res, next) => {
     }
 
     if (!token) {
+        console.warn("[AuthMiddleware] No token found in headers or cookies.", {
+            headers: req.headers,
+            cookies: req.cookies
+        });
         return res.status(401).json({ message: 'Not authorized, no token' });
     }
 
@@ -22,13 +26,15 @@ export const verifyToken = async (req, res, next) => {
         req.user = await User.findById(decoded.id).select('-password');
 
         if (!req.user) {
+            console.warn("[AuthMiddleware] Token valid but user not found in DB.", { id: decoded.id });
             return res.status(401).json({ message: 'User not found' });
         }
 
         next();
     } catch (error) {
+        console.error("[AuthMiddleware] Token verification failed:", error.message);
         if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-            res.status(401).json({ message: 'Not authorized, token failed' });
+            res.status(401).json({ message: 'Not authorized, token failed', error: error.message });
         } else {
             console.error("Auth Middleware Error:", error);
             res.status(500).json({ message: 'Server error during authentication' });
