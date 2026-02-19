@@ -43,7 +43,7 @@ router.get('/credits', verifyToken, (req, res) => {
 
 router.post('/assist', verifyToken, async (req, res) => {
     try {
-        const { code, language, problemTitle, userMessage, explainLanguage } = req.body;
+        const { code, language, problemTitle, userMessage, explainLanguage, history } = req.body;
         const user = req.user;
 
         // Daily Reset Logic
@@ -59,14 +59,34 @@ router.post('/assist', verifyToken, async (req, res) => {
             return res.status(402).json({ error: "Insufficient credits. Please top-up.", credits: 0 });
         }
 
-        const prompt = `You are SmartCoder AI.
-PROBLEM: ${problemTitle}
-USER CODE:
+        // 🧠 System Prompt with Persona & Context
+        const systemPrompt = `You are SmartCoder AI, an expert programmer with a witty, helpful, and cool persona.
+- **Tone**: Professional yet friendly. Use emojis occasionally (e.g., 🚀, 💡, 🔧).
+- **Language**: Explain in ${explainLanguage || 'English'}.
+- **Context**: 
+  - Problem: ${problemTitle}
+  - User's Code (${language}):
 \`\`\`${language}
-${code || ''}
+${code || '// No code written yet'}
 \`\`\`
-REQUEST: ${userMessage}
-Explain in ${explainLanguage || 'English'}. Keep code in pure ${language}.`;
+
+**Instructions**:
+1. Answer the user's latest request based on the code and problem.
+2. If the user asks for a fix, explanation, or optimization, provide it clearly.
+3. Keep code strict and correct.
+4. Use Markdown for formatting.`;
+
+        // 📜 Construct Conversation History
+        const messages = [{ role: "system", content: systemPrompt }];
+
+        if (Array.isArray(history)) {
+            history.forEach(msg => {
+                messages.push({ role: msg.role === 'user' ? 'user' : 'assistant', content: msg.content });
+            });
+        }
+
+        // Add latest user message
+        messages.push({ role: "user", content: userMessage });
 
         let answer = null;
         let lastError = null;
@@ -77,10 +97,10 @@ Explain in ${explainLanguage || 'English'}. Keep code in pure ${language}.`;
                 try {
                     console.log(`[AI] Trying Groq: ${model}`);
                     const chatCompletion = await groq.chat.completions.create({
-                        messages: [{ role: "user", content: prompt }],
+                        messages: messages, // ✅ Pass Full History
                         model: model,
                         temperature: 1,
-                        max_tokens: 1024,
+                        max_tokens: 1500,
                         top_p: 1,
                         stop: null,
                         stream: false
@@ -106,7 +126,14 @@ Explain in ${explainLanguage || 'English'}. Keep code in pure ${language}.`;
                 return res.status(500).json({ error: "No AI Provider Configured (Groq failed, Gemini Key missing)" });
             }
 
-            const payload = { contents: [{ parts: [{ text: prompt }] }] };
+            // Construct Gemini Prompt (Gemini v1 doesn't support chat history array easily in this simple fetch, so we append history to prompt)
+            let fullPrompt = systemPrompt + "\n\n**Conversation History:**\n";
+            messages.forEach(m => {
+                if (m.role !== 'system') fullPrompt += `\n${m.role.toUpperCase()}: ${m.content}`;
+            });
+            fullPrompt += `\nUSER: ${userMessage}\nASSISTANT: `;
+
+            const payload = { contents: [{ parts: [{ text: fullPrompt }] }] };
 
             for (let i = 0; i < GEMINI_MODELS.length; i++) {
                 const model = GEMINI_MODELS[i];
