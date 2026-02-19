@@ -101,8 +101,17 @@ export const pollResult = async (id, slug, userSession, userCsrf) => {
 export const getCurrentUser = async () => {
   const res = await fetch(`${BASE_URL}/auth/current_user`, { headers: getAuthHeaders() });
   if (res.status === 401) {
-    console.warn(`[API] getCurrentUser 401 - Invalidating Session. Token sent: ${localStorage.getItem('auth_token')?.substring(0, 10)}...`);
-    localStorage.removeItem('auth_token');
+    try {
+      const errData = await res.json();
+      console.warn("[API] getCurrentUser 401:", errData);
+      // Only invalidate if it's a definitive token error
+      if (errData.message === 'Not authorized, token failed' || errData.message === 'Not authorized, no token' || errData.message === 'User not found') {
+        console.warn(`[API] Invalidating Session due to: ${errData.message}`);
+        localStorage.removeItem('auth_token');
+      }
+    } catch (e) {
+      console.warn("[API] getCurrentUser 401 (Non-JSON response). NOT invalidating yet to be safe.");
+    }
     return null;
   }
   return await res.json();
