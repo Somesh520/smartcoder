@@ -3,7 +3,7 @@ import { fetchProblemDetails, runCode, submitCode, pollResult, fetchAIAssist, BA
 import CodeEditor from './CodeEditor';
 import Console from './Console';
 import ModernSpinner from './ModernSpinner';
-import { ArrowLeft, Play, Send, Trophy, Zap, Sparkles, X, Loader2, Lightbulb, Bug, Rocket, Code2, Maximize2, Minimize2 } from 'lucide-react';
+import { ArrowLeft, Play, Send, Trophy, Zap, Sparkles, X, Loader2, Lightbulb, Bug, Rocket, Code2, Maximize2, Minimize2, Timer, User } from 'lucide-react';
 
 import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css';
@@ -998,6 +998,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                             { label: 'Hint', icon: <Lightbulb size={12} />, msg: 'Give me a hint for this problem. Explain the logic or approach, but DO NOT write the full code solution. Let me try to implement it.', color: '#f59e0b' },
                             { label: 'Debug', icon: <Bug size={12} />, msg: 'My code has issues. Find the bugs and explain what is wrong. DO NOT give me the full corrected code, just help me fix it myself.', color: '#ef4444' },
                             { label: 'Optimize', icon: <Rocket size={12} />, msg: 'Optimize my current solution for better time and space complexity.', color: '#3b82f6' },
+                            { label: 'Complexity', icon: <Timer size={12} />, msg: 'Analyze the Time and Space Complexity of my code. Provide the Big O notation for both and explain the reasoning briefly.', color: '#d946ef' },
                         ].map(action => (
                             <button
                                 key={action.label}
