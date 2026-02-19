@@ -973,6 +973,12 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                                 <option value="hinglish">Hinglish</option>
                                 <option value="hindi">Hindi</option>
                                 <option value="bhojpuri">Bhojpuri</option>
+                                <option value="marathi">Marathi</option>
+                                <option value="bengali">Bengali</option>
+                                <option value="tamil">Tamil</option>
+                                <option value="telugu">Telugu</option>
+                                <option value="gujarati">Gujarati</option>
+                                <option value="kannada">Kannada</option>
                             </select>
                             <button
                                 onClick={() => setIsAiExpanded(!isAiExpanded)}
