@@ -24,6 +24,7 @@ import { socketHandler } from './src/sockets/socketHandler.js';
 import redisClient from './src/config/redis.js';
 import connectDB from './src/config/db.js';
 import passport from './src/config/passport.js';
+import reviewRoutes from './src/routes/reviewRoutes.js';
 
 // ...
 
