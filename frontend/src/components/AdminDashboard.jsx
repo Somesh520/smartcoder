@@ -36,7 +36,60 @@ const AdminDashboard = ({ onBack }) => {
         } catch (e) { console.error(e); }
     };
 
-    // ... (keep existing fetchRequests, fetchOnlineUsers, handleAction)
+    const fetchOnlineUsers = async () => {
+        try {
+            const res = await fetch(`${BASE_URL}/api/admin/online-users`, {
+                headers: getAuthHeaders()
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setOnlineUsers(data.users);
+                setOnlineCount(data.count);
+            }
+        } catch (e) { console.error(e); }
+    };
+
+    const fetchRequests = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch(`${BASE_URL}/api/payment/admin/pending`, {
+                headers: getAuthHeaders()
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setRequests(data);
+            } else {
+                setError("Access Denied or Failed to fetch");
+            }
+        } catch (e) {
+            setError("Network Error");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAction = async (requestId, type) => {
+        setActionLoading(requestId);
+        try {
+            const endpoint = type === 'approve' ? 'approve' : 'reject';
+            const res = await fetch(`${BASE_URL}/api/payment/admin/${endpoint}`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ requestId })
+            });
+
+            if (res.ok) {
+                // Remove from list
+                setRequests(prev => prev.filter(r => r._id !== requestId));
+            } else {
+                alert("Action Failed");
+            }
+        } catch (e) {
+            alert("Error processing request");
+        } finally {
+            setActionLoading(null);
+        }
+    };
 
     return (
         <div style={{ padding: '24px', background: '#09090b', minHeight: '100vh', color: '#e4e4e7' }}>
