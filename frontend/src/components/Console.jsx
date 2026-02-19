@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Terminal, ChevronUp, ChevronDown, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Terminal, ChevronUp, ChevronDown, CheckCircle2, XCircle, Loader2, Maximize2, Minimize2, Copy, GripHorizontal } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Console = ({
     isOpen,
@@ -12,447 +13,368 @@ const Console = ({
     setShowInputSection
 }) => {
     const [activeTab, setActiveTab] = useState(0);
+    const [height, setHeight] = useState(350);
+    const [isResizing, setIsResizing] = useState(false);
+    const consoleRef = useRef(null);
+
+    // Resizing Logic
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            if (!isResizing) return;
+            const newHeight = window.innerHeight - e.clientY;
+            if (newHeight > 100 && newHeight < window.innerHeight - 100) {
+                setHeight(newHeight);
+            }
+        };
+
+        const handleMouseUp = () => {
+            setIsResizing(false);
+            document.body.style.cursor = 'default';
+        };
+
+        if (isResizing) {
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            document.body.style.cursor = 'row-resize';
+        }
+
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isResizing]);
+
+    // Animation Variants
+    const contentVariants = {
+        hidden: { opacity: 0, y: 10 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+        exit: { opacity: 0, y: -10, transition: { duration: 0.2 } }
+    };
+
+    const tabVariants = {
+        inactive: { color: '#9ca3af', scale: 1 },
+        active: { color: '#fff', scale: 1.05 }
+    };
 
     const getResultContent = () => {
         if (isLoading) {
             return (
                 <div style={{
-                    textAlign: 'center',
-                    padding: '40px',
+                    height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    gap: '15px'
+                    justifyContent: 'center',
+                    gap: '20px'
                 }}>
-                    <Loader2 size={40} color="#3b82f6" style={{ animation: 'spin 1s linear infinite' }} />
+                    <div style={{ position: 'relative' }}>
+                        <div style={{
+                            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                            background: 'radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%)',
+                            filter: 'blur(10px)', animation: 'pulse-glow 2s infinite'
+                        }}></div>
+                        <Loader2 size={48} color="#3b82f6" style={{ animation: 'spin 1s linear infinite', position: 'relative', zIndex: 1 }} />
+                    </div>
                     <div style={{
-                        fontSize: '14px',
-                        color: '#9ca3af',
-                        fontWeight: 600,
-                        letterSpacing: '1px'
-                    }}>EXECUTING CODE...</div>
+                        fontSize: '14px', color: '#9ca3af', fontWeight: 600, letterSpacing: '1px',
+                        display: 'flex', alignItems: 'center', gap: '8px'
+                    }}>
+                        <span className="typing-dots">EXECUTING CODE</span>
+                    </div>
+                    <style>{`
+                        @keyframes pulse-glow { 0%, 100% { opacity: 0.5; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+                        .typing-dots::after { content: '...'; animation: typing 1.5s infinite steps(4); display: inline-block; width: 0; overflow: hidden; vertical-align: bottom; }
+                        @keyframes typing { to { width: 1.25em; } }
+                    `}</style>
                 </div>
             );
         }
 
-        // Input mode
         if (showInputSection) {
             return (
-                <div className="input-section">
-                    <label style={{
-                        display: 'block',
-                        fontSize: '12px',
-                        color: '#9ca3af',
-                        marginBottom: '8px',
-                        fontWeight: 600,
-                        letterSpacing: '0.5px'
-                    }}>TESTCASE INPUT</label>
+                <motion.div
+                    key="input"
+                    variants={contentVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="input-section"
+                    style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+                >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                        <label style={{ fontSize: '12px', color: '#9ca3af', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                            Input (Stdin)
+                        </label>
+                    </div>
+
                     <textarea
-                        className="custom-input"
-                        rows="6"
+                        className="custom-input glass-input"
                         value={customInput}
                         onChange={(e) => setCustomInput(e.target.value)}
-                        placeholder="Enter your test input here..."
+                        placeholder="Enter input here..."
                         style={{
-                            width: '100%',
-                            background: 'rgba(14, 14, 20, 0.8)',
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                            flex: 1,
+                            background: 'rgba(0, 0, 0, 0.3)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
                             color: '#e5e7eb',
                             borderRadius: '8px',
-                            padding: '12px',
-                            fontFamily: 'monospace',
-                            fontSize: '13px',
-                            resize: 'vertical',
+                            padding: '16px',
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: '14px',
+                            resize: 'none',
                             outline: 'none',
-                            boxShadow: '0 0 10px rgba(59, 130, 246, 0.1)',
+                            lineHeight: '1.6',
                             transition: 'all 0.2s'
                         }}
-                        onFocus={(e) => {
-                            e.target.style.borderColor = 'rgba(59, 130, 246, 0.6)';
-                            e.target.style.boxShadow = '0 0 15px rgba(59, 130, 246, 0.3)';
-                        }}
-                        onBlur={(e) => {
-                            e.target.style.borderColor = 'rgba(59, 130, 246, 0.3)';
-                            e.target.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.1)';
-                        }}
                     />
-                </div>
+                    <style>{`
+                        .glass-input:focus {
+                            border-color: rgba(59, 130, 246, 0.5) !important;
+                            background: rgba(0, 0, 0, 0.5) !important;
+                            box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
+                        }
+                    `}</style>
+                </motion.div>
             );
         }
 
-        if (!result) return null;
+        if (!result) {
+            return (
+                <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4b5563', flexDirection: 'column', gap: '10px' }}>
+                    <Terminal size={40} opacity={0.3} />
+                    <span style={{ fontSize: '14px' }}>Ready to execute code...</span>
+                </div>
+            );
+        }
 
         // ERROR
         if (result.run_success === false) {
             return (
-                <div>
+                <motion.div key="error" variants={contentVariants} initial="hidden" animate="visible" exit="exit">
                     <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        color: '#ef4444',
-                        fontSize: '18px',
-                        fontWeight: 700,
-                        marginBottom: '20px',
-                        padding: '12px',
-                        background: 'rgba(239, 68, 68, 0.1)',
-                        borderRadius: '8px',
-                        border: '1px solid rgba(239, 68, 68, 0.3)'
+                        display: 'flex', alignItems: 'center', gap: '12px',
+                        color: '#f87171', fontSize: '16px', fontWeight: 700, marginBottom: '16px',
+                        padding: '12px 16px', background: 'rgba(239, 68, 68, 0.1)',
+                        borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.2)'
                     }}>
-                        <XCircle size={24} />
-                        COMPILATION ERROR
+                        <XCircle size={20} />
+                        <span>Compilation Error</span>
                     </div>
                     <pre style={{
-                        color: '#fca5a5',
-                        background: 'rgba(14, 14, 20, 0.8)',
-                        padding: '15px',
-                        borderRadius: '8px',
-                        fontSize: '13px',
-                        lineHeight: '1.6',
-                        border: '1px solid rgba(239, 68, 68, 0.2)',
-                        overflowX: 'auto'
+                        color: '#fca5a5', background: '#0f0f10', padding: '16px',
+                        borderRadius: '8px', fontSize: '13px', lineHeight: '1.6',
+                        border: '1px solid rgba(239, 68, 68, 0.15)', overflowX: 'auto',
+                        fontFamily: "'JetBrains Mono', monospace"
                     }}>
                         {result.full_runtime_error || result.compile_error}
                     </pre>
                     <button
                         onClick={() => setShowInputSection(true)}
-                        style={{
-                            marginTop: '15px',
-                            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                            color: '#fff',
-                            border: '1px solid rgba(59, 130, 246, 0.5)',
-                            padding: '8px 16px',
-                            borderRadius: '6px',
-                            fontSize: '13px',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)',
-                            transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.target.style.transform = 'translateY(-2px)';
-                            e.target.style.boxShadow = '0 5px 15px rgba(59, 130, 246, 0.4)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.target.style.transform = 'translateY(0)';
-                            e.target.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.3)';
-                        }}
+                        className="action-btn"
+                        style={{ marginTop: '16px' }}
                     >
-                        Back to Input
+                        Edit Input
                     </button>
-                </div>
+                    <style>{`
+                        .action-btn {
+                            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                            color: #fff; border: none; padding: 8px 16px; border-radius: 6px;
+                            font-size: 13px; fontWeight: 600; cursor: pointer;
+                            transition: transform 0.2s, box-shadow 0.2s;
+                        }
+                        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+                    `}</style>
+                </motion.div>
             );
         }
 
-        // SUBMISSION (Full Stats)
-        const isRunCode = result.submission_id && String(result.submission_id).includes("runcode");
-        if (!isRunCode && result.submission_id) {
-            const isAcc = result.status_msg === 'Accepted';
-            return (
-                <div>
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        color: isAcc ? '#22c55e' : '#ef4444',
-                        fontSize: '20px',
-                        fontWeight: 700,
-                        marginBottom: '20px',
-                        padding: '15px',
-                        background: isAcc ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                        borderRadius: '8px',
-                        border: `1px solid ${isAcc ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
-                        boxShadow: `0 0 20px ${isAcc ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
-                    }}>
-                        {isAcc ? <CheckCircle2 size={28} /> : <XCircle size={28} />}
-                        {result.status_msg}
-                    </div>
-                    {isAcc ? (
-                        <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                            <div style={{
-                                background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%)',
-                                padding: '12px 20px',
-                                borderRadius: '8px',
-                                fontSize: '13px',
-                                color: '#9ca3af',
-                                border: '1px solid rgba(34, 197, 94, 0.2)',
-                                boxShadow: '0 0 10px rgba(34, 197, 94, 0.1)'
-                            }}>
-                                Runtime: <span style={{ fontWeight: 'bold', color: '#22c55e', fontSize: '14px' }}>{result.status_runtime}</span>
-                            </div>
-                            <div style={{
-                                background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%)',
-                                padding: '12px 20px',
-                                borderRadius: '8px',
-                                fontSize: '13px',
-                                color: '#9ca3af',
-                                border: '1px solid rgba(59, 130, 246, 0.2)',
-                                boxShadow: '0 0 10px rgba(59, 130, 246, 0.1)'
-                            }}>
-                                Memory: <span style={{ fontWeight: 'bold', color: '#3b82f6', fontSize: '14px' }}>{result.status_memory}</span>
-                            </div>
-                        </div>
-                    ) : (
-                        <div style={{
-                            marginBottom: '15px',
-                            color: '#9ca3af',
-                            fontSize: '14px',
-                            padding: '10px',
-                            background: 'rgba(239, 68, 68, 0.05)',
-                            borderRadius: '6px'
-                        }}>
-                            {result.total_correct} / {result.total_testcases} testcases passed
-                        </div>
-                    )}
-                    <button
-                        onClick={() => setShowInputSection(true)}
-                        style={{
-                            marginTop: '10px',
-                            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                            color: '#fff',
-                            border: '1px solid rgba(59, 130, 246, 0.5)',
-                            padding: '8px 16px',
-                            borderRadius: '6px',
-                            fontSize: '13px',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)',
-                            transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.target.style.transform = 'translateY(-2px)';
-                            e.target.style.boxShadow = '0 5px 15px rgba(59, 130, 246, 0.4)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.target.style.transform = 'translateY(0)';
-                            e.target.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.3)';
-                        }}
-                    >
-                        Edit Testcase
-                    </button>
-                </div>
-            );
-        }
-
-        // RUN CODE (Tabs)
+        // RESULT TABS
         const count = result.total_testcases || (result.code_answer || []).length;
         const compareRes = result.compare_result || "";
         const inputs = result.input_formatted || [];
         const myOut = result.code_answer || [];
         const expOut = result.expected_code_answer || [];
 
+        // Handle "Accepted" vs "Wrong Answer" Banner
+        const isRunCode = result.submission_id && String(result.submission_id).includes("runcode");
+        const isAccepted = result.status_msg === 'Accepted';
+
         return (
-            <div>
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', paddingBottom: '10px', overflowX: 'auto' }}>
+            <motion.div key="result" variants={contentVariants} initial="hidden" animate="visible" exit="exit" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                {/* Status Banner (Only for Submit) */}
+                {!isRunCode && result.status_msg && (
+                    <div style={{
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        padding: '12px 20px', marginBottom: '20px', borderRadius: '12px',
+                        background: isAccepted ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                        border: `1px solid ${isAccepted ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            {isAccepted ? <CheckCircle2 size={24} color="#22c55e" /> : <XCircle size={24} color="#ef4444" />}
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: isAccepted ? '#22c55e' : '#ef4444' }}>
+                                    {result.status_msg}
+                                </h3>
+                                {!isAccepted && <span style={{ fontSize: '13px', color: '#9ca3af' }}>{result.total_correct}/{result.total_testcases} testcases passed</span>}
+                            </div>
+                        </div>
+                        {isAccepted && (
+                            <div style={{ display: 'flex', gap: '16px' }}>
+                                <div className="stat-pill">⏱️ {result.status_runtime || 'N/A'}</div>
+                                <div className="stat-pill">💾 {result.status_memory || 'N/A'}</div>
+                            </div>
+                        )}
+                        <style>{`
+                            .stat-pill {
+                                background: rgba(0,0,0,0.2); padding: 6px 12px; border-radius: 6px;
+                                font-size: 13px; color: #d1d5db; font-weight: 600;
+                            }
+                        `}</style>
+                    </div>
+                )}
+
+                {/* Tabs */}
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', overflowX: 'auto', paddingBottom: '4px' }}>
                     {Array.from({ length: count }).map((_, i) => {
                         const isPass = compareRes[i] === '1';
-                        const isActive = activeTab === i;
+                        // If runcode, we might not have pass/fail for specific cases easily unless parsed
+                        // Assuming compareRes is simplified "11100" string
+                        const statusColor = isPass ? '#22c55e' : '#ef4444';
+
                         return (
-                            <button
+                            <div
                                 key={i}
                                 onClick={() => setActiveTab(i)}
                                 style={{
-                                    background: isActive
-                                        ? (isPass ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.1) 100%)' : 'linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%)')
-                                        : 'rgba(14, 14, 20, 0.6)',
-                                    border: `1px solid ${isActive ? (isPass ? 'rgba(34, 197, 94, 0.4)' : 'rgba(239, 68, 68, 0.4)') : 'rgba(75, 85, 99, 0.3)'}`,
-                                    color: isActive ? '#fff' : '#9ca3af',
-                                    padding: '10px 18px',
-                                    borderRadius: '8px',
+                                    position: 'relative',
+                                    padding: '8px 16px',
                                     cursor: 'pointer',
-                                    fontSize: '13px',
-                                    fontWeight: 600,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    transition: 'all 0.2s',
-                                    boxShadow: isActive ? `0 0 15px ${isPass ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}` : 'none',
-                                    minWidth: '100px'
-                                }}
-                                onMouseEnter={(e) => {
-                                    if (!isActive) {
-                                        e.target.style.background = 'rgba(14, 14, 20, 0.8)';
-                                        e.target.style.borderColor = 'rgba(75, 85, 99, 0.5)';
-                                    }
-                                }}
-                                onMouseLeave={(e) => {
-                                    if (!isActive) {
-                                        e.target.style.background = 'rgba(14, 14, 20, 0.6)';
-                                        e.target.style.borderColor = 'rgba(75, 85, 99, 0.3)';
-                                    }
+                                    borderRadius: '8px',
+                                    background: activeTab === i ? 'rgba(255,255,255,0.08)' : 'transparent',
+                                    transition: 'background 0.2s'
                                 }}
                             >
-                                {isPass ? <CheckCircle2 size={16} color="#22c55e" /> : <XCircle size={16} color="#ef4444" />}
-                                Case {i + 1}
-                            </button>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: activeTab === i ? '#fff' : '#9ca3af' }}>
+
+                                    <span style={{
+                                        width: '8px', height: '8px', borderRadius: '50%',
+                                        background: statusColor, boxShadow: `0 0 8px ${statusColor}80`
+                                    }}></span>
+                                    Case {i + 1}
+                                </div>
+                                {activeTab === i && (
+                                    <motion.div
+                                        layoutId="activeTab"
+                                        style={{
+                                            position: 'absolute', bottom: 0, left: 0, right: 0, height: '2px',
+                                            background: '#3b82f6', borderRadius: '2px'
+                                        }}
+                                    />
+                                )}
+                            </div>
                         );
                     })}
                 </div>
 
-                <div className="case-content">
-                    <div style={{ marginBottom: '15px' }}>
-                        <span style={{
-                            fontSize: '11px',
-                            color: '#6b7280',
-                            marginBottom: '8px',
-                            display: 'block',
-                            fontWeight: 700,
-                            letterSpacing: '1px'
-                        }}>INPUT</span>
-                        <div style={{
-                            background: 'rgba(14, 14, 20, 0.8)',
-                            padding: '12px',
-                            borderRadius: '8px',
-                            fontFamily: 'monospace',
-                            fontSize: '13px',
-                            color: '#e5e7eb',
-                            whiteSpace: 'pre-wrap',
-                            border: '1px solid rgba(75, 85, 99, 0.3)',
-                            lineHeight: '1.6'
-                        }}>{inputs[activeTab]}</div>
-                    </div>
-                    <div style={{ marginBottom: '15px' }}>
-                        <span style={{
-                            fontSize: '11px',
-                            color: '#6b7280',
-                            marginBottom: '8px',
-                            display: 'block',
-                            fontWeight: 700,
-                            letterSpacing: '1px'
-                        }}>YOUR OUTPUT</span>
-                        <div style={{
-                            background: 'rgba(14, 14, 20, 0.8)',
-                            padding: '12px',
-                            borderRadius: '8px',
-                            fontFamily: 'monospace',
-                            fontSize: '13px',
-                            color: '#e5e7eb',
-                            whiteSpace: 'pre-wrap',
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
-                            boxShadow: '0 0 10px rgba(59, 130, 246, 0.1)',
-                            lineHeight: '1.6'
-                        }}>{myOut[activeTab]}</div>
-                    </div>
-                    <div style={{ marginBottom: '15px' }}>
-                        <span style={{
-                            fontSize: '11px',
-                            color: '#6b7280',
-                            marginBottom: '8px',
-                            display: 'block',
-                            fontWeight: 700,
-                            letterSpacing: '1px'
-                        }}>EXPECTED OUTPUT</span>
-                        <div style={{
-                            background: 'rgba(14, 14, 20, 0.8)',
-                            padding: '12px',
-                            borderRadius: '8px',
-                            fontFamily: 'monospace',
-                            fontSize: '13px',
-                            color: '#e5e7eb',
-                            whiteSpace: 'pre-wrap',
-                            border: '1px solid rgba(34, 197, 94, 0.3)',
-                            boxShadow: '0 0 10px rgba(34, 197, 94, 0.1)',
-                            lineHeight: '1.6'
-                        }}>{expOut[activeTab]}</div>
-                    </div>
+                {/* Case Details */}
+                <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <IOBlock label="Input" content={inputs[activeTab]} />
+                    <IOBlock label="Your Output" content={myOut[activeTab]} highlight={compareRes[activeTab] === '0' ? 'red' : 'green'} />
+                    <IOBlock label="Expected Output" content={expOut[activeTab]} />
                 </div>
-
-                <button
-                    onClick={() => setShowInputSection(true)}
-                    style={{
-                        marginTop: '10px',
-                        background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                        color: '#fff',
-                        border: '1px solid rgba(59, 130, 246, 0.5)',
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)',
-                        transition: 'all 0.2s'
-                    }}
-                    onMouseEnter={(e) => {
-                        e.target.style.transform = 'translateY(-2px)';
-                        e.target.style.boxShadow = '0 5px 15px rgba(59, 130, 246, 0.4)';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.target.style.transform = 'translateY(0)';
-                        e.target.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.3)';
-                    }}
-                >
-                    Edit Testcase
-                </button>
-            </div>
+            </motion.div>
         );
     };
 
     return (
-        <div
-            className={`console-drawer ${isOpen ? 'expanded' : ''}`}
+        <motion.div
+            initial={false}
+            animate={{ height: isOpen ? height : 45 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
             style={{
-                height: isOpen ? '350px' : '45px',
-                background: 'linear-gradient(180deg, rgba(26, 26, 46, 0.95) 0%, rgba(14, 14, 20, 0.95) 100%)',
-                backdropFilter: 'blur(10px)',
-                borderTop: '1px solid rgba(34, 197, 94, 0.2)',
-                display: 'flex',
-                flexDirection: 'column',
-                transition: 'height 0.3s ease',
-                overflow: 'hidden',
-                position: 'absolute',
-                bottom: 0,
-                width: '100%',
-                zIndex: 10,
-                boxShadow: '0 -5px 20px rgba(0, 0, 0, 0.3)'
+                position: 'absolute', bottom: 0, width: '100%',
+                background: 'rgba(15, 15, 20, 0.95)',
+                backdropFilter: 'blur(16px)',
+                borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                display: 'flex', flexDirection: 'column',
+                zIndex: 50,
+                boxShadow: '0 -10px 40px rgba(0, 0, 0, 0.5)'
             }}
         >
+            {/* Header / Resize Handle */}
+            <div
+                onMouseDown={(e) => { e.stopPropagation(); setIsResizing(true); }}
+                style={{
+                    height: '6px', width: '100%', cursor: 'row-resize',
+                    position: 'absolute', top: 0, left: 0, zIndex: 60,
+                    background: 'transparent'
+                }}
+            />
+
             <div
                 className="console-header"
                 onClick={onToggle}
                 style={{
-                    height: '45px',
-                    minHeight: '45px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '0 15px',
-                    cursor: 'pointer',
-                    background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%)',
-                    borderBottom: '1px solid rgba(34, 197, 94, 0.2)',
-                    transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%)';
-                }}
-                onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%)';
+                    height: '45px', minHeight: '45px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '0 20px', cursor: 'pointer',
+                    background: 'linear-gradient(90deg, rgba(30, 30, 40, 0.5) 0%, rgba(20, 20, 30, 0.5) 100%)',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
                 }}
             >
-                <div style={{
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    color: '#fff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    letterSpacing: '0.5px'
-                }}>
-                    <Terminal size={18} color="#22c55e" />
-                    CONSOLE OUTPUT
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Terminal size={16} color="#3b82f6" />
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#e5e7eb', letterSpacing: '0.5px' }}>CONSOLE</span>
+                    {result && !isLoading && (
+                        <span style={{
+                            fontSize: '11px', padding: '2px 8px', borderRadius: '12px',
+                            background: result.run_success !== false ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                            color: result.run_success !== false ? '#4ade80' : '#f87171',
+                            border: `1px solid ${result.run_success !== false ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
+                        }}>
+                            {result.status_msg || (result.run_success !== false ? 'Success' : 'Error')}
+                        </span>
+                    )}
                 </div>
-                {isOpen ? <ChevronDown size={18} color="#22c55e" /> : <ChevronUp size={18} color="#22c55e" />}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <div className="resize-hint" style={{ display: 'flex', alignItems: 'center', gap: '4px', opacity: 0.4 }}>
+                        <GripHorizontal size={14} />
+                    </div>
+                    {isOpen ? <ChevronDown size={18} color="#9ca3af" /> : <ChevronUp size={18} color="#9ca3af" />}
+                </div>
             </div>
 
-            <div style={{
-                flex: 1,
-                padding: '20px',
-                overflowY: 'auto',
-                background: 'transparent'
-            }}>
-                {getResultContent()}
+            {/* Main Content Area */}
+            <div style={{ flex: 1, overflow: 'hidden', padding: '20px', position: 'relative' }}>
+                <AnimatePresence mode="wait">
+                    {getResultContent()}
+                </AnimatePresence>
             </div>
-        </div>
+        </motion.div>
     );
 };
+
+// Helper Component for IO Blocks
+const IOBlock = ({ label, content, highlight }) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <span style={{ fontSize: '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            {label}
+        </span>
+        <div style={{
+            background: 'rgba(0, 0, 0, 0.3)',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: '13px',
+            color: highlight === 'red' ? '#fca5a5' : highlight === 'green' ? '#86efac' : '#e5e7eb',
+            border: `1px solid ${highlight === 'red' ? 'rgba(239, 68, 68, 0.3)' : highlight === 'green' ? 'rgba(34, 197, 94, 0.3)' : 'rgba(255, 255, 255, 0.08)'}`,
+            whiteSpace: 'pre-wrap',
+            lineHeight: '1.6',
+            boxShadow: highlight ? `0 0 15px ${highlight === 'red' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)'}` : 'none'
+        }}>
+            {content || <span style={{ opacity: 0.3, fontStyle: 'italic' }}>Empty</span>}
+        </div>
+    </div>
+);
 
 export default Console;
