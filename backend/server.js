@@ -14,6 +14,9 @@ import { RedisStore } from 'connect-redis';
 import cookieParser from 'cookie-parser';
 
 import { corsOptions } from './src/config/cors.js';
+import debugRoutes from './src/routes/debugRoutes.js';
+app.use('/debug', debugRoutes);
+
 import problemRoutes from './src/routes/problemRoutes.js';
 import authRoutes from './src/routes/authRoutes.js';
 import leetcodeRoutes from './src/routes/leetcodeRoutes.js';
