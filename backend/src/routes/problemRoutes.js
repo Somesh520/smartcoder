@@ -7,7 +7,11 @@ import {
     pollController
 } from '../controllers/problemController.js';
 
+import { verifyToken } from '../middleware/authMiddleware.js';
+
 const router = express.Router();
+
+router.use(verifyToken); // Apply to all routes in this file
 
 router.get('/problems', getProblems);
 router.get('/problem/:id', getProblemDetails);

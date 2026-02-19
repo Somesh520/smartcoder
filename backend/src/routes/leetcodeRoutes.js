@@ -2,7 +2,11 @@ import express from 'express';
 import { LeetCode } from 'leetcode-query';
 import * as leetcodeService from '../services/leetcodeService.js';
 
+import { verifyToken } from '../middleware/authMiddleware.js';
+
 const router = express.Router();
+router.use(verifyToken); // Protect all LeetCode proxy routes
+
 const leetcode = new LeetCode(); // Auto-manages sessions/CSRF
 
 
