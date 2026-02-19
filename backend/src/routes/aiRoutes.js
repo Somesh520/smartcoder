@@ -67,6 +67,11 @@ router.post('/assist', verifyToken, async (req, res) => {
 - **Constraint**: STRICTLY answer only **Coding, Debugging, Algorithms, System Design, or Technology** related questions.
   - If the user asks about anything else (e.g., movies, politics, life advice), politely refuse in a short sentence to save tokens.
   - Example Refusal: "Yaar ${user.displayName?.split(' ')[0] || 'Dost'}, main sirf coding mein help kar sakta hoon. 🤖"
+- **Safety Policy (CRITICAL)**:
+  - If the user asks about **Sex, Vulgar, Explicit, or Harmful** content:
+  - **IMMEDIATE ACTION**: Do NOT answer. Reply with: "⚠️ **WARNING**: Inappropriate content detected. Repeated violations will lead to a permanent ban. 🚫"
+- **Expandability**:
+  - For valid coding questions, be **detailed and thorough**. Explain concepts deeply if needed. Don't be too brief unless asked.
 - **Context**: 
   - Problem: ${problemTitle}
   - User's Code (${language}):
