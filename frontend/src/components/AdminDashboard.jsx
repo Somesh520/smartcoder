@@ -149,7 +149,61 @@ const AdminDashboard = ({ onBack }) => {
                                 background: '#18181b', border: '1px solid #27272a', borderRadius: '12px', padding: '20px',
                                 display: 'flex', flexDirection: 'column', gap: '16px'
                             }}>
-                                {/* ... (Req Details) ... */}
+                                {/* User Info & Plan */}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                    <div>
+                                        <div style={{ fontSize: '16px', fontWeight: 600, color: '#f4f4f5', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <User size={16} color="#a1a1aa" /> {req.userId?.displayName || 'Unknown User'}
+                                        </div>
+                                        <div style={{ fontSize: '13px', color: '#a1a1aa', marginTop: '4px' }}>
+                                            {req.userId?.email}
+                                        </div>
+                                    </div>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ fontSize: '18px', fontWeight: 700, color: '#a78bfa' }}>₹{req.amount}</div>
+                                        <div style={{ fontSize: '12px', color: '#e4e4e7', background: 'rgba(167,139,250,0.1)', padding: '2px 8px', borderRadius: '4px', display: 'inline-block', marginTop: '4px' }}>
+                                            +{req.credits} Credits
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Transaction Details */}
+                                <div style={{ background: '#09090b', padding: '12px', borderRadius: '8px', border: '1px solid #27272a' }}>
+                                    <div style={{ fontSize: '11px', color: '#71717a', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Transaction ID</div>
+                                    <div style={{ fontFamily: 'monospace', fontSize: '14px', color: '#e4e4e7' }}>{req.transactionId}</div>
+                                    <div style={{ fontSize: '11px', color: '#52525b', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <Calendar size={10} /> {new Date(req.createdAt).toLocaleString()}
+                                    </div>
+                                </div>
+
+                                {/* Actions */}
+                                <div style={{ display: 'flex', gap: '12px', marginTop: '4px' }}>
+                                    <button
+                                        onClick={() => handleAction(req._id, 'reject')}
+                                        disabled={actionLoading === req._id}
+                                        style={{
+                                            flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #3f3f46',
+                                            background: 'transparent', color: '#e4e4e7', cursor: 'pointer',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                                            fontSize: '13px', fontWeight: 500, transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        {actionLoading === req._id ? <Loader2 size={16} className="animate-spin" /> : <><X size={16} /> Reject</>}
+                                    </button>
+                                    <button
+                                        onClick={() => handleAction(req._id, 'approve')}
+                                        disabled={actionLoading === req._id}
+                                        style={{
+                                            flex: 2, padding: '10px', borderRadius: '8px', border: 'none',
+                                            background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)', color: '#fff', cursor: 'pointer',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                                            fontSize: '13px', fontWeight: 600, boxShadow: '0 4px 12px rgba(22, 163, 74, 0.2)',
+                                            opacity: actionLoading === req._id ? 0.7 : 1
+                                        }}
+                                    >
+                                        {actionLoading === req._id ? <Loader2 size={16} className="animate-spin" /> : <><Check size={16} /> Verify & Approve</>}
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -169,7 +223,20 @@ const AdminDashboard = ({ onBack }) => {
                                 background: '#18181b', border: '1px solid #27272a', borderRadius: '12px', padding: '16px',
                                 display: 'flex', alignItems: 'center', gap: '12px'
                             }}>
-                                {/* ... (User Details) ... */}
+                                <div style={{
+                                    width: '40px', height: '40px', borderRadius: '50%', background: '#27272a',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a1a1aa'
+                                }}>
+                                    <User size={20} />
+                                </div>
+                                <div>
+                                    <div style={{ fontWeight: 600, color: '#f4f4f5' }}>{user.displayName || user.username || 'Anonymous'}</div>
+                                    <div style={{ fontSize: '12px', color: '#71717a' }}>{user.email}</div>
+                                    <div style={{ fontSize: '11px', color: '#22c55e', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' }}></div>
+                                        Online Now
+                                    </div>
+                                </div>
                             </div>
                         ))}
                     </div>
