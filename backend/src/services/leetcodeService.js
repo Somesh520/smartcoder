@@ -149,6 +149,38 @@ export const fetchProblemDetails = async (id) => {
 
     const data = await gqlRes.json();
 
+    // Retry if question is null (bad slug?)
+    if (!data.data || !data.data.question) {
+        console.warn(`[API] Warning: Null question data for slug: "${titleSlug}". Retrying with sanitized slug...`);
+
+        // Sanitize: convert to lowercase, remove leading numbers/dots, remove non-alphanumeric (except hyphen), trim
+        const sanitizedSlug = titleSlug.toLowerCase().replace(/^\d+\.?\s*/, '').replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+
+        if (sanitizedSlug !== titleSlug) {
+            const retryRes = await fetch('https://leetcode.com/graphql', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Referer': 'https://leetcode.com',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                },
+                body: JSON.stringify({
+                    query: query,
+                    variables: { titleSlug: sanitizedSlug }
+                })
+            });
+            const retryData = await retryRes.json();
+            if (retryData.data && retryData.data.question) {
+                console.log(`[API] Retry successful for sanitized slug: "${sanitizedSlug}"`);
+                // Update cache with the correct slug data
+                try {
+                    await redisClient.set(cacheKey, JSON.stringify(retryData), { EX: 86400 });
+                } catch (e) { }
+                return retryData;
+            }
+        }
+    }
+
     // Cache for 24 hours
     try {
         await redisClient.set(cacheKey, JSON.stringify(data), { EX: 86400 });

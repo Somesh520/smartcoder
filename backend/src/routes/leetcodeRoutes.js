@@ -8,7 +8,7 @@ const leetcode = new LeetCode(); // Auto-manages sessions/CSRF
 // Dynamic fetch import for compatibility
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
-// 1. AUTO-SYNC: Discover user from Session Cookie (POST)
+
 router.post('/me', async (req, res) => {
     try {
         const { leetcode_session } = req.body;
@@ -56,8 +56,7 @@ router.post('/me', async (req, res) => {
     }
 });
 
-// 3. SEARCH: Autocomplete problems (GET)
-// Endpoint: /api/leetcode/search?q=two
+
 router.get('/search', async (req, res) => {
     try {
         const query = (req.query.q || "").toLowerCase().trim();
@@ -131,7 +130,7 @@ router.get('/daily', async (req, res) => {
     }
 });
 
-// 5. SUBMISSIONS: Get user's recent submissions (GET)
+
 router.get('/submissions/:username', async (req, res) => {
     try {
         const { username } = req.params;
@@ -144,7 +143,7 @@ router.get('/submissions/:username', async (req, res) => {
         const submissions = (Array.isArray(data) ? data : []).slice(0, limit).map(s => ({
             id: s.id,
             title: s.title,
-            titleSlug: s.titleSlug || s.title_slug || s.slug || (s.title ? s.title.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-') : ''),
+            titleSlug: (s.titleSlug || s.title_slug || s.slug || '').toLowerCase().trim() || (s.title ? s.title.toLowerCase().replace(/^\d+\.?\s*/, '').replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-') : ''),
             status: s.statusDisplay,
             lang: s.langName || s.lang,
             runtime: s.runtime,
@@ -186,7 +185,7 @@ router.get('/calendar/:username', async (req, res) => {
     }
 });
 
-// 2. PUBLIC PROXY: Fetch stats by username (GET) - Using Pied API
+
 router.get('/:username', async (req, res) => {
     try {
         const { username } = req.params;
