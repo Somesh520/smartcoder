@@ -16,5 +16,6 @@ export const allowedOrigin = (origin, callback) => {
 
 export const corsOptions = {
     origin: allowedOrigin,
-    credentials: true
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization']
 };
