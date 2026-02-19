@@ -561,12 +561,15 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('auth_token'));
 
   useEffect(() => {
+    console.log("[App] App Mounted. Full URL:", window.location.href);
     const urlParams = new URLSearchParams(window.location.search);
     const roomId = urlParams.get('room');
     const token = urlParams.get('token');
 
+    console.log("[App] Token in URL?", token ? "YES" : "NO", token);
+
     if (token && token !== "undefined" && token !== "null") {
-      console.log("[App] Received valid token from URL:", token.substring(0, 10) + "...");
+      console.log("[App] Valid token found! Saving to LS...");
       localStorage.setItem('auth_token', token);
       setIsAuthenticated(true); // Force re-render with auth true
 
@@ -574,6 +577,7 @@ function App() {
       urlParams.delete('token');
       const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
       window.history.replaceState({}, document.title, newUrl);
+      console.log("[App] URL cleaned. LS Check:", localStorage.getItem('auth_token'));
     } else if (token) {
       console.warn("[App] Received INVALID token from URL:", token);
     }
