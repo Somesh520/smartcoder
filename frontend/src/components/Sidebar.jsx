@@ -1,7 +1,8 @@
 import { getCurrentUser, logout, BASE_URL } from '../api';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Code2, Swords, TrendingUp, BookOpen, History, LogOut, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Book, Shield } from 'lucide-react';
+import { Code2, Swords, TrendingUp, BookOpen, History, LogOut, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Book, Shield, Star } from 'lucide-react';
+import ReviewModal from './ReviewModal';
 
 const Sidebar = ({ onShowProblemList, onGoDetail }) => {
     const navigate = useNavigate();
@@ -23,6 +24,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail }) => {
     }, []);
 
     const [showLoginModal, setShowLoginModal] = useState(false);
+    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
     const handleNav = (action) => {
         if (isInBattle) {
@@ -176,6 +178,13 @@ const Sidebar = ({ onShowProblemList, onGoDetail }) => {
                         label="Docs"
                         active={location.pathname.includes('/docs')}
                         onClick={() => window.open('/docs', '_blank')}
+                    />
+
+                    <NavItem
+                        icon={Star}
+                        label="Rate Us"
+                        active={false}
+                        onClick={() => setIsReviewModalOpen(true)}
                     />
 
                     {/* ADMIN LINK (Visible only to Somesh) */}
@@ -335,6 +344,15 @@ const Sidebar = ({ onShowProblemList, onGoDetail }) => {
                     </div>
                 </div>
             )}
+
+            <ReviewModal
+                isOpen={isReviewModalOpen}
+                onClose={() => setIsReviewModalOpen(false)}
+                userInfo={user || {}}
+                onReviewSubmitted={() => {
+                    alert("Thanks for your review! It's now live on the landing page.");
+                }}
+            />
         </>
     );
 };
