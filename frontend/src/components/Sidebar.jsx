@@ -1,7 +1,7 @@
 import { getCurrentUser, logout, BASE_URL } from '../api';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Code2, Swords, TrendingUp, BookOpen, History, LogOut, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Book, Shield, Star } from 'lucide-react';
+import { Code2, Swords, TrendingUp, BookOpen, History, LogOut, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Book, Shield, Star, User } from 'lucide-react';
 import ReviewModal from './ReviewModal';
 
 const Sidebar = ({ onShowProblemList, onGoDetail }) => {
