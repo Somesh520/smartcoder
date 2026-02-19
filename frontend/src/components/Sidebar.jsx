@@ -34,9 +34,17 @@ const Sidebar = ({ onShowProblemList, onGoDetail }) => {
 
         // Auth Check
         const token = localStorage.getItem('auth_token');
-        if (!token) {
+
+        // Relaxed Check: If token is missing BUT we have a user profile loaded, allow navigation.
+        // This prevents the "Authentication Required" popup when the user looks logged in.
+        if (!token && !user) {
+            console.warn("[Sidebar] Navigation blocked. No Token and No User state.");
             setShowLoginModal(true);
             return;
+        }
+
+        if (!token && user) {
+            console.warn("[Sidebar] Token missing but User state present. Allowing navigation (Potential Auth Glitch).", user);
         }
 
         action();
