@@ -244,6 +244,12 @@ const Sidebar = ({ onShowProblemList, onGoDetail }) => {
                     )}
                 </div>
 
+                {/* DEBUG SECTION */}
+                <div style={{ padding: '8px', fontSize: '10px', color: '#666', borderTop: '1px solid #333', marginTop: '10px' }}>
+                    <div>LS Token: {localStorage.getItem('auth_token') ? '✅ Present' : '❌ Missing'}</div>
+                    <div>Cookie: {document.cookie.includes('token') ? '✅ Present' : '❌ Missing'}</div>
+                </div>
+
                 {/* Collapse Toggle (Sidebar Edge) */}
                 <button
                     onClick={() => setCollapsed(!collapsed)}
