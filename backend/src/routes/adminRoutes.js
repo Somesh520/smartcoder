@@ -22,13 +22,6 @@ router.get('/online-users', verifyToken, (req, res) => {
 // Get All Registered Users
 router.get('/all-users', verifyToken, async (req, res) => {
     try {
-        import User from '../models/User.js'; // Dynamic import or move to top if needed. 
-        // Better to import at top, but for replace_content let's check if I can import at top.
-        // Actually, let's use the valid import at top in next step or just trust me.
-        // Wait, I see User is not imported in adminRoutes.js. I should add it.
-
-        // Let's just do it in one go if possible, or two.
-        // I will add the route logic here assuming User is imported, then add import.
 
         const users = await User.find({})
             .select('displayName email createdAt isPremium credits photos')
