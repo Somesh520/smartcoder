@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { fetchReviews, getCurrentUser } from '../api';
 import Hero3D from './Hero3D';
+import SplashScreen from './SplashScreen.jsx';
 
 const LandingPage = () => {
     const [scrolled, setScrolled] = useState(false);
@@ -27,14 +28,10 @@ const LandingPage = () => {
             setReviews(data);
         });
 
-        // Splash timer
-        const timer = setTimeout(() => setIntro(false), 2000);
-
         const handleScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener('scroll', handleScroll);
 
         return () => {
-            clearTimeout(timer);
             window.removeEventListener('scroll', handleScroll);
         };
     }, []);
@@ -79,16 +76,8 @@ const LandingPage = () => {
             <SchemaMarkup />
 
             {/* SPLASH SCREEN */}
-            <div style={{
-                position: 'fixed', inset: 0, zIndex: 9999, background: '#000',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                opacity: intro ? 1 : 0, pointerEvents: intro ? 'all' : 'none', transition: 'opacity 0.5s'
-            }}>
-                <div style={{ width: '200px', height: '2px', background: '#333', overflow: 'hidden' }}>
-                    <div style={{ width: '100%', height: '100%', background: '#00FFFF', animation: 'loading 1.5s infinite' }} />
-                </div>
-                <style>{`@keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }`}</style>
-            </div>
+            {/* SPLASH SCREEN */}
+            {intro && <SplashScreen onComplete={() => setIntro(false)} />}
 
             {/* NAVBAR */}
             <nav style={{
