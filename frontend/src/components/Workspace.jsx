@@ -911,6 +911,40 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                                 <button onClick={() => setAiOpen(false)} style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer' }}><X size={16} /></button>
                             </div>
 
+                            {/* Quick Actions Restored */}
+                            <div style={{ padding: '12px 16px', display: 'flex', gap: '8px', flexWrap: 'wrap', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                {[
+                                    { label: 'Solve', icon: <Code2 size={12} />, msg: 'Solve this problem completely with the most optimal approach. Give me the full code.', color: '#22c55e' },
+                                    { label: 'Hint', icon: <Lightbulb size={12} />, msg: 'Give me a hint for this problem. Don\'t give the full solution, just guide me on the approach.', color: '#f59e0b' },
+                                    { label: 'Debug', icon: <Bug size={12} />, msg: 'My code has issues. Find the bugs and fix them. Explain what was wrong.', color: '#ef4444' },
+                                    { label: 'Optimize', icon: <Rocket size={12} />, msg: 'Optimize my current solution for better time and space complexity.', color: '#3b82f6' },
+                                ].map(action => (
+                                    <button
+                                        key={action.label}
+                                        onClick={() => handleAIAssist(action.msg)}
+                                        disabled={aiLoading}
+                                        style={{
+                                            background: `${action.color}15`,
+                                            border: `1px solid ${action.color}40`,
+                                            color: action.color,
+                                            padding: '5px 10px',
+                                            borderRadius: '6px',
+                                            fontSize: '11px',
+                                            fontWeight: 700,
+                                            cursor: aiLoading ? 'not-allowed' : 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px',
+                                            transition: 'all 0.2s',
+                                            opacity: aiLoading ? 0.5 : 1
+                                        }}
+                                    >
+                                        {action.icon}
+                                        {action.label}
+                                    </button>
+                                ))}
+                            </div>
+
                             {/* Chat History Area */}
                             <div ref={aiResponseRef} style={{
                                 flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px'
