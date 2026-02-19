@@ -1,14 +1,30 @@
 import express from 'express';
 import { verifyToken } from '../middleware/authMiddleware.js';
+import Groq from 'groq-sdk';
 
 // Node 18+ mein fetch native hota hai, agar purana node hai to node-fetch import rakho
 // const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args)); 
 
 const router = express.Router();
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
-// ✅ FIX: Sirf Active Models rakho
-const MODELS = [
+// Initialize Groq Client
+let groq = null;
+if (GROQ_API_KEY) {
+    groq = new Groq({ apiKey: GROQ_API_KEY });
+}
+
+// 🚀 Primary: Groq Models (Fast & Free-tier friendly)
+const GROQ_MODELS = [
+    'llama-3.3-70b-versatile',
+    'llama-3.1-8b-instant',
+    'mixtral-8x7b-32768',
+    'gemma2-9b-it'
+];
+
+// 🛡️ Fallback: Gemini Models
+const GEMINI_MODELS = [
     'gemini-2.5-flash-lite',
     'gemini-2.0-flash-lite',
     'gemini-2.0-flash-lite-001',
@@ -18,7 +34,7 @@ const MODELS = [
     'gemini-2.5-pro'
 ];
 
-const getUrl = (model) => `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+const getGeminiUrl = (model) => `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
 
 // Get credits
 router.get('/credits', verifyToken, (req, res) => {
@@ -27,7 +43,7 @@ router.get('/credits', verifyToken, (req, res) => {
 
 router.post('/assist', verifyToken, async (req, res) => {
     try {
-        const { code, language, problemTitle, problemDescription, userMessage, explainLanguage } = req.body;
+        const { code, language, problemTitle, userMessage, explainLanguage } = req.body;
         const user = req.user;
 
         // Daily Reset Logic
@@ -43,14 +59,6 @@ router.post('/assist', verifyToken, async (req, res) => {
             return res.status(402).json({ error: "Insufficient credits. Please top-up.", credits: 0 });
         }
 
-        if (!GEMINI_API_KEY) {
-            return res.status(500).json({ error: "Gemini API key not configured" });
-        }
-
-        const cleanDesc = (problemDescription || '').replace(/<[^>]*>/g, ' ').slice(0, 3000);
-
-        console.log(`[AI Assist] Request: ${problemTitle}, Lang: ${language}`);
-
         const prompt = `You are SmartCoder AI.
 PROBLEM: ${problemTitle}
 USER CODE:
@@ -60,71 +68,98 @@ ${code || ''}
 REQUEST: ${userMessage}
 Explain in ${explainLanguage || 'English'}. Keep code in pure ${language}.`;
 
-        const payload = {
-            contents: [{ parts: [{ text: prompt }] }]
-        };
-
-        let data = null;
+        let answer = null;
         let lastError = null;
 
-        // ✅ FIX: Loop Logic with Backoff
-        for (let i = 0; i < MODELS.length; i++) {
-            const model = MODELS[i];
-            try {
-                console.log(`[AI] Trying model: ${model}`);
-                const response = await fetch(getUrl(model), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+        // 1️⃣ TRY GROQ FIRST
+        if (groq) {
+            for (const model of GROQ_MODELS) {
+                try {
+                    console.log(`[AI] Trying Groq: ${model}`);
+                    const chatCompletion = await groq.chat.completions.create({
+                        messages: [{ role: "user", content: prompt }],
+                        model: model,
+                        temperature: 1,
+                        max_tokens: 1024,
+                        top_p: 1,
+                        stop: null,
+                        stream: false
+                    });
 
-                if (!response.ok) {
-                    const errText = await response.text();
-                    let errMsg = `Status ${response.status}`;
-
-                    try {
-                        const errJson = JSON.parse(errText);
-                        if (response.status === 429) {
-                            errMsg = "Quota Exceeded (429)";
-                            // Backoff: Wait longer for subsequent failures (1s, 2s, 3s...)
-                            const delay = (i + 1) * 1000;
-                            console.warn(`[AI] Failed ${model}: ${errMsg} -> Waiting ${delay}ms...`);
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                        } else {
-                            errMsg = errJson.error?.message || errText;
-                            console.warn(`[AI] Failed ${model}: ${errMsg} -> Switching...`);
-                        }
-                    } catch (e) { errMsg = errText; }
-
-                    lastError = { status: response.status, message: errMsg };
-                    continue; // ⬅️ IMPORTANT: Continue to next model on error
+                    answer = chatCompletion.choices[0]?.message?.content;
+                    if (answer) {
+                        console.log(`[AI] Success with Groq (${model})`);
+                        break;
+                    }
+                } catch (err) {
+                    console.warn(`[AI] Groq Failed ${model}: ${err.message}`);
+                    lastError = { message: err.message };
                 }
-
-                data = await response.json();
-                console.log(`[AI] Success with ${model}`);
-                break; // ⬅️ Success milte hi loop roko
-
-            } catch (fetchErr) {
-                console.error(`[AI] Network error ${model}:`, fetchErr.message);
-                lastError = { message: fetchErr.message };
             }
         }
 
-        if (!data) {
-            return res.status(500).json({
-                response: 'AI service temporarily unavailable. Please try again.',
-                debug: lastError
-            });
-        }
+        // 2️⃣ FALLBACK TO GEMINI (If Groq failed or not configured)
+        if (!answer) {
+            console.log("[AI] Switching to Gemini Fallback...");
 
-        const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!GEMINI_API_KEY) {
+                return res.status(500).json({ error: "No AI Provider Configured (Groq failed, Gemini Key missing)" });
+            }
+
+            const payload = { contents: [{ parts: [{ text: prompt }] }] };
+
+            for (let i = 0; i < GEMINI_MODELS.length; i++) {
+                const model = GEMINI_MODELS[i];
+                try {
+                    console.log(`[AI] Trying Gemini: ${model}`);
+                    const response = await fetch(getGeminiUrl(model), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errText = await response.text();
+                        let errMsg = `Status ${response.status}`;
+
+                        try {
+                            const errJson = JSON.parse(errText);
+                            if (response.status === 429) {
+                                errMsg = "Quota Exceeded (429)";
+                                // Backoff
+                                const delay = (i + 1) * 1000;
+                                console.warn(`[AI] Failed ${model}: ${errMsg} -> Waiting ${delay}ms...`);
+                                await new Promise(resolve => setTimeout(resolve, delay));
+                            } else {
+                                errMsg = errJson.error?.message || errText;
+                                console.warn(`[AI] Failed ${model}: ${errMsg} -> Switching...`);
+                            }
+                        } catch (e) { errMsg = errText; }
+
+                        lastError = { status: response.status, message: errMsg };
+                        continue;
+                    }
+
+                    const data = await response.json();
+                    answer = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (answer) {
+                        console.log(`[AI] Success with Gemini (${model})`);
+                        break;
+                    }
+
+                } catch (fetchErr) {
+                    console.error(`[AI] Network error ${model}:`, fetchErr.message);
+                    lastError = { message: fetchErr.message };
+                }
+            }
+        }
 
         if (answer) {
             user.credits = Math.max(0, user.credits - 1);
             await user.save();
             return res.json({ response: answer, credits: user.credits });
         } else {
-            return res.status(500).json({ response: 'No answer generated.', debug: data });
+            return res.status(500).json({ response: 'AI service busy. Please try again later.', debug: lastError });
         }
 
     } catch (error) {
