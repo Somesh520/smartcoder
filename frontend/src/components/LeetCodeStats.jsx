@@ -299,24 +299,35 @@ const LeetCodeStats = ({ onSelectProblem }) => {
 
                         {submissions.length > 0 ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                {submissions.map((sub, idx) => (
-                                    <div key={sub.id || idx} style={{
-                                        background: '#18181b', padding: '14px 16px', borderRadius: '12px', border: '1px solid #27272a',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', transition: 'all 0.2s'
-                                    }}
-                                        onClick={() => onSelectProblem && onSelectProblem({ slug: sub.titleSlug, title: sub.title })}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            {sub.status === 'Accepted' ? <CheckCircle2 size={18} color="#22c55e" /> : <XCircle size={18} color="#ef4444" />}
-                                            <div>
-                                                <div style={{ fontSize: '14px', fontWeight: 600, color: 'white', marginBottom: '2px' }}>{sub.title}</div>
-                                                <div style={{ fontSize: '11px', color: '#71717a' }}>{sub.lang} • {sub.runtime} • {sub.memory}</div>
+                                {submissions.map((sub, idx) => {
+                                    const slug = sub.titleSlug || sub.slug;
+                                    const canClick = !!slug;
+
+                                    return (
+                                        <div key={sub.id || idx} style={{
+                                            background: '#18181b', padding: '14px 16px', borderRadius: '12px', border: '1px solid #27272a',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                            cursor: canClick ? 'pointer' : 'default', transition: 'all 0.2s',
+                                            opacity: canClick ? 1 : 0.7
+                                        }}
+                                            onClick={() => {
+                                                if (canClick && onSelectProblem) {
+                                                    onSelectProblem({ slug: slug, title: sub.title });
+                                                }
+                                            }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                {sub.status === 'Accepted' ? <CheckCircle2 size={18} color="#22c55e" /> : <XCircle size={18} color="#ef4444" />}
+                                                <div>
+                                                    <div style={{ fontSize: '14px', fontWeight: 600, color: 'white', marginBottom: '2px' }}>{sub.title}</div>
+                                                    <div style={{ fontSize: '11px', color: '#71717a' }}>{sub.lang} • {sub.runtime} • {sub.memory}</div>
+                                                </div>
+                                            </div>
+                                            <div style={{ fontSize: '11px', color: '#52525b', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                <Clock size={12} /> {formatTimestamp(sub.timestamp)}
                                             </div>
                                         </div>
-                                        <div style={{ fontSize: '11px', color: '#52525b', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <Clock size={12} /> {formatTimestamp(sub.timestamp)}
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         ) : (
                             <div style={{ height: '200px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#3f3f46' }}>

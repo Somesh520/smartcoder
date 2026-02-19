@@ -144,7 +144,7 @@ router.get('/submissions/:username', async (req, res) => {
         const submissions = (Array.isArray(data) ? data : []).slice(0, limit).map(s => ({
             id: s.id,
             title: s.title,
-            titleSlug: s.titleSlug,
+            titleSlug: s.titleSlug || s.title_slug || s.slug || (s.title ? s.title.toLowerCase().replace(/\s+/g, '-') : ''),
             status: s.statusDisplay,
             lang: s.langName || s.lang,
             runtime: s.runtime,
