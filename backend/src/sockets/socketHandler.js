@@ -2,6 +2,9 @@
 import { RoomManager } from '../services/roomManager.js';
 import * as leetcodeService from '../services/leetcodeService.js';
 import Match from '../models/Match.js';
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+import { UserManager } from '../services/userManager.js';
 
 export const socketHandler = (io) => {
     const disconnectTimeouts = {};
@@ -11,7 +14,25 @@ export const socketHandler = (io) => {
         io.emit('publicRoomsUpdate', rooms);
     };
 
-    io.on('connection', (socket) => {
+    io.on('connection', async (socket) => {
+        // 🌍 GLOBAL TRACKING: Add to UserManager if authenticated
+        const token = socket.handshake.auth?.token || socket.handshake.query?.token;
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                const user = await User.findById(decoded.id).select('displayName email _id');
+                if (user) {
+                    UserManager.addUser(socket.id, {
+                        userId: user._id,
+                        username: user.displayName,
+                        displayName: user.displayName,
+                        email: user.email
+                    });
+                }
+            } catch (e) {
+                console.error("Socket Auth/User Fetch Fail:", e.message);
+            }
+        }
 
 
         // JOIN ROOM
@@ -320,6 +341,8 @@ export const socketHandler = (io) => {
         // DISCONNECT
 
         socket.on('disconnect', () => {
+            // Remove from global tracking
+            UserManager.removeUser(socket.id);
 
             const rooms = RoomManager.getRooms();
             for (const rId in rooms) {
