@@ -379,6 +379,9 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                         // };
                         if (type === 'submit' && res.status_msg === 'Accepted') {
                             setShowSuccessModal(true);
+                            if (onSubmissionSuccess) {
+                                onSubmissionSuccess(res);
+                            }
                         }
 
                     }
