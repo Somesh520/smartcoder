@@ -153,20 +153,8 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                         code: CodeBlock
                     }}
                 >
-                    {displayedText}
+                    {displayedText + ' ▋'}
                 </Markdown>
-                <span className="blinking-cursor">|</span>
-                <style>{`
-                    .blinking-cursor {
-                        display: inline-block;
-                        width: 6px;
-                        height: 14px;
-                        background: #a78bfa;
-                        animation: blink 1s infinite;
-                        margin-left: 2px;
-                    }
-                    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-                `}</style>
             </div>
         );
     };
