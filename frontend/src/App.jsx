@@ -12,6 +12,7 @@ import HistoryPage from './components/HistoryPage';
 import LeetCodePage from './components/LeetCodePage';
 import Documentation from './components/Documentation';
 import AdminDashboard from './components/AdminDashboard';
+import PathPradarshakPage from './components/PathPradarshakPage';
 
 import LearnPage from './components/LearnPage';
 import PrivacyPolicyPage from './components/PrivacyPolicyPage';
@@ -341,6 +342,7 @@ function MainApp({ initialRoom }) {
                   <Route path="history" element={<HistoryPage />} />
                   <Route path="stats" element={<LeetCodePage />} />
                   <Route path="learn" element={<LearnPage />} />
+                  <Route path="pathpradarshak" element={<PathPradarshakPage />} />
 
                   <Route path="competition/:roomId" element={
                     <CompetitionRoomWrapper
