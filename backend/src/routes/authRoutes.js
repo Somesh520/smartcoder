@@ -89,6 +89,11 @@ router.get('/current_user', verifyToken, (req, res) => {
 
 // Logout
 router.get('/logout', (req, res, next) => {
+    res.clearCookie('token', {
+        httpOnly: false,
+        secure: true,
+        sameSite: 'None'
+    });
     req.logout((err) => {
         if (err) { return next(err); }
         res.redirect(process.env.CLIENT_URL || 'http://localhost:5173');

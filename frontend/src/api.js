@@ -10,10 +10,10 @@ export const fetchProblems = async () => {
   const res = await fetch(`${BASE_URL}/problems`, {
     headers: {
       ...getAuthHeaders(),
-      // 'Cache-Control': 'no-cache, no-store, must-revalidate',
-      // 'Pragma': 'no-cache'
+
+
     },
-    // cache: 'no-store',
+
     credentials: 'include'
   });
   if (!res.ok) throw new Error("Backend connection failed");
@@ -127,11 +127,13 @@ export const logout = async () => {
   console.log("[API] Logging out...");
   localStorage.removeItem('auth_token');
 
-  // Attempt to notify server of logout, but don't wait/redirect based on it
+  // Clear cookie manually on client side to be safe
+  document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=None; Secure";
+
   try {
-    fetch(`${BASE_URL}/auth/logout`, { method: 'GET' }).catch(() => { });
+    await fetch(`${BASE_URL}/auth/logout`, { method: 'GET', credentials: 'include' });
   } catch (e) {
-    // Ignore network errors during logout
+    console.error("Logout API failed", e);
   }
 
   // Redirect locally to home
