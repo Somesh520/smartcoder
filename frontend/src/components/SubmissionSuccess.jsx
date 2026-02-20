@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { CheckCircle2, Trophy, Zap, Share2, X } from 'lucide-react';
+import { CheckCircle2, Trophy, Zap, X } from 'lucide-react';
 
 const SubmissionSuccess = ({ isOpen, onClose, stats }) => {
     useEffect(() => {
@@ -140,17 +140,7 @@ const SubmissionSuccess = ({ isOpen, onClose, stats }) => {
                             >
                                 Continue Coding
                             </button>
-                            {/* Future Share Button */}
-                            <button
-                                style={{
-                                    background: 'rgba(255, 255, 255, 0.05)',
-                                    color: '#fff', border: '1px solid rgba(255, 255, 255, 0.1)',
-                                    padding: '12px', borderRadius: '12px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                <Share2 size={20} />
-                            </button>
+
                         </div>
                     </motion.div>
                 </div>

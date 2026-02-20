@@ -99,7 +99,14 @@ ${code || '// No code written yet'}
         }
 
         // Add latest user message with explicit language instruction
-        const langInstruction = explainLanguage ? `\n\n(IMPORTANT: Please reply in ${explainLanguage} language only)` : '';
+        let langInstruction = '';
+        if (explainLanguage) {
+            if (explainLanguage.toLowerCase() === 'bhojpuri') {
+                langInstruction = `\n\n(IMPORTANT: Please reply in Bhojpuri language, but STRICTLY use the English alphabet (like Hinglish). DO NOT use Devanagari/Hindi script. Example: "Kaisan baa bhai, kaa haal ba")`;
+            } else {
+                langInstruction = `\n\n(IMPORTANT: Please reply in ${explainLanguage} language only)`;
+            }
+        }
         messages.push({ role: "user", content: userMessage + langInstruction });
 
         let answer = null;

@@ -963,31 +963,44 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                             </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <select
-                                value={explainLanguage}
-                                onChange={(e) => setExplainLanguage(e.target.value)}
-                                style={{
-                                    background: 'rgba(255,255,255,0.05)',
-                                    color: '#e5e7eb',
-                                    border: '1px solid rgba(167,139,250,0.3)',
-                                    borderRadius: '6px',
-                                    padding: '4px 8px',
-                                    fontSize: '12px',
-                                    outline: 'none',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                <option value="english">English</option>
-                                <option value="hinglish">Hinglish</option>
-                                <option value="hindi">Hindi</option>
-                                <option value="bhojpuri">Bhojpuri</option>
-                                <option value="marathi">Marathi</option>
-                                <option value="bengali">Bengali</option>
-                                <option value="tamil">Tamil</option>
-                                <option value="telugu">Telugu</option>
-                                <option value="gujarati">Gujarati</option>
-                                <option value="kannada">Kannada</option>
-                            </select>
+                            <div style={{
+                                display: 'flex', alignItems: 'center', background: 'linear-gradient(135deg, rgba(167,139,250,0.2) 0%, rgba(124,58,237,0.2) 100%)',
+                                borderRadius: '8px', padding: '2px 8px', border: '1px solid rgba(167,139,250,0.4)',
+                                boxShadow: '0 0 10px rgba(167,139,250,0.1)', transition: 'all 0.3s'
+                            }}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                                </svg>
+                                <select
+                                    value={explainLanguage}
+                                    onChange={(e) => setExplainLanguage(e.target.value)}
+                                    style={{
+                                        background: 'transparent',
+                                        color: '#f3f4f6',
+                                        border: 'none',
+                                        padding: '4px 0',
+                                        fontSize: '12px',
+                                        fontWeight: 600,
+                                        outline: 'none',
+                                        cursor: 'pointer',
+                                        appearance: 'none',
+                                        paddingRight: '12px'
+                                    }}
+                                >
+                                    <option value="english" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>English</option>
+                                    <option value="hinglish" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Hinglish</option>
+                                    <option value="hindi" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Hindi</option>
+                                    <option value="bhojpuri" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Bhojpuri</option>
+                                    <option value="marathi" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Marathi</option>
+                                    <option value="bengali" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Bengali</option>
+                                    <option value="tamil" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Tamil</option>
+                                    <option value="telugu" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Telugu</option>
+                                    <option value="gujarati" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Gujarati</option>
+                                    <option value="kannada" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Kannada</option>
+                                </select>
+                            </div>
                             <button
                                 onClick={() => setIsAiExpanded(!isAiExpanded)}
                                 style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer', marginRight: '8px' }}
