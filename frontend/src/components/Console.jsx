@@ -293,6 +293,7 @@ const Console = ({
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             style={{
                 position: 'absolute', bottom: 0, width: '100%',
+                maxHeight: 'calc(100% - 50px)',
                 background: 'rgba(15, 15, 20, 0.95)',
                 backdropFilter: 'blur(16px)',
                 borderTop: '1px solid rgba(255, 255, 255, 0.08)',

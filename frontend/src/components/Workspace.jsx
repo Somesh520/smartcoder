@@ -186,7 +186,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
 
         const onMouseMove = (mouseMoveEvent) => {
             const newWidth = startWidth + ((mouseMoveEvent.clientX - startX) / window.innerWidth) * 100;
-            if (newWidth > 20 && newWidth < 80) {
+            if (newWidth >= 20 && newWidth <= 65) { // Capped at 65% to prevent squeezing right pane
                 setLeftWidth(newWidth);
             }
         };
@@ -394,8 +394,10 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
         <div className="workspace" style={{
             display: 'flex',
             height: 'calc(100vh - 50px)',
+            width: '100%',
             background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)',
-            position: 'relative'
+            position: 'relative',
+            overflow: 'hidden'
         }}>
             {/* Ambient Glow Effects */}
             <div style={{
@@ -422,6 +424,8 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
             {/* LEFT PANEL - Problem Description */}
             <div style={{
                 width: `${leftWidth}%`,
+                minWidth: '20%',
+                maxWidth: '65%',
                 flex: 'none',
                 borderRight: '1px solid rgba(34, 197, 94, 0.2)',
                 display: 'flex',
@@ -651,15 +655,17 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
             {/* RIGHT PANEL - Code Editor */}
             <div style={{
                 flex: 1,
+                minWidth: 0,
                 display: 'flex',
                 flexDirection: 'column',
                 background: 'rgba(14, 14, 20, 0.8)',
                 backdropFilter: 'blur(10px)',
                 position: 'relative',
-                boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.3)'
+                boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.3)',
+                overflow: 'hidden'
             }}>
                 {/* Editor Toolbar */}
-                <div style={{
+                <div className="editor-toolbar" style={{
                     height: '50px',
                     borderBottom: '1px solid rgba(59, 130, 246, 0.2)',
                     display: 'flex',
@@ -667,8 +673,11 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                     justifyContent: 'space-between',
                     padding: '0 15px',
                     background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%)',
-                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)'
+                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+                    overflowX: 'auto',
+                    scrollbarWidth: 'none'
                 }}>
+                    <style>{`.editor-toolbar::-webkit-scrollbar { display: none; }`}</style>
                     {/* Language Selector */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <Zap size={16} color="#3b82f6" />
