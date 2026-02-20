@@ -220,7 +220,8 @@ function MainApp({ initialRoom }) {
 
   // 3. Data Loading (Runs ONCE on mount)
   useEffect(() => {
-    if (problems.length === 0) {
+    const token = localStorage.getItem('auth_token');
+    if (token && problems.length === 0) {
       loadProblems();
     }
   }, []); // Remove dependency on problems.length to avoid loops

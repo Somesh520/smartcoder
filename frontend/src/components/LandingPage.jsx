@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Header from './Header';
 import ElectricBorder from './ElectricBorder';
 import SEO from './SEO';
@@ -9,22 +9,23 @@ import {
     Github, Twitter, ChevronRight, Play, Server, Database,
     Globe, Cpu, Cpu as Microchip, Star, Brain, Lock
 } from 'lucide-react';
-import { fetchReviews, getCurrentUser } from '../api';
+import { fetchReviews, BASE_URL } from '../api';
 import Hero3D from './Hero3D';
 import SplashScreen from './SplashScreen.jsx';
 
 const LandingPage = () => {
+    const navigate = useNavigate();
     const [scrolled, setScrolled] = useState(false);
-    const [intro, setIntro] = useState(true);
+    const [intro, setIntro] = useState(() => {
+        // Only show splash screen once per session
+        return !sessionStorage.getItem('splash_seen');
+    });
     const [reviews, setReviews] = useState([]);
-    const [userInfo, setUserInfo] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState({ title: '', body: '' });
 
     useEffect(() => {
-        getCurrentUser().then(user => setUserInfo(user));
         fetchReviews().then(data => {
-            console.log("Fetched Reviews:", data);
             setReviews(data);
         });
 
@@ -70,6 +71,16 @@ const LandingPage = () => {
         setModalOpen(true);
     };
 
+    const handleLaunchApp = (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem('auth_token');
+        if (!token) {
+            window.location.href = `${BASE_URL}/auth/google`;
+        } else {
+            navigate('/app');
+        }
+    };
+
     return (
         <div style={{ background: '#050505', color: 'white', minHeight: '100vh', fontFamily: "'Inter', sans-serif", overflowX: 'hidden' }}>
             <SEO title="AlgoDuel - Multiplayer Coding Battles" description="The ultimate competitive programming arena." />
@@ -77,7 +88,10 @@ const LandingPage = () => {
 
             {/* SPLASH SCREEN */}
             {/* SPLASH SCREEN */}
-            {intro && <SplashScreen onComplete={() => setIntro(false)} />}
+            {intro && <SplashScreen onComplete={() => {
+                setIntro(false);
+                sessionStorage.setItem('splash_seen', 'true');
+            }} />}
 
             {/* NAVBAR */}
             <nav style={{
@@ -98,13 +112,15 @@ const LandingPage = () => {
                         </button>
                     ))}
                 </div>
-                <Link to="/app" style={{
+                <button onClick={handleLaunchApp} style={{
                     padding: '10px 24px', background: '#00FFFF', color: 'black', fontWeight: 700,
-                    borderRadius: '100px', textDecoration: 'none', fontSize: '14px',
-                    boxShadow: '0 0 20px rgba(0,255,255,0.3)'
-                }}>
+                    borderRadius: '100px', border: 'none', cursor: 'pointer', fontSize: '14px',
+                    boxShadow: '0 0 20px rgba(0,255,255,0.3)', transition: 'transform 0.2s',
+                }}
+                    onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+                    onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}>
                     Launch App
-                </Link>
+                </button>
             </nav>
 
             {/* HERO SECTION */}
@@ -140,13 +156,15 @@ const LandingPage = () => {
                         The first e-sports platform for developers. Compete in real-time execution environments, rank up, and get hired.
                     </p>
                     <div className="reveal" style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
-                        <Link to="/app" style={{
+                        <button onClick={handleLaunchApp} style={{
                             padding: '16px 40px', background: '#fff', color: 'black', fontWeight: 800,
-                            borderRadius: '12px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px',
-                            boxShadow: '0 0 30px rgba(255,255,255,0.2)'
-                        }}>
+                            borderRadius: '12px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px',
+                            boxShadow: '0 0 30px rgba(255,255,255,0.2)', fontSize: '16px', transition: 'transform 0.2s'
+                        }}
+                            onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+                            onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}>
                             Enter Arena <Play size={18} fill="black" />
-                        </Link>
+                        </button>
                         <button onClick={() => scrollToSection('features')} style={{
                             padding: '16px 40px', background: 'rgba(255,255,255,0.05)', color: 'white', fontWeight: 600,
                             borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer'
@@ -366,11 +384,13 @@ const LandingPage = () => {
                                 The operating system for competitive developers.<br />
                                 <span style={{ color: '#a1a1aa' }}>Build your rank. Prove your worth.</span>
                             </p>
-                            <Link to="/app" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: 'rgba(0,255,255,0.1)', border: '1px solid rgba(0,255,255,0.3)', borderRadius: '6px', color: '#00FFFF', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', textDecoration: 'none', transition: 'all 0.3s' }}
+                            <button onClick={handleLaunchApp} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: 'rgba(0,255,255,0.1)', border: '1px solid rgba(0,255,255,0.3)', borderRadius: '6px', color: '#00FFFF', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.3s' }}
                                 onMouseEnter={e => { e.currentTarget.style.background = '#00FFFF'; e.currentTarget.style.color = '#050505'; }}
-                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,255,255,0.1)'; e.currentTarget.style.color = '#00FFFF'; }}>
+                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,255,255,0.1)'; e.currentTarget.style.color = '#00FFFF'; }}
+                                onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+                                onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}>
                                 Enter Arena →
-                            </Link>
+                            </button>
                         </div>
 
                         {/* PLATFORM LINKS */}

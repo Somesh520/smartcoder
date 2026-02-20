@@ -6,7 +6,7 @@ export const getAuthHeaders = () => {
 };
 
 export const fetchProblems = async () => {
-  // Add cache-busting timestamp and no-cache headers
+
   const res = await fetch(`${BASE_URL}/problems`, {
     headers: {
       ...getAuthHeaders(),
@@ -104,19 +104,11 @@ export const pollResult = async (id, slug, userSession, userCsrf) => {
 };
 
 export const getCurrentUser = async () => {
+  const token = localStorage.getItem('auth_token');
+  if (!token) return null;
+
   const res = await fetch(`${BASE_URL}/auth/current_user`, { headers: getAuthHeaders(), credentials: 'include' });
   if (res.status === 401) {
-    try {
-      const errData = await res.json();
-      console.warn("[API] getCurrentUser 401:", errData);
-      // Only invalidate if it's a definitive token error
-      if (errData.message === 'Not authorized, token failed' || errData.message === 'Not authorized, no token' || errData.message === 'User not found') {
-        console.warn(`[API] Invalidating Session due to: ${errData.message}`);
-        // localStorage.removeItem('auth_token'); // <--- DISABLED: Don't auto-remove. Let user logout manually.
-      }
-    } catch (e) {
-      console.warn("[API] getCurrentUser 401 (Non-JSON response). NOT invalidating yet to be safe.");
-    }
     return null;
   }
   return await res.json();
@@ -275,7 +267,7 @@ export const fetchReviews = async () => {
     if (!res.ok) return [];
     return await res.json();
   } catch (e) {
-    console.error("Failed to fetch reviews", e);
+    // Silently fail if backend is unreachable to avoid console spam
     return [];
   }
 };

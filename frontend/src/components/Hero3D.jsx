@@ -119,11 +119,11 @@ const Hero3D = () => {
                 {/* Scene Objects */}
                 <group position={[0, 0, -2]}>
                     <CyberCore />
-                    <Particles count={200} />
+                    <Particles count={50} />
                 </group>
 
                 {/* Environment & Extras */}
-                <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+                <Stars radius={100} depth={50} count={800} factor={4} saturation={0} fade speed={1} />
 
                 {/* Helper Controls (disabled Zoom/Pan for background effect) */}
                 {/* <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.5} /> */}
