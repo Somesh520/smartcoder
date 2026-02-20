@@ -112,20 +112,37 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
         useEffect(() => {
             indexRef.current = 0;
             setDisplayedText('');
+            let timeoutId;
 
-            const interval = setInterval(() => {
+            const typeNextChar = () => {
                 if (indexRef.current < text.length) {
-                    setDisplayedText((prev) => prev + text.charAt(indexRef.current));
+                    const char = text.charAt(indexRef.current);
+                    setDisplayedText((prev) => prev + char);
                     indexRef.current++;
+
                     // Auto-scroll during typing
                     if (aiResponseRef.current) aiResponseRef.current.scrollTop = aiResponseRef.current.scrollHeight;
+
+                    // Compute a dynamic delay to simulate real AI streaming
+                    let delay = 5 + Math.random() * 15; // Base fluid speed (5-20ms)
+
+                    if (['.', '!', '?'].includes(char)) {
+                        delay += 100 + Math.random() * 100; // Pause at sentences
+                    } else if ([',', ';', ':'].includes(char)) {
+                        delay += 50 + Math.random() * 50;   // Slight pause at clauses
+                    } else if (char === ' ') {
+                        delay += Math.random() * 20;        // Micro-pause between words
+                    }
+
+                    timeoutId = setTimeout(typeNextChar, delay);
                 } else {
-                    clearInterval(interval);
                     if (onComplete) onComplete();
                 }
-            }, 10); // Speed: 10ms per char (Fast & Fluid)
+            };
 
-            return () => clearInterval(interval);
+            timeoutId = setTimeout(typeNextChar, 10);
+
+            return () => clearTimeout(timeoutId);
         }, [text]);
 
         return (
