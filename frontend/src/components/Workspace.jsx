@@ -960,15 +960,16 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                     maxWidth: isAiExpanded ? '1000px' : '90%',
                     height: isAiExpanded ? '80vh' : 'auto',
                     zIndex: 100,
-                    background: 'linear-gradient(180deg, #0f0f18 0%, #13131f 100%)',
-                    border: isAiExpanded ? '1px solid rgba(167,139,250,0.5)' : 'none',
-                    borderLeft: isAiExpanded ? '1px solid rgba(167,139,250,0.5)' : '1px solid rgba(167,139,250,0.25)',
+                    background: 'rgba(15, 15, 24, 0.95)',
+                    backdropFilter: 'blur(20px)',
+                    border: isAiExpanded ? '1px solid rgba(167,139,250,0.3)' : 'none',
+                    borderLeft: isAiExpanded ? '1px solid rgba(167,139,250,0.3)' : '1px solid rgba(167,139,250,0.2)',
                     borderRadius: isAiExpanded ? '24px' : '0',
                     display: 'flex',
                     flexDirection: 'column',
                     animation: isAiExpanded ? 'floatIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)' : 'slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
                     transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                    boxShadow: isAiExpanded ? '0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(167,139,250,0.2)' : '-8px 0 30px rgba(0,0,0,0.5)'
+                    boxShadow: isAiExpanded ? '0 25px 50px rgba(0,0,0,0.5), 0 0 40px rgba(124,58,237,0.15)' : '-10px 0 40px rgba(0,0,0,0.6)'
                 }}>
                     <style>{`
                         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
@@ -977,9 +978,9 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
 
                     {/* Header (Same as before) */}
                     <div style={{
-                        padding: '14px 16px', borderBottom: '1px solid rgba(167,139,250,0.15)',
+                        padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)',
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        background: 'linear-gradient(135deg, rgba(167,139,250,0.1) 0%, rgba(99,102,241,0.05) 100%)'
+                        background: 'linear-gradient(180deg, rgba(167,139,250,0.08) 0%, transparent 100%)'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <Sparkles size={16} color="#a78bfa" />
@@ -1039,7 +1040,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                     </div>
 
                     {/* Quick Actions Restored */}
-                    <div style={{ padding: '12px 16px', display: 'flex', gap: '8px', flexWrap: 'wrap', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ padding: '16px 20px', display: 'flex', gap: '10px', flexWrap: 'wrap', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                         {[
                             { label: 'Solve', icon: <Code2 size={12} />, msg: 'Solve this problem completely with the most optimal approach. Give me the full code.', color: '#22c55e' },
                             { label: 'Hint', icon: <Lightbulb size={12} />, msg: 'Give me a hint for this problem. Explain the logic or approach, but DO NOT write the full code solution. Let me try to implement it.', color: '#f59e0b' },
@@ -1080,15 +1081,26 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                         {aiChatHistory.map((msg, idx) => (
                             <div key={idx} style={{
                                 alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                                maxWidth: '85%',
-                                background: msg.role === 'user' ? 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)' : 'rgba(30, 41, 59, 0.6)',
-                                border: msg.role === 'user' ? 'none' : '1px solid rgba(167,139,250,0.2)',
-                                color: '#e5e7eb',
-                                padding: '12px 16px',
-                                borderRadius: msg.role === 'user' ? '12px 12px 0 12px' : '12px 12px 12px 0',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                                fontSize: '13px', lineHeight: '1.6'
+                                maxWidth: '88%',
+                                background: msg.role === 'user' ? 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)' : 'rgba(30, 30, 40, 0.7)',
+                                border: msg.role === 'user' ? 'none' : '1px solid rgba(255,255,255,0.05)',
+                                color: '#f3f4f6',
+                                padding: '14px 18px',
+                                borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                                boxShadow: msg.role === 'user' ? '0 8px 20px rgba(99,102,241,0.25)' : '0 4px 15px rgba(0,0,0,0.2)',
+                                fontSize: '14px', lineHeight: '1.7',
+                                position: 'relative'
                             }}>
+                                {/* Chat Bubble Tail (Optional touch of realism) */}
+                                <div style={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    [msg.role === 'user' ? 'right' : 'left']: '-6px',
+                                    width: '12px', height: '16px',
+                                    background: msg.role === 'user' ? '#4f46e5' : 'rgba(30, 30, 40, 0.9)',
+                                    clipPath: msg.role === 'user' ? 'polygon(0 0, 0% 100%, 100% 100%)' : 'polygon(100% 0, 0 100%, 100% 100%)',
+                                    borderBottom: msg.role === 'user' ? 'none' : '1px solid rgba(255,255,255,0.05)'
+                                }}></div>
                                 {msg.role === 'user' ? (
                                     <div>{msg.content}</div>
                                 ) : (
@@ -1115,26 +1127,31 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                         ))}
 
                         {aiLoading && (
-                            <div style={{ alignSelf: 'flex-start', background: 'rgba(30, 41, 59, 0.6)', padding: '12px 16px', borderRadius: '12px 12px 12px 0', border: '1px solid rgba(167,139,250,0.2)' }}>
+                            <div style={{ alignSelf: 'flex-start', background: 'rgba(30, 30, 40, 0.7)', padding: '14px 20px', borderRadius: '18px 18px 18px 4px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <Loader2 size={18} color="#a78bfa" style={{ animation: 'spin 1s linear infinite' }} />
+                                <span style={{ fontSize: '13px', color: '#a1a1aa', fontWeight: 500 }}>Thinking...</span>
                             </div>
                         )}
                     </div>
 
                     {/* Input Area */}
-                    <div style={{ padding: '16px', borderTop: '1px solid rgba(167,139,250,0.15)', display: 'flex', gap: '8px' }}>
-                        <input
-                            type="text"
-                            value={aiMessage}
-                            onChange={(e) => setAiMessage(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && !aiLoading && handleAIAssist()}
-                            placeholder="Type a message..."
-                            disabled={aiLoading}
-                            style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(167,139,250,0.2)', color: '#fff', padding: '10px 14px', borderRadius: '8px', outline: 'none' }}
-                        />
-                        <button onClick={() => handleAIAssist()} disabled={aiLoading} style={{ background: '#7c3aed', color: '#fff', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer' }}>
-                            <Send size={18} />
-                        </button>
+                    <div style={{ padding: '16px 20px', background: 'rgba(0,0,0,0.2)', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <div style={{ flex: 1, position: 'relative' }}>
+                            <input
+                                type="text"
+                                value={aiMessage}
+                                onChange={(e) => setAiMessage(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && !aiLoading && handleAIAssist()}
+                                placeholder="Message SmartCoder..."
+                                disabled={aiLoading}
+                                style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '14px 45px 14px 18px', borderRadius: '14px', outline: 'none', fontSize: '14px', transition: 'all 0.2s', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)' }}
+                                onFocus={(e) => { e.target.style.borderColor = 'rgba(124,58,237,0.5)'; e.target.style.background = 'rgba(255,255,255,0.08)'; }}
+                                onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.background = 'rgba(255,255,255,0.05)'; }}
+                            />
+                            <button onClick={() => handleAIAssist()} disabled={aiLoading || !aiMessage.trim()} style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: (aiLoading || !aiMessage.trim()) ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)', color: '#fff', border: 'none', width: '32px', height: '32px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: (aiLoading || !aiMessage.trim()) ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}>
+                                <Send size={14} style={{ marginLeft: '2px' }} />
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
