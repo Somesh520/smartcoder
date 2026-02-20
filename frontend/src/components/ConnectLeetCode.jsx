@@ -23,7 +23,7 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            background: '#09090b', // Darker background
+            background: '#050505', // Match landing page background
             color: 'white',
             textAlign: 'center',
             paddingBottom: '40px'
