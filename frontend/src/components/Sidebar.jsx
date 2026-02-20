@@ -28,7 +28,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
         }
 
         // Auth Check (Cookie/State based)
-        if (!user) {
+        if (!user?.loggedIn) {
             console.warn("[Sidebar] Navigation blocked. User state missing.");
             setShowLoginModal(true);
             return;
@@ -190,7 +190,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                     />
 
                     {/* ADMIN LINK (Visible only to Somesh) */}
-                    {user && user.email === 'someshtiwari532@gmail.com' && (
+                    {user?.loggedIn && user.email === 'someshtiwari532@gmail.com' && (
                         <NavItem
                             icon={Shield}
                             label="Admin Panel"
@@ -205,7 +205,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
 
                 {/* USER PROFILE / LOGOUT */}
                 <div style={{ paddingTop: '20px', borderTop: '1px solid var(--border-subtle)' }}>
-                    {user ? (
+                    {user?.loggedIn ? (
                         <div style={{
                             display: 'flex', alignItems: 'center', gap: '12px',
                             padding: '10px', borderRadius: '12px', background: 'var(--bg-subtle)'

@@ -319,45 +319,47 @@ function MainApp({ initialRoom }) {
             )}
             <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', position: 'relative' }}>
               <Routes>
-                {/* Onboarding / Sync Page */}
-                <Route path="onboarding" element={<><SEO title="Sync Account - AlgoDuel" /><ConnectLeetCode onCheckConnection={() => window.location.reload()} /></>} />
+                <Route element={<RequireAuth />}>
+                  {/* Onboarding / Sync Page */}
+                  <Route path="onboarding" element={<><SEO title="Sync Account - AlgoDuel" /><ConnectLeetCode onCheckConnection={() => window.location.reload()} /></>} />
 
-                {/* Protected App Routes (Require Sync) */}
-                <Route element={<RequireSync />}>
-                  <Route index element={<><SEO title="Lobby - AlgoDuel" /><Lobby socket={socket} onJoin={joinRoom} onPracticeSolo={() => navigate('/app/problems')} userInfo={userInfo} /></>} />
-                  <Route path="problems" element={
-                    <>
-                      <SEO title="Problem Set - AlgoDuel" />
-                      <ProblemList
-                        problems={problems}
-                        solvedProblems={solvedProblems}
-                        loading={loading}
-                        onRefresh={loadProblems}
-                        onSelectProblem={handlePrompt}
+                  {/* Protected App Routes (Require Sync) */}
+                  <Route element={<RequireSync />}>
+                    <Route index element={<><SEO title="Lobby - AlgoDuel" /><Lobby socket={socket} onJoin={joinRoom} onPracticeSolo={() => navigate('/app/problems')} userInfo={userInfo} /></>} />
+                    <Route path="problems" element={
+                      <>
+                        <SEO title="Problem Set - AlgoDuel" />
+                        <ProblemList
+                          problems={problems}
+                          solvedProblems={solvedProblems}
+                          loading={loading}
+                          onRefresh={loadProblems}
+                          onSelectProblem={handlePrompt}
+                        />
+                      </>
+                    } />
+                    <Route path="workspace/:problemId" element={<WorkspaceWrapper currentProblem={currentProblem} onBack={handleBack} />} />
+
+                    <Route path="history" element={<HistoryPage />} />
+                    <Route path="stats" element={<LeetCodePage />} />
+                    <Route path="learn" element={<LearnPage />} />
+                    <Route path="pathpradarshak" element={<PathPradarshakPage />} />
+
+                    <Route path="competition/:roomId" element={
+                      <CompetitionRoomWrapper
+                        socket={socket}
+                        roomId={roomId}
+                        username={username}
+                        userInfo={userInfo}
+                        roomState={roomState}
+                        onBack={handleBackToLobby}
+                        setRoomId={setRoomId}
+                        setUsername={setUsername}
                       />
-                    </>
-                  } />
-                  <Route path="workspace/:problemId" element={<WorkspaceWrapper currentProblem={currentProblem} onBack={handleBack} />} />
+                    } />
 
-                  <Route path="history" element={<HistoryPage />} />
-                  <Route path="stats" element={<LeetCodePage />} />
-                  <Route path="learn" element={<LearnPage />} />
-                  <Route path="pathpradarshak" element={<PathPradarshakPage />} />
-
-                  <Route path="competition/:roomId" element={
-                    <CompetitionRoomWrapper
-                      socket={socket}
-                      roomId={roomId}
-                      username={username}
-                      userInfo={userInfo}
-                      roomState={roomState}
-                      onBack={handleBackToLobby}
-                      setRoomId={setRoomId}
-                      setUsername={setUsername}
-                    />
-                  } />
-
-                  <Route path="admin" element={<AdminDashboard onBack={() => navigate('/app')} />} />
+                    <Route path="admin" element={<AdminDashboard onBack={() => navigate('/app')} />} />
+                  </Route>
                 </Route>
               </Routes>
             </div>
@@ -537,6 +539,14 @@ const WorkspaceWrapper = ({ currentProblem, onBack }) => {
     </>
   );
 };
+
+function RequireAuth() {
+  const token = localStorage.getItem('auth_token');
+  if (!token) {
+    return <Navigate to="/" replace />;
+  }
+  return <Outlet />;
+}
 
 // Wrapper to enforce LeetCode Sync
 function RequireSync() {
