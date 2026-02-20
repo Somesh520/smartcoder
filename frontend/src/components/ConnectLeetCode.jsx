@@ -178,6 +178,21 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                         </div>
                         <RefreshCw size={18} color="#22c55e" />
                     </div>
+
+                    {/* VIDEO TUTORIAL */}
+                    <div style={{ marginTop: '20px', background: '#121214', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '10px' }}>
+                        <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '8px' }}>
+                            <iframe
+                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                                src="https://www.youtube.com/embed/Njv4NZi1OH0?autoplay=1&mute=1&loop=1&playlist=Njv4NZi1OH0"
+                                title="How to participate tutorial"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                                loading="lazy"
+                            ></iframe>
+                        </div>
+                    </div>
                 </div>
 
                 <div style={{
