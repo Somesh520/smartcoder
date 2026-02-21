@@ -1,7 +1,9 @@
 import React from 'react';
-import { ExternalLink, RefreshCw, ShieldAlert, Download } from 'lucide-react';
+import { ExternalLink, RefreshCw, ShieldAlert, Download, PlayCircle } from 'lucide-react';
 
 const ConnectLeetCode = ({ onCheckConnection }) => {
+    const [videoStarted, setVideoStarted] = React.useState(false);
+
     // Auto-check for sync every 1 second
     React.useEffect(() => {
         const checkSync = () => {
@@ -44,7 +46,7 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                 position: 'relative',
                 margin: 'auto 0' // Center card vertically in the absolute container
             }}>
-                {/* Glow Effect (Moved to a clipped inner container if needed, or left to overflow safely) */}
+                {/* Glow Effect */}
                 <div style={{
                     position: 'absolute', top: -100, left: '50%', transform: 'translateX(-50%)',
                     width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(37,99,235,0.2) 0%, transparent 70%)',
@@ -52,7 +54,7 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                 }} />
 
                 <div style={{ marginBottom: '20px', position: 'relative', zIndex: 1 }}>
-                    <ShieldAlert size={56} color="#eab308" /> {/* Reduced Icon Size */}
+                    <ShieldAlert size={56} color="#eab308" />
                 </div>
 
                 <h1 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '8px', position: 'relative', zIndex: 1 }}>How to Participate</h1>
@@ -65,11 +67,11 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', textAlign: 'left', marginBottom: '30px', position: 'relative', zIndex: 1 }}>
 
                     {/* Step 1 */}
-                    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', padding: '16px', borderRadius: '16px' }}> {/* Compact padding */}
+                    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', padding: '16px', borderRadius: '16px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
                             <div style={{
                                 background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                                width: '28px', height: '28px', borderRadius: '50%', // Compact size
+                                width: '28px', height: '28px', borderRadius: '50%',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 fontWeight: 'bold', fontSize: '13px', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.5)'
                             }}>1</div>
@@ -91,9 +93,8 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                         {/* ANIMATED BROWSER MOCKUP */}
                         <div style={{
                             background: '#18181b', borderRadius: '8px', border: '1px solid #52525b',
-                            overflow: 'hidden', position: 'relative', height: '150px', marginBottom: '16px' // Reduced height
+                            overflow: 'hidden', position: 'relative', height: '150px', marginBottom: '16px'
                         }}>
-                            {/* Browser Header */}
                             <div style={{ background: '#27272a', padding: '6px 10px', borderBottom: '1px solid #3f3f46', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }} />
                                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#eab308' }} />
@@ -103,46 +104,23 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                                     fontSize: '9px', color: '#71717a', flex: 1, fontFamily: 'monospace'
                                 }}>chrome://extensions</div>
                             </div>
-
-                            {/* Browser Content */}
                             <div style={{ padding: '12px', position: 'relative', height: '100%' }}>
-                                {/* Header Bar */}
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                         <div style={{ width: '16px', height: '16px', background: '#3f3f46', borderRadius: '3px' }} />
                                         <div style={{ height: '6px', width: '50px', background: '#3f3f46', borderRadius: '3px' }} />
                                     </div>
-                                    {/* Developer Mode Toggle */}
                                     <div className="dev-mode-toggle" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                         <div style={{ fontSize: '9px', color: '#71717a' }}>Developer mode</div>
-                                        <div className="toggle-switch" style={{
-                                            width: '20px', height: '10px', background: '#3f3f46', borderRadius: '10px',
-                                            position: 'relative'
-                                        }}>
-                                            <div className="toggle-knob" style={{
-                                                width: '8px', height: '8px', background: '#71717a', borderRadius: '50%',
-                                                position: 'absolute', top: '1px', left: '1px', transition: 'all 0.3s'
-                                            }} />
+                                        <div className="toggle-switch" style={{ width: '20px', height: '10px', background: '#3f3f46', borderRadius: '10px' }}>
+                                            <div className="toggle-knob" style={{ width: '8px', height: '8px', background: '#71717a', borderRadius: '50%' }} />
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Load Unpacked Button */}
-                                <div className="load-unpacked" style={{
-                                    padding: '4px 10px', background: 'transparent', border: '1px solid #3f3f46',
-                                    borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '4px',
-                                    opacity: 0.5, transition: 'all 0.3s'
-                                }}>
+                                <div className="load-unpacked" style={{ padding: '4px 10px', background: 'transparent', border: '1px solid #3f3f46', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '4px', opacity: 0.5 }}>
                                     <div style={{ fontSize: '9px', color: '#a1a1aa' }}>Load unpacked</div>
                                 </div>
-
-                                {/* Cursor */}
-                                <div className="cursor-hand" style={{
-                                    position: 'absolute', top: '50%', left: '50%', width: '10px', height: '10px', // Smaller cursor
-                                    background: 'white', borderRadius: '50%', border: '2px solid black',
-                                    pointerEvents: 'none', zIndex: 10,
-                                    boxShadow: '0 2px 5px rgba(0,0,0,0.5)'
-                                }} />
+                                <div className="cursor-hand" style={{ position: 'absolute', top: '50%', left: '50%', width: '10px', height: '10px', background: 'white', borderRadius: '50%', border: '2px solid black', pointerEvents: 'none', zIndex: 10 }} />
                             </div>
                         </div>
 
@@ -202,7 +180,7 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                             alignItems: 'center',
                             gap: '10px'
                         }}>
-                            <Download size={16} /> <b>Pro Tip:</b> Neeche video tutorial dekho agar samajh nahi aa raha hai.
+                            <Download size={16} /> <b>Pro Tip:</b> Follow the video tutorial below if you encounter any issues.
                         </div>
 
                         <div style={{
@@ -211,19 +189,64 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                             borderRadius: '20px',
                             padding: '8px',
                             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
-                            overflow: 'hidden'
-                        }}>
-                            <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '12px' }}>
-                                <iframe
-                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                                    src="https://www.youtube.com/embed/Njv4NZi1OH0?modestbranding=1&rel=0&iv_load_policy=3&showinfo=0"
-                                    title="How to participate tutorial"
-                                    frameBorder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen
-                                    loading="lazy"
-                                ></iframe>
-                            </div>
+                            overflow: 'hidden',
+                            position: 'relative',
+                            cursor: videoStarted ? 'default' : 'pointer'
+                        }}
+                            onClick={() => !videoStarted && setVideoStarted(true)}
+                        >
+                            {!videoStarted ? (
+                                <div style={{
+                                    position: 'relative',
+                                    paddingBottom: '56.25%',
+                                    height: 0,
+                                    background: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://img.youtube.com/vi/Njv4NZi1OH0/maxresdefault.jpg')`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                    borderRadius: '12px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}>
+                                    <div style={{
+                                        position: 'absolute',
+                                        width: '64px',
+                                        height: '64px',
+                                        background: 'rgba(59, 130, 246, 0.9)',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        boxShadow: '0 0 30px rgba(59, 130, 246, 0.6)',
+                                        transition: 'all 0.3s'
+                                    }}>
+                                        <PlayCircle size={40} color="white" />
+                                    </div>
+                                    <div style={{
+                                        position: 'absolute',
+                                        bottom: '20px',
+                                        left: '20px',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        color: 'white',
+                                        textShadow: '0 2px 4px rgba(0,0,0,0.5)'
+                                    }}>
+                                        Launch Installation Guide
+                                    </div>
+                                </div>
+                            ) : (
+                                <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '12px' }}>
+                                    <iframe
+                                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                                        src="https://www.youtube.com/embed/Njv4NZi1OH0?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&controls=1"
+                                        title="How to participate tutorial"
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                        autoPlay
+                                    ></iframe>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -238,28 +261,15 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                 </div>
 
                 <style>{`
-                    /* Mobile Responsiveness */
                     @media (max-width: 768px) {
-                        .main-card {
-                            padding: 20px !important;
-                            border-radius: 16px !important;
-                        }
-                        .page-container {
-                            padding-top: 100px !important; /* Extra top padding for mobile navbar */
-                            padding-bottom: 20px !important;
-                            padding-left: 15px !important;
-                            padding-right: 15px !important;
-                        }
+                        .main-card { padding: 20px !important; border-radius: 16px !important; }
+                        .page-container { padding-top: 100px !important; padding-bottom: 20px !important; padding-left: 15px !important; padding-right: 15px !important; }
                     }
-
                     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-                    
-                    /* Animation Scenario */
                     .cursor-hand { animation: cursorScenario 6s infinite ease-in-out; }
                     .toggle-switch { animation: toggleBg 6s infinite steps(1); }
                     .toggle-knob { animation: knobMove 6s infinite steps(1); }
                     .load-unpacked { animation: btnActivate 6s infinite steps(1); }
-
                     @keyframes cursorScenario {
                         0%, 10% { top: 120%; left: 80%; opacity: 0; }
                         15% { top: 40px; left: 88%; opacity: 1; transform: scale(1); }
@@ -273,22 +283,9 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                         80% { top: 120%; opacity: 0; }
                         100% { opacity: 0; }
                     }
-
-                    @keyframes toggleBg {
-                        0%, 20% { background: #3f3f46; }
-                        20%, 100% { background: #2563eb; }
-                    }
-                    @keyframes knobMove {
-                        0%, 20% { left: 1px; background: #71717a; }
-                        20%, 100% { left: 11px; background: white; }
-                    }
-
-                    @keyframes btnActivate {
-                        0%, 20% { opacity: 0.5; border-color: #3f3f46; }
-                        20%, 50% { opacity: 1; border-color: #71717a; color: white; }
-                        50%, 55% { background: #3f3f46; }
-                        55%, 100% { background: transparent; }
-                    }
+                    @keyframes toggleBg { 0%, 20% { background: #3f3f46; } 20%, 100% { background: #2563eb; } }
+                    @keyframes knobMove { 0%, 20% { left: 1px; background: #71717a; } 20%, 100% { left: 11px; background: white; } }
+                    @keyframes btnActivate { 0%, 20% { opacity: 0.5; border-color: #3f3f46; } 20%, 50% { opacity: 1; border-color: #71717a; color: white; } 50%, 55% { background: #3f3f46; } 55%, 100% { background: transparent; } }
                 `}</style>
             </div>
         </div>
