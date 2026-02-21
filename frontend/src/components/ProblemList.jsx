@@ -25,10 +25,10 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
     return (
         <div style={{
             position: 'absolute',
-            top: '64px',
+            top: 0,
             left: 0,
             width: '100%',
-            height: 'calc(100vh - 64px)',
+            height: '100%',
             background: 'linear-gradient(135deg, #0a0a0f 0%, #0e0e14 100%)',
             padding: '30px',
             overflowY: 'auto'
