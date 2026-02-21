@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Book, Code, Server, Route, Layers, Zap, ChevronDown, ChevronRight, ExternalLink } from 'lucide-react';
+import { Book, Code, Server, Route, Layers, Zap, ChevronDown, ChevronRight, Shield, Filter, Database, Cpu } from 'lucide-react';
 
 const Documentation = () => {
     const [activeTab, setActiveTab] = useState('overview');
@@ -20,9 +20,10 @@ const Documentation = () => {
     return (
         <div style={{
             minHeight: '100vh',
-            background: '#0a0a0a',
-            color: 'white',
-            padding: '80px 20px 40px'
+            background: '#09090b',
+            color: '#e4e4e7',
+            padding: '80px 20px 40px',
+            fontFamily: "'Inter', sans-serif"
         }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
                 {/* Header */}
@@ -31,28 +32,30 @@ const Documentation = () => {
                         fontSize: '48px',
                         fontWeight: '900',
                         marginBottom: '16px',
-                        background: 'linear-gradient(135deg, #00FFFF, #FF7BAC)',
+                        background: 'linear-gradient(135deg, #a78bfa, #8b5cf6)',
                         WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent'
+                        WebkitTextFillColor: 'transparent',
+                        letterSpacing: '-1px'
                     }}>
-                        AlgoDuel Documentation
+                        SmartCoder Documentation
                     </h1>
-                    <p style={{ fontSize: '18px', color: '#71717a' }}>
-                        Complete technical reference for the competitive programming platform
+                    <p style={{ fontSize: '18px', color: '#71717a', maxWidth: '600px', margin: '0 auto' }}>
+                        Technical reference for the ultimate real-time competitive programming arena.
                     </p>
                 </div>
 
                 {/* Tabs */}
                 <div style={{
                     display: 'flex',
-                    gap: '8px',
+                    gap: '12px',
                     marginBottom: '40px',
-                    borderBottom: '1px solid rgba(255,255,255,0.1)',
+                    borderBottom: '1px solid #27272a',
                     overflowX: 'auto',
-                    paddingBottom: '8px'
+                    paddingBottom: '2px'
                 }}>
                     {tabs.map(tab => {
                         const Icon = tab.icon;
+                        const isActive = activeTab === tab.id;
                         return (
                             <button
                                 key={tab.id}
@@ -60,32 +63,35 @@ const Documentation = () => {
                                 style={{
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '8px',
-                                    padding: '12px 24px',
-                                    background: activeTab === tab.id ? 'rgba(0, 255, 255, 0.1)' : 'transparent',
+                                    gap: '10px',
+                                    padding: '14px 28px',
+                                    background: 'transparent',
                                     border: 'none',
-                                    borderBottom: activeTab === tab.id ? '2px solid #00FFFF' : '2px solid transparent',
-                                    color: activeTab === tab.id ? '#00FFFF' : '#71717a',
+                                    borderBottom: isActive ? '3px solid #a78bfa' : '3px solid transparent',
+                                    color: isActive ? '#f4f4f5' : '#71717a',
                                     cursor: 'pointer',
-                                    fontSize: '14px',
-                                    fontWeight: '600',
-                                    transition: 'all 0.2s',
-                                    whiteSpace: 'nowrap'
+                                    fontSize: '15px',
+                                    fontWeight: '700',
+                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                    whiteSpace: 'nowrap',
+                                    opacity: isActive ? 1 : 0.7
                                 }}
                             >
-                                <Icon size={18} />
+                                <Icon size={20} color={isActive ? '#a78bfa' : '#71717a'} />
                                 {tab.label}
                             </button>
                         );
                     })}
                 </div>
 
-                {/* Content */}
+                {/* Content Area */}
                 <div style={{
-                    background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '12px',
-                    padding: '40px',
+                    background: 'rgba(24, 24, 27, 0.5)',
+                    backdropFilter: 'blur(12px)',
+                    border: '1px solid #27272a',
+                    borderRadius: '20px',
+                    padding: '48px',
+                    boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
                     minHeight: '600px'
                 }}>
                     {activeTab === 'overview' && <OverviewContent />}
@@ -99,99 +105,95 @@ const Documentation = () => {
     );
 };
 
-const SectionHeader = ({ title, isExpanded, onToggle }) => (
+const SectionHeader = ({ title, isExpanded, onToggle, accentColor = '#a78bfa' }) => (
     <div
         onClick={onToggle}
         style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '16px 20px',
-            background: 'rgba(0, 255, 255, 0.05)',
-            border: '1px solid rgba(0, 255, 255, 0.2)',
-            borderRadius: '8px',
+            padding: '18px 24px',
+            background: isExpanded ? 'rgba(167, 139, 250, 0.05)' : 'rgba(255, 255, 255, 0.02)',
+            border: `1px solid ${isExpanded ? accentColor : '#27272a'}`,
+            borderRadius: '12px',
             cursor: 'pointer',
             marginBottom: isExpanded ? '16px' : '12px',
-            transition: 'all 0.2s'
+            transition: 'all 0.3s ease',
+            opacity: isExpanded ? 1 : 0.8
         }}
     >
-        <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#00FFFF' }}>{title}</h3>
-        {isExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '4px', height: '16px', borderRadius: '2px', background: accentColor }}></div>
+            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#f4f4f5' }}>{title}</h3>
+        </div>
+        {isExpanded ? <ChevronDown size={22} color={accentColor} /> : <ChevronRight size={22} color="#71717a" />}
     </div>
 );
 
-const TechItem = ({ name, version, purpose }) => (
+const TechItem = ({ name, version, purpose, color = '#a78bfa' }) => (
     <div style={{
-        padding: '12px 16px',
-        background: 'rgba(255,255,255,0.03)',
-        borderLeft: '3px solid #00FFFF',
-        marginBottom: '8px',
-        borderRadius: '4px'
+        padding: '16px 20px',
+        background: 'rgba(24,24,27,0.4)',
+        borderLeft: `4px solid ${color}`,
+        marginBottom: '10px',
+        borderRadius: '8px',
+        border: '1px solid #27272a',
+        borderLeftWidth: '4px'
     }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
             <code style={{
-                color: '#00FFFF',
-                fontSize: '14px',
-                fontWeight: '700',
-                fontFamily: 'monospace'
+                color: color,
+                fontSize: '15px',
+                fontWeight: '800',
+                fontFamily: 'monospace',
+                background: `${color}10`,
+                padding: '2px 8px',
+                borderRadius: '4px'
             }}>
                 {name}
             </code>
-            {version && <span style={{ color: '#71717a', fontSize: '12px' }}>v{version}</span>}
+            {version && <span style={{ color: '#71717a', fontSize: '13px', fontWeight: 600 }}>v{version}</span>}
         </div>
-        <p style={{ margin: 0, fontSize: '13px', color: '#a1a1aa' }}>{purpose}</p>
+        <p style={{ margin: 0, fontSize: '14px', color: '#a1a1aa', lineHeight: '1.5' }}>{purpose}</p>
     </div>
 );
 
 const OverviewContent = () => (
     <div>
-        <h2 style={{ fontSize: '32px', marginBottom: '24px', color: 'white' }}>Project Overview</h2>
+        <h2 style={{ fontSize: '36px', fontWeight: '900', marginBottom: '28px', color: '#f4f4f5', letterSpacing: '-0.5px' }}>Project Overview</h2>
 
-        <div style={{ marginBottom: '40px' }}>
-            <h3 style={{ fontSize: '20px', color: '#00FFFF', marginBottom: '16px' }}>What is AlgoDuel?</h3>
-            <p style={{ fontSize: '16px', lineHeight: '1.8', color: '#d4d4d8' }}>
-                AlgoDuel (SmartCoder) is a <strong>real-time competitive programming platform</strong> where developers can battle 1v1
-                in algorithm challenges. It features live code synchronization, LeetCode integration, multiplayer rooms,
-                and instant code execution using the Judge0 API.
+        <div style={{ marginBottom: '48px' }}>
+            <h3 style={{ fontSize: '22px', color: '#a78bfa', marginBottom: '16px', fontWeight: '800' }}>What is SmartCoder?</h3>
+            <p style={{ fontSize: '17px', lineHeight: '1.8', color: '#a1a1aa' }}>
+                SmartCoder is a <strong>high-performance real-time competitive programming platform</strong>. It enables developers to engage in 1v1 battle duels, solve curated LeetCode challenges, and sync their global statistics within a premium "Cyberpunk" aesthetic.
             </p>
         </div>
 
-        <div style={{ marginBottom: '40px' }}>
-            <h3 style={{ fontSize: '20px', color: '#00FFFF', marginBottom: '16px' }}>Core Features</h3>
-            <ul style={{ fontSize: '15px', lineHeight: '2', color: '#d4d4d8', paddingLeft: '24px' }}>
-                <li><strong>Real-time Code Editor</strong> - Monaco-style editor with syntax highlighting</li>
-                <li><strong>Live 1v1 Battles</strong> - WebSocket-powered multiplayer coding battles</li>
-                <li><strong>LeetCode Integration</strong> - Sync your LeetCode stats and profile</li>
-                <li><strong>Code Execution</strong> - Run & test code with Judge0 API</li>
-                <li><strong>OAuth Authentication</strong> - Google & GitHub login</li>
-                <li><strong>Battle History</strong> - Track all your past competitions</li>
-                <li><strong>Learn Mode</strong> - Educational resources and tutorials</li>
-            </ul>
-        </div>
-
-        <div>
-            <h3 style={{ fontSize: '20px', color: '#00FFFF', marginBottom: '16px' }}>Tech Stack Summary</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                <div style={{
-                    padding: '24px',
-                    background: 'rgba(0,255,255,0.05)',
-                    border: '1px solid rgba(0,255,255,0.2)',
-                    borderRadius: '8px'
-                }}>
-                    <h4 style={{ color: '#00FFFF', marginBottom: '12px' }}>Frontend</h4>
-                    <p style={{ fontSize: '13px', color: '#a1a1aa', margin: 0 }}>
-                        React 19, Vite, Socket.io, Three.js, React Router, React Helmet
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginBottom: '48px' }}>
+            <div style={{ background: 'rgba(167, 139, 250, 0.03)', padding: '28px', borderRadius: '16px', border: '1px solid rgba(167, 139, 250, 0.1)' }}>
+                <h3 style={{ fontSize: '20px', color: '#a78bfa', marginBottom: '20px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Zap size={20} /> Core Features
+                </h3>
+                <ul style={{ fontSize: '15px', lineHeight: '2.2', color: '#a1a1aa', paddingLeft: '20px', margin: 0 }}>
+                    <li><strong>Real-time Code Sync</strong> - Monaco-powered editing</li>
+                    <li><strong>Live 1v1 Duels</strong> - WebSocket matchmaking</li>
+                    <li><strong>Smart Discovery</strong> - Difficulty & Topic filtering</li>
+                    <li><strong>Admin Command Center</strong> - Live platform metrics</li>
+                    <li><strong>LeetCode Synergy</strong> - Profile & Stats integration</li>
+                    <li><strong>Multi-Engine</strong> - Support for multiple languages</li>
+                </ul>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ padding: '24px', background: '#18181b', border: '1px solid #27272a', borderRadius: '16px' }}>
+                    <h4 style={{ color: '#f4f4f5', marginBottom: '12px', fontWeight: '800' }}>Platform Health</h4>
+                    <p style={{ fontSize: '14px', color: '#71717a', margin: 0 }}>
+                        Powered by Node.js 20 LTS and MongoDB Atlas for maximum uptime and scalability.
                     </p>
                 </div>
-                <div style={{
-                    padding: '24px',
-                    background: 'rgba(255,123,172,0.05)',
-                    border: '1px solid rgba(255,123,172,0.2)',
-                    borderRadius: '8px'
-                }}>
-                    <h4 style={{ color: '#FF7BAC', marginBottom: '12px' }}>Backend</h4>
-                    <p style={{ fontSize: '13px', color: '#a1a1aa', margin: 0 }}>
-                        Express, MongoDB, Socket.io, JWT, Passport, Judge0, LeetCode API
+                <div style={{ padding: '24px', background: '#18181b', border: '1px solid #27272a', borderRadius: '16px' }}>
+                    <h4 style={{ color: '#f4f4f5', marginBottom: '12px', fontWeight: '800' }}>Global Reach</h4>
+                    <p style={{ fontSize: '14px', color: '#71717a', margin: 0 }}>
+                        Integrated with Judge0 for high-speed, secure remote code execution.
                     </p>
                 </div>
             </div>
@@ -201,100 +203,41 @@ const OverviewContent = () => (
 
 const FrontendContent = ({ expandedSections, toggleSection }) => (
     <div>
-        <h2 style={{ fontSize: '32px', marginBottom: '24px', color: 'white' }}>Frontend Technologies</h2>
+        <h2 style={{ fontSize: '36px', fontWeight: '900', marginBottom: '28px', color: '#f4f4f5' }}>Frontend Engine</h2>
 
-        <SectionHeader
-            title="Core Framework & Build Tool"
-            isExpanded={expandedSections.frontendCore}
-            onToggle={() => toggleSection('frontendCore')}
-        />
+        <SectionHeader title="Core Ecosystem" isExpanded={expandedSections.frontendCore} onToggle={() => toggleSection('frontendCore')} />
         {expandedSections.frontendCore && (
-            <div style={{ marginBottom: '24px' }}>
-                <TechItem name="React" version="19.2.0" purpose="UI library for building component-based interfaces" />
-                <TechItem name="Vite" version="7.2.4" purpose="Lightning-fast build tool and dev server with HMR" />
-                <TechItem name="React DOM" version="19.2.0" purpose="React renderer for web applications" />
+            <div style={{ marginBottom: '24px', display: 'grid', gap: '8px' }}>
+                <TechItem name="React" version="19.2.0" purpose="Modern UI library with Concurrent Mode for fluid user interactions." />
+                <TechItem name="Vite" version="7.2.4" purpose="Next-gen build tool providing instantaneous Hot Module Replacement." />
+                <TechItem name="Framer Motion" version="12.27.2" purpose="Production-ready animation engine for premium transitions." />
             </div>
         )}
 
-        <SectionHeader
-            title="Routing & Navigation"
-            isExpanded={expandedSections.frontendRouting}
-            onToggle={() => toggleSection('frontendRouting')}
-        />
-        {expandedSections.frontendRouting && (
-            <div style={{ marginBottom: '24px' }}>
-                <TechItem name="React Router DOM" version="7.11.0" purpose="Declarative routing for React - handles all page navigation and protected routes" />
-            </div>
-        )}
-
-        <SectionHeader
-            title="Real-time Communication"
-            isExpanded={expandedSections.frontendSocket}
-            onToggle={() => toggleSection('frontendSocket')}
-        />
-        {expandedSections.frontendSocket && (
-            <div style={{ marginBottom: '24px' }}>
-                <TechItem name="Socket.io-client" version="4.8.3" purpose="WebSocket client for real-time bidirectional communication in battles" />
-            </div>
-        )}
-
-        <SectionHeader
-            title="Code Editor & Syntax"
-            isExpanded={expandedSections.frontendEditor}
-            onToggle={() => toggleSection('frontendEditor')}
-        />
+        <SectionHeader title="Workspace & Editor" isExpanded={expandedSections.frontendEditor} onToggle={() => toggleSection('frontendEditor')} />
         {expandedSections.frontendEditor && (
             <div style={{ marginBottom: '24px' }}>
-                <TechItem name="React Simple Code Editor" version="0.14.1" purpose="Lightweight code editor component for the workspace" />
-                <TechItem name="Prismjs" version="1.30.0" purpose="Syntax highlighting for multiple programming languages" />
+                <TechItem name="Monaco Editor" version="4.7.0" purpose="VS Code-level code editing experience in the browser." />
+                <TechItem name="Prismjs" version="1.30.0" purpose="Specialized syntax highlighting for arena environments." />
+                <TechItem name="React Markdown" version="10.1.0" purpose="Rendering complex problem descriptions with LaTeX/Markdown support." />
             </div>
         )}
 
-        <SectionHeader
-            title="HTTP & API"
-            isExpanded={expandedSections.frontendHTTP}
-            onToggle={() => toggleSection('frontendHTTP')}
-        />
-        {expandedSections.frontendHTTP && (
+        <SectionHeader title="Real-time & Data" isExpanded={expandedSections.frontendData} onToggle={() => toggleSection('frontendData')} />
+        {expandedSections.frontendData && (
             <div style={{ marginBottom: '24px' }}>
-                <TechItem name="Axios" version="1.13.2" purpose="Promise-based HTTP client for API requests" />
+                <TechItem name="Socket.io-client" version="4.8.3" purpose="Handles real-time battle state and lobby notifications." />
+                <TechItem name="Axios" version="1.13.2" purpose="Authenticated API client for all RESTful interactions." />
+                <TechItem name="React Router" version="7.11.0" purpose="Dynamic client-side routing with protected admin layouts." />
             </div>
         )}
 
-        <SectionHeader
-            title="UI & Icons"
-            isExpanded={expandedSections.frontendUI}
-            onToggle={() => toggleSection('frontendUI')}
-        />
+        <SectionHeader title="Visual & UX" isExpanded={expandedSections.frontendUI} onToggle={() => toggleSection('frontendUI')} />
         {expandedSections.frontendUI && (
             <div style={{ marginBottom: '24px' }}>
-                <TechItem name="Lucide React" version="0.562.0" purpose="Beautiful, consistent icon library (500+ icons)" />
-            </div>
-        )}
-
-        <SectionHeader
-            title="SEO & Meta Tags"
-            isExpanded={expandedSections.frontendSEO}
-            onToggle={() => toggleSection('frontendSEO')}
-        />
-        {expandedSections.frontendSEO && (
-            <div style={{ marginBottom: '24px' }}>
-                <TechItem name="React Helmet Async" version="2.0.5" purpose="Manage document head for SEO optimization and meta tags" />
-            </div>
-        )}
-
-        <SectionHeader
-            title="3D Graphics & Effects"
-            isExpanded={expandedSections.frontend3D}
-            onToggle={() => toggleSection('frontend3D')}
-        />
-        {expandedSections.frontend3D && (
-            <div style={{ marginBottom: '24px' }}>
-                <TechItem name="Three.js" version="0.182.0" purpose="3D graphics library for WebGL rendering" />
-                <TechItem name="@react-three/fiber" version="9.4.2" purpose="React renderer for Three.js" />
-                <TechItem name="@react-three/drei" version="10.7.7" purpose="Useful helpers for react-three-fiber" />
-                <TechItem name="@react-three/postprocessing" version="3.0.4" purpose="Post-processing effects (bloom, etc.)" />
-                <TechItem name="three-stdlib" version="2.36.1" purpose="Standard library extensions for Three.js" />
+                <TechItem name="Lucide React" version="0.562.0" purpose="Sleek, lightweight iconography for the entire interface." />
+                <TechItem name="Canvas Confetti" version="1.9.4" purpose="Victory effects for match winners." />
+                <TechItem name="Three.js" version="0.182.0" purpose="3D background effects and GLSL shader integration." />
             </div>
         )}
     </div>
@@ -302,106 +245,41 @@ const FrontendContent = ({ expandedSections, toggleSection }) => (
 
 const BackendContent = ({ expandedSections, toggleSection }) => (
     <div>
-        <h2 style={{ fontSize: '32px', marginBottom: '24px', color: 'white' }}>Backend Technologies</h2>
+        <h2 style={{ fontSize: '36px', fontWeight: '900', marginBottom: '28px', color: '#f4f4f5' }}>Backend Infrastructure</h2>
 
-        <SectionHeader
-            title="Core Framework"
-            isExpanded={expandedSections.backendCore}
-            onToggle={() => toggleSection('backendCore')}
-        />
+        <SectionHeader title="Server Core" isExpanded={expandedSections.backendCore} onToggle={() => toggleSection('backendCore')} />
         {expandedSections.backendCore && (
             <div style={{ marginBottom: '24px' }}>
-                <TechItem name="Node.js" version="20.19.6" purpose="JavaScript runtime for server-side execution" />
-                <TechItem name="Express" version="5.2.1" purpose="Fast, minimalist web framework for Node.js" />
-                <TechItem name="Nodemon" version="3.1.11" purpose="Auto-restart server on file changes (dev only)" />
+                <TechItem name="Node.js" version="20.19.6" purpose="High-performance async runtime for real-time applications." />
+                <TechItem name="Express" version="5.2.1" purpose="Minimalist web framework handling API request pipelines." />
+                <TechItem name="Socket.io" version="4.8.3" purpose="The backbone of real-time room and duel synchronization." />
             </div>
         )}
 
-        <SectionHeader
-            title="Real-time Communication"
-            isExpanded={expandedSections.backendSocket}
-            onToggle={() => toggleSection('backendSocket')}
-        />
-        {expandedSections.backendSocket && (
-            <div style={{ marginBottom: '24px' }}>
-                <TechItem name="Socket.io" version="4.8.3" purpose="WebSocket server for real-time battle synchronization" />
-            </div>
-        )}
-
-        <SectionHeader
-            title="Database"
-            isExpanded={expandedSections.backendDB}
-            onToggle={() => toggleSection('backendDB')}
-        />
+        <SectionHeader title="Database & Persistence" isExpanded={expandedSections.backendDB} onToggle={() => toggleSection('backendDB')} />
         {expandedSections.backendDB && (
             <div style={{ marginBottom: '24px' }}>
-                <TechItem name="MongoDB" version="-" purpose="NoSQL database for storing users, problems, battles" />
-                <TechItem name="Mongoose" version="9.1.2" purpose="ODM library for MongoDB with schema validation" />
+                <TechItem name="MongoDB" version="Atlas" purpose="Scalable NoSQL storage for users, matches, and transactions." />
+                <TechItem name="Mongoose" version="9.1.2" purpose="Sophisticated ODM with strict schema validation." />
+                <TechItem name="Redis" version="5.10.0" purpose="High-speed caching for login sessions and lobby states." />
             </div>
         )}
 
-        <SectionHeader
-            title="Authentication & Security"
-            isExpanded={expandedSections.backendAuth}
-            onToggle={() => toggleSection('backendAuth')}
-        />
+        <SectionHeader title="Security Layer" isExpanded={expandedSections.backendAuth} onToggle={() => toggleSection('backendAuth')} />
         {expandedSections.backendAuth && (
             <div style={{ marginBottom: '24px' }}>
-                <TechItem name="JWT (jsonwebtoken)" version="9.0.3" purpose="Generate and verify JSON Web Tokens for stateless auth" />
-                <TechItem name="Passport" version="0.7.0" purpose="Authentication middleware for Node.js" />
-                <TechItem name="Passport Google OAuth" version="2.0.0" purpose="Google OAuth 2.0 authentication strategy" />
-                <TechItem name="Helmet" version="8.1.0" purpose="Security middleware - sets HTTP headers" />
+                <TechItem name="JWT (JSON Web Token)" version="9.0.3" purpose="Stateless authentication with secure HttpOnly cookies." />
+                <TechItem name="Passport.js" version="0.7.0" purpose="Flexible authentication middleware for OAuth and Local strategies." />
+                <TechItem name="Helmet" version="8.1.0" purpose="Hardening the server by setting various security-related HTTP headers." />
             </div>
         )}
 
-        <SectionHeader
-            title="Sessions & Caching"
-            isExpanded={expandedSections.backendSession}
-            onToggle={() => toggleSection('backendSession')}
-        />
-        {expandedSections.backendSession && (
+        <SectionHeader title="Intelligence & Execution" isExpanded={expandedSections.backendAI} onToggle={() => toggleSection('backendAI')} />
+        {expandedSections.backendAI && (
             <div style={{ marginBottom: '24px' }}>
-                <TechItem name="Express Session" version="1.18.2" purpose="Session middleware for Express" />
-                <TechItem name="Redis" version="5.10.0" purpose="In-memory data store for session caching" />
-                <TechItem name="Connect Redis" version="9.0.0" purpose="Redis session store for Express" />
-            </div>
-        )}
-
-        <SectionHeader
-            title="Middleware & Utilities"
-            isExpanded={expandedSections.backendMiddleware}
-            onToggle={() => toggleSection('backendMiddleware')}
-        />
-        {expandedSections.backendMiddleware && (
-            <div style={{ marginBottom: '24px' }}>
-                <TechItem name="CORS" version="2.8.5" purpose="Enable Cross-Origin Resource Sharing" />
-                <TechItem name="Cookie Parser" version="1.4.7" purpose="Parse Cookie header and populate req.cookies" />
-                <TechItem name="Compression" version="1.8.1" purpose="Compress response bodies for better performance" />
-                <TechItem name="Express Rate Limit" version="8.2.1" purpose="Rate limiting to prevent abuse" />
-                <TechItem name="Dotenv" version="17.2.3" purpose="Load environment variables from .env file" />
-            </div>
-        )}
-
-        <SectionHeader
-            title="External APIs"
-            isExpanded={expandedSections.backendAPIs}
-            onToggle={() => toggleSection('backendAPIs')}
-        />
-        {expandedSections.backendAPIs && (
-            <div style={{ marginBottom: '24px' }}>
-                <TechItem name="Axios" version="1.13.2" purpose="HTTP client for making requests to Judge0 and other APIs" />
-                <TechItem name="Leetcode Query" version="2.0.1" purpose="Fetch LeetCode user statistics and profile data" />
-                <div style={{
-                    padding: '12px 16px',
-                    background: 'rgba(255,123,172,0.1)',
-                    borderLeft: '3px solid #FF7BAC',
-                    marginTop: '8px',
-                    borderRadius: '4px'
-                }}>
-                    <p style={{ margin: 0, fontSize: '13px', color: '#d4d4d8' }}>
-                        <strong>Judge0 API</strong> - External code execution service (not in package.json, accessed via HTTP)
-                    </p>
-                </div>
+                <TechItem name="Google Generative AI" version="0.24.1" purpose="Powers AI code reviews and intelligent hint generation." />
+                <TechItem name="Judge0 API" version="External" purpose="Remote sandboxed code execution for 50+ languages." />
+                <TechItem name="LeetCode Query" version="2.0.1" purpose="Fetching official LeetCode stats for user profiles." />
             </div>
         )}
     </div>
@@ -409,201 +287,79 @@ const BackendContent = ({ expandedSections, toggleSection }) => (
 
 const RoutesContent = () => (
     <div>
-        <h2 style={{ fontSize: '32px', marginBottom: '24px', color: 'white' }}>Routes & Pages</h2>
+        <h2 style={{ fontSize: '36px', fontWeight: '900', marginBottom: '28px', color: '#f4f4f5' }}>Page Registry</h2>
 
-        <div style={{ marginBottom: '40px' }}>
-            <h3 style={{ fontSize: '20px', color: '#00FFFF', marginBottom: '16px' }}>Frontend Routes</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <RouteItem path="/" component="LandingPage" description="Marketing landing page with features, tech stack, and CTAs" />
-                <RouteItem path="/app" component="MainApp" description="Protected app shell - redirects to /app/problems" />
-                <RouteItem path="/app/problems" component="ProblemList" description="Browse all coding problems" />
-                <RouteItem path="/app/workspace/:problemId" component="Workspace" description="Code editor for solving problems (solo practice)" />
-                <RouteItem path="/app/lobby/:roomId" component="Lobby" description="Waiting room before battle starts" />
-                <RouteItem path="/app/battle/:roomId" component="CompetitionRoom" description="Live 1v1 coding battle with real-time sync" />
-                <RouteItem path="/app/learn" component="LearnPage" description="Educational resources and tutorials" />
-                <RouteItem path="/app/history" component="HistoryPage" description="View past battle results and statistics" />
-                <RouteItem path="/app/stats" component="LeetCodePage" description="LeetCode profile and statistics integration" />
-                <RouteItem path="/connect-leetcode" component="ConnectLeetCode" description="Guide to install browser extension" />
-            </div>
-        </div>
-
-        <div>
-            <h3 style={{ fontSize: '20px', color: '#FF7BAC', marginBottom: '16px' }}>Backend API Routes</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <APIRoute method="POST" path="/api/auth/signup" description="Create new user account with email/password" />
-                <APIRoute method="POST" path="/api/auth/login" description="Login with email/password, returns JWT" />
-                <APIRoute method="GET" path="/api/auth/google" description="Initiate Google OAuth flow" />
-                <APIRoute method="GET" path="/api/auth/google/callback" description="Google OAuth callback handler" />
-                <APIRoute method="GET" path="/api/auth/github" description="Initiate GitHub OAuth flow" />
-                <APIRoute method="GET" path="/api/auth/github/callback" description="GitHub OAuth callback handler" />
-                <APIRoute method="GET" path="/api/auth/logout" description="Clear session and logout user" />
-                <APIRoute method="POST" path="/api/problems" description="Create a new coding problem (admin)" />
-                <APIRoute method="GET" path="/api/problems" description="Get all problems with pagination" />
-                <APIRoute method="GET" path="/api/problems/:id" description="Get single problem by ID" />
-                <APIRoute method="GET" path="/api/leetcode/:username" description="Fetch LeetCode stats for a username" />
-                <APIRoute method="POST" path="/api/leetcode/me" description="Auto-sync LeetCode stats from session cookie" />
-                <APIRoute method="GET" path="/api/history" description="Get authenticated user's battle history" />
-            </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px' }}>
+            <RouteItem path="/" component="Landing" type="Public" description="The gateway to the arena: features, aesthetics, and onboarding." />
+            <RouteItem path="/app" component="Dashboard" type="Secure" description="Main problem discovery hub with advanced filtering." />
+            <RouteItem path="/app/battle/:roomId" component="Arena" type="Secure" description="The real-time workspace for 1v1 competitive coding." />
+            <RouteItem path="/app/lobby/:roomId" component="Lobby" type="Secure" description="Matchmaking zone for setting up competitive parameters." />
+            <RouteItem path="/app/admin" component="CommandCenter" type="Admin" description="The core moderation hub for stats and user management." />
+            <RouteItem path="/app/learn" component="Learn" type="Public" description="AI-powered hints and algorithmic tutorials." />
+            <RouteItem path="/app/history" component="Logs" type="Secure" description="Complete archive of all past battles and Elo changes." />
+            <RouteItem path="/app/profile" component="Profile" type="Secure" description="Personal performance metrics and tier status." />
         </div>
     </div>
 );
 
-const RouteItem = ({ path, component, description }) => (
+const RouteItem = ({ path, component, type, description }) => (
     <div style={{
-        padding: '16px 20px',
-        background: 'rgba(0,255,255,0.03)',
-        border: '1px solid rgba(0,255,255,0.1)',
-        borderRadius: '8px'
+        padding: '24px',
+        background: '#18181b',
+        border: '1px solid #27272a',
+        borderRadius: '16px',
+        transition: 'transform 0.2s ease'
     }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-            <code style={{
-                color: '#00FFFF',
-                fontSize: '14px',
-                fontWeight: '700',
-                fontFamily: 'monospace'
-            }}>
-                {path}
-            </code>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <code style={{ color: '#a78bfa', fontSize: '15px', fontWeight: '800' }}>{path}</code>
             <span style={{
+                fontSize: '11px',
+                background: type === 'Admin' ? '#ef4444' : type === 'Secure' ? '#3b82f6' : '#22c55e',
+                color: '#fff',
                 padding: '2px 8px',
-                background: 'rgba(255,123,172,0.2)',
-                color: '#FF7BAC',
-                fontSize: '11px',
                 borderRadius: '4px',
-                fontWeight: '600'
+                fontWeight: '900'
             }}>
-                {component}
+                {type}
             </span>
         </div>
-        <p style={{ margin: 0, fontSize: '13px', color: '#a1a1aa' }}>{description}</p>
-    </div>
-);
-
-const APIRoute = ({ method, path, description }) => (
-    <div style={{
-        padding: '16px 20px',
-        background: 'rgba(255,123,172,0.03)',
-        border: '1px solid rgba(255,123,172,0.1)',
-        borderRadius: '8px'
-    }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-            <span style={{
-                padding: '4px 8px',
-                background: method === 'GET' ? 'rgba(34,197,94,0.2)' : 'rgba(234,179,8,0.2)',
-                color: method === 'GET' ? '#22c55e' : '#eab308',
-                fontSize: '11px',
-                borderRadius: '4px',
-                fontWeight: '700',
-                fontFamily: 'monospace',
-                minWidth: '50px',
-                textAlign: 'center'
-            }}>
-                {method}
-            </span>
-            <code style={{
-                color: '#FF7BAC',
-                fontSize: '14px',
-                fontWeight: '700',
-                fontFamily: 'monospace'
-            }}>
-                {path}
-            </code>
-        </div>
-        <p style={{ margin: 0, fontSize: '13px', color: '#a1a1aa' }}>{description}</p>
+        <div style={{ fontSize: '13px', color: '#71717a', marginBottom: '8px' }}>Component: <span style={{ color: '#e4e4e7' }}>{component}</span></div>
+        <p style={{ margin: 0, fontSize: '13px', color: '#a1a1aa', lineHeight: '1.6' }}>{description}</p>
     </div>
 );
 
 const ArchitectureContent = () => (
     <div>
-        <h2 style={{ fontSize: '32px', marginBottom: '24px', color: 'white' }}>Architecture & Features</h2>
+        <h2 style={{ fontSize: '36px', fontWeight: '900', marginBottom: '28px', color: '#f4f4f5' }}>System Integrity</h2>
 
-        <div style={{ marginBottom: '40px' }}>
-            <h3 style={{ fontSize: '20px', color: '#00FFFF', marginBottom: '16px' }}>System Architecture</h3>
-            <p style={{ fontSize: '15px', lineHeight: '1.8', color: '#d4d4d8', marginBottom: '20px' }}>
-                AlgoDuel follows a <strong>client-server architecture</strong> with real-time WebSocket communication:
-            </p>
-            <ul style={{ fontSize: '14px', lineHeight: '2', color: '#a1a1aa', paddingLeft: '24px' }}>
-                <li><strong>Frontend (React + Vite)</strong> - SPA hosted on Vercel</li>
-                <li><strong>Backend (Express)</strong> - REST API + WebSocket server</li>
-                <li><strong>Database (MongoDB)</strong> - User data, problems, battle history</li>
-                <li><strong>Redis</strong> - Session storage and caching</li>
-                <li><strong>Judge0 API</strong> - External code execution service</li>
-                <li><strong>LeetCode API</strong> - Profile and stats synchronization</li>
-            </ul>
-        </div>
+        <div style={{ display: 'grid', gap: '32px' }}>
+            <div style={{ background: '#18181b', padding: '32px', borderRadius: '20px', border: '1px solid #27272a' }}>
+                <h3 style={{ fontSize: '20px', color: '#a78bfa', marginBottom: '20px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <Shield size={22} /> Multi-Layer Moderation
+                </h3>
+                <p style={{ fontSize: '15px', color: '#a1a1aa', lineHeight: '1.8' }}>
+                    SmartCoder uses an **integrated moderation hub** called the Command Center. Admins can manage user credits, toggle premium status, and monitor live activity logs. All administrative routes are protected by JWT verification and server-side role checks.
+                </p>
+            </div>
 
-        <div style={{ marginBottom: '40px' }}>
-            <h3 style={{ fontSize: '20px', color: '#00FFFF', marginBottom: '16px' }}>Socket.io Events (Real-time)</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <SocketEvent event="create_room" direction="Client → Server" description="Create a new battle room and receive roomId" />
-                <SocketEvent event="join_room" direction="Client → Server" description="Join an existing room with roomId and username" />
-                <SocketEvent event="room_joined" direction="Server → Client" description="Confirmation that user joined, with room state" />
-                <SocketEvent event="code_change" direction="Client ↔ Server" description="Broadcast code changes to all users in room" />
-                <SocketEvent event="run_code" direction="Client → Server" description="Request code execution via Judge0" />
-                <SocketEvent event="code_output" direction="Server → Client" description="Return execution results from Judge0" />
-                <SocketEvent event="submit_code" direction="Client → Server" description="Submit final solution and end battle" />
-                <SocketEvent event="battle_ended" direction="Server → Client" description="Notify all users that battle has ended" />
-                <SocketEvent event="leave_room" direction="Client → Server" description="User leaves the room" />
-                <SocketEvent event="user_left" direction="Server → Client" description="Notify remaining users that someone left" />
+            <div style={{ background: '#18181b', padding: '32px', borderRadius: '20px', border: '1px solid #27272a' }}>
+                <h3 style={{ fontSize: '20px', color: '#a78bfa', marginBottom: '20px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <Filter size={22} /> Intelligent Content Discovery
+                </h3>
+                <p style={{ fontSize: '15px', color: '#a1a1aa', lineHeight: '1.8' }}>
+                    The Problem Arena implements a **global filtering engine**. It automatically hides paid/premium LeetCode content for free users and provides multi-field indexing (Slug, Title, ID) to ensure that users always find available challenges.
+                </p>
+            </div>
+
+            <div style={{ background: '#18181b', padding: '32px', borderRadius: '20px', border: '1px solid #27272a' }}>
+                <h3 style={{ fontSize: '20px', color: '#a78bfa', marginBottom: '20px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <Cpu size={22} /> Real-time Sync Engine
+                </h3>
+                <p style={{ fontSize: '15px', color: '#a1a1aa', lineHeight: '1.8' }}>
+                    Built on Socket.IO 4.x, the sync engine uses isolated namespaces for different rooms. Code changes are debounced at 150ms to maintain editor performance while ensuring near-instant visibility for opponents.
+                </p>
             </div>
         </div>
-
-        <div>
-            <h3 style={{ fontSize: '20px', color: '#00FFFF', marginBottom: '16px' }}>Key Features Implementation</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <FeatureCard
-                    title="Real-time Code Sync"
-                    description="Every keystroke in the editor is broadcast via Socket.io to all users in the room. Debounced to avoid excessive events. State is maintained on the server to handle reconnections."
-                />
-                <FeatureCard
-                    title="LeetCode Integration"
-                    description="Uses leetcode-query package to fetch user stats. Browser extension captures leetcode_session cookie, which is sent to backend to identify the user and pull their profile data."
-                />
-                <FeatureCard
-                    title="Code Execution"
-                    description="Integrates with Judge0 API. Sends source code, language ID, and test cases. Polls for execution result. Returns stdout, stderr, compilation errors, and execution time."
-                />
-                <FeatureCard
-                    title="OAuth Authentication"
-                    description="Passport.js strategies for Google and GitHub. After OAuth callback, user data is stored in MongoDB and JWT is issued. JWT is stored in httpOnly cookie for security."
-                />
-            </div>
-        </div>
-    </div>
-);
-
-const SocketEvent = ({ event, direction, description }) => (
-    <div style={{
-        padding: '16px 20px',
-        background: 'rgba(139,92,246,0.05)',
-        border: '1px solid rgba(139,92,246,0.2)',
-        borderRadius: '8px',
-        borderLeft: '4px solid #8b5cf6'
-    }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-            <code style={{
-                color: '#a78bfa',
-                fontSize: '14px',
-                fontWeight: '700',
-                fontFamily: 'monospace'
-            }}>
-                {event}
-            </code>
-            <span style={{ fontSize: '12px', color: '#71717a' }}>{direction}</span>
-        </div>
-        <p style={{ margin: 0, fontSize: '13px', color: '#a1a1aa' }}>{description}</p>
-    </div>
-);
-
-const FeatureCard = ({ title, description }) => (
-    <div style={{
-        padding: '20px',
-        background: 'rgba(0,255,255,0.03)',
-        border: '1px solid rgba(0,255,255,0.2)',
-        borderRadius: '8px'
-    }}>
-        <h4 style={{ color: '#00FFFF', marginBottom: '8px', fontSize: '16px' }}>{title}</h4>
-        <p style={{ margin: 0, fontSize: '14px', color: '#a1a1aa', lineHeight: '1.6' }}>{description}</p>
     </div>
 );
 
