@@ -24,8 +24,7 @@ const Documentation = () => {
             color: '#e4e4e7',
             padding: '100px 20px 60px',
             fontFamily: "'Inter', sans-serif",
-            position: 'relative',
-            overflow: 'hidden'
+            position: 'relative'
         }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
                 {/* Header */}
