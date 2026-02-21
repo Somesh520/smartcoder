@@ -5,14 +5,63 @@ import ModernSpinner from './ModernSpinner';
 const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectProblem }) => {
     const [filtered, setFiltered] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const [selectedDifficulty, setSelectedDifficulty] = useState("all");
+    const [selectedTopic, setSelectedTopic] = useState("all");
     const [hoveredRow, setHoveredRow] = useState(null);
 
+    const topics = [
+        { id: 'all', label: 'All Topics' },
+        { id: 'array', label: 'Arrays' },
+        { id: 'string', label: 'Strings' },
+        { id: 'hash', label: 'Hash Table' },
+        { id: 'dynamic', label: 'DP' },
+        { id: 'math', label: 'Math' },
+        { id: 'sorting', label: 'Sorting' },
+        { id: 'greedy', label: 'Greedy' },
+        { id: 'tree', label: 'Trees' },
+        { id: 'binary', label: 'Binary Search' },
+        { id: 'matrix', label: 'Matrix' },
+        { id: 'graph', label: 'Graph' },
+        { id: 'linked', label: 'Linked List' }
+    ];
+
     useEffect(() => {
-        setFiltered(problems.filter(p =>
-            String(p.title).toLowerCase().includes(searchTerm.toLowerCase()) ||
-            String(p.id).includes(searchTerm)
-        ));
-    }, [searchTerm, problems]);
+        let results = problems;
+
+        // Search Filter
+        if (searchTerm) {
+            results = results.filter(p =>
+                String(p.title).toLowerCase().includes(searchTerm.toLowerCase()) ||
+                String(p.id).includes(searchTerm)
+            );
+        }
+
+        // Difficulty Filter
+        if (selectedDifficulty !== "all") {
+            results = results.filter(p =>
+                String(p.difficulty).toLowerCase() === selectedDifficulty.toLowerCase()
+            );
+        }
+
+        // Topic Filter (Keyword based matching since full tags might be missing)
+        if (selectedTopic !== "all") {
+            results = results.filter(p => {
+                const title = String(p.title).toLowerCase();
+                const slug = String(p.slug).toLowerCase();
+                const topic = selectedTopic.toLowerCase();
+
+                // Common aliases for keywords
+                if (topic === 'dynamic') return title.includes('dynamic') || slug.includes('dp') || title.includes('subsequences') || title.includes('climbing stairs');
+                if (topic === 'tree') return title.includes('tree') || title.includes('binary search tree') || title.includes('bst');
+                if (topic === 'linked') return title.includes('linked list');
+                if (topic === 'binary') return title.includes('binary search') && !title.includes('tree');
+
+                return title.includes(topic) || slug.includes(topic);
+            });
+        }
+
+        setFiltered(results);
+    }, [searchTerm, selectedDifficulty, selectedTopic, problems]);
 
     const getDifficultyColor = (diff) => {
         const d = String(diff).toLowerCase();
@@ -106,78 +155,138 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                 {/* Search and Filter Bar */}
                 <div style={{
                     display: 'flex',
+                    flexDirection: 'column',
                     gap: '15px',
                     marginBottom: '25px',
                     background: 'rgba(14, 14, 20, 0.6)',
-                    padding: '15px',
-                    borderRadius: '12px',
+                    padding: '20px',
+                    borderRadius: '16px',
                     border: '1px solid rgba(255, 255, 255, 0.05)',
                     backdropFilter: 'blur(10px)'
                 }}>
-                    <div style={{ position: 'relative', flex: 1 }}>
-                        <Search size={18} style={{
-                            position: 'absolute',
-                            left: '15px',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            color: '#6b7280'
-                        }} />
-                        <input
-                            type="text"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search problems by title or ID..."
+                    <div style={{ display: 'flex', gap: '15px', width: '100%' }}>
+                        <div style={{ position: 'relative', flex: 1 }}>
+                            <Search size={18} style={{
+                                position: 'absolute',
+                                left: '15px',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                color: '#6b7280'
+                            }} />
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="Search problems by title or ID..."
+                                style={{
+                                    width: '100%',
+                                    background: 'rgba(0, 0, 0, 0.4)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    padding: '12px 15px 12px 45px',
+                                    color: 'white',
+                                    borderRadius: '10px',
+                                    outline: 'none',
+                                    fontSize: '14px',
+                                    transition: 'all 0.2s',
+                                    fontWeight: 500
+                                }}
+                            />
+                        </div>
+                        <button
+                            onClick={onRefresh}
                             style={{
-                                width: '100%',
-                                background: 'rgba(0, 0, 0, 0.4)',
+                                background: 'rgba(59, 130, 246, 0.1)',
+                                color: '#60a5fa',
                                 border: '1px solid rgba(59, 130, 246, 0.2)',
-                                padding: '12px 15px 12px 45px',
-                                color: 'white',
-                                borderRadius: '8px',
-                                outline: 'none',
-                                fontSize: '14px',
-                                transition: 'all 0.2s',
-                                fontWeight: 500
+                                padding: '12px 20px',
+                                borderRadius: '10px',
+                                cursor: 'pointer',
+                                fontWeight: 700,
+                                fontSize: '13px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                transition: 'all 0.2s'
                             }}
-                            onFocus={(e) => {
-                                e.target.style.borderColor = 'rgba(59, 130, 246, 0.5)';
-                                e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-                            }}
-                            onBlur={(e) => {
-                                e.target.style.borderColor = 'rgba(59, 130, 246, 0.2)';
-                                e.target.style.boxShadow = 'none';
-                            }}
-                        />
+                        >
+                            <RefreshCw size={16} />
+                            Sync Problems
+                        </button>
                     </div>
-                    <button
-                        onClick={onRefresh}
-                        style={{
-                            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                            color: 'white',
-                            border: 'none',
-                            padding: '12px 24px',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            fontWeight: 600,
-                            fontSize: '14px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            transition: 'all 0.2s',
-                            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.target.style.transform = 'translateY(-2px)';
-                            e.target.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.target.style.transform = 'translateY(0)';
-                            e.target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
-                        }}
-                    >
-                        <RefreshCw size={16} />
-                        Refresh
-                    </button>
+
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                        {/* Difficulty Filter */}
+                        <div style={{ minWidth: '150px' }}>
+                            <select
+                                value={selectedDifficulty}
+                                onChange={(e) => setSelectedDifficulty(e.target.value)}
+                                style={{
+                                    width: '100%',
+                                    background: 'rgba(0, 0, 0, 0.4)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    padding: '10px 12px',
+                                    color: 'white',
+                                    borderRadius: '8px',
+                                    fontSize: '13px',
+                                    fontWeight: 600,
+                                    outline: 'none',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <option value="all">All Difficulties</option>
+                                <option value="easy">Easy</option>
+                                <option value="medium">Medium</option>
+                                <option value="hard">Hard</option>
+                            </select>
+                        </div>
+
+                        {/* Topic Filter */}
+                        <div style={{ minWidth: '180px' }}>
+                            <select
+                                value={selectedTopic}
+                                onChange={(e) => setSelectedTopic(e.target.value)}
+                                style={{
+                                    width: '100%',
+                                    background: 'rgba(0, 0, 0, 0.4)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    padding: '10px 12px',
+                                    color: 'white',
+                                    borderRadius: '8px',
+                                    fontSize: '13px',
+                                    fontWeight: 600,
+                                    outline: 'none',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                {topics.map(t => (
+                                    <option key={t.id} value={t.id}>{t.label}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Clear Button */}
+                        {(searchTerm || selectedDifficulty !== "all" || selectedTopic !== "all") && (
+                            <button
+                                onClick={() => {
+                                    setSearchTerm("");
+                                    setSelectedDifficulty("all");
+                                    setSelectedTopic("all");
+                                }}
+                                style={{
+                                    background: 'transparent',
+                                    color: '#6b7280',
+                                    border: '1px dashed rgba(255, 255, 255, 0.1)',
+                                    padding: '10px 15px',
+                                    borderRadius: '8px',
+                                    fontSize: '13px',
+                                    fontWeight: 600,
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Reset Filters
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {loading && (
