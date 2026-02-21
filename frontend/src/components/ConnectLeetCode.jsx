@@ -183,7 +183,7 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                             <Download size={16} /> <b>Pro Tip:</b> Follow the video tutorial below if you encounter any issues.
                         </div>
 
-                        <div style={{
+                        <div className="video-container" style={{
                             background: '#121214',
                             border: '2px solid rgba(255,255,255,0.08)',
                             borderRadius: '20px',
@@ -208,30 +208,39 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                                     alignItems: 'center',
                                     justifyContent: 'center'
                                 }}>
-                                    <div style={{
+                                    <div className="play-btn-wrapper" style={{
                                         position: 'absolute',
-                                        width: '64px',
-                                        height: '64px',
-                                        background: 'rgba(59, 130, 246, 0.9)',
+                                        top: '50%',
+                                        left: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                        width: '72px',
+                                        height: '72px',
+                                        background: 'rgba(37, 99, 235, 0.95)',
                                         borderRadius: '50%',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        boxShadow: '0 0 30px rgba(59, 130, 246, 0.6)',
-                                        transition: 'all 0.3s'
+                                        boxShadow: '0 0 40px rgba(37, 99, 235, 0.5)',
+                                        transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                                        zIndex: 2
                                     }}>
-                                        <PlayCircle size={40} color="white" />
+                                        <PlayCircle size={44} color="white" fill="white" fillOpacity={0.2} />
                                     </div>
                                     <div style={{
                                         position: 'absolute',
-                                        bottom: '20px',
-                                        left: '20px',
-                                        fontSize: '12px',
-                                        fontWeight: '600',
+                                        bottom: '24px',
+                                        left: '24px',
+                                        fontSize: '14px',
+                                        fontWeight: '700',
                                         color: 'white',
-                                        textShadow: '0 2px 4px rgba(0,0,0,0.5)'
+                                        textShadow: '0 2px 10px rgba(0,0,0,0.8)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        zIndex: 2
                                     }}>
-                                        Launch Installation Guide
+                                        <div className="pulse-dot" style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }}></div>
+                                        Tutorial Guide
                                     </div>
                                 </div>
                             ) : (
@@ -286,6 +295,15 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                     @keyframes toggleBg { 0%, 20% { background: #3f3f46; } 20%, 100% { background: #2563eb; } }
                     @keyframes knobMove { 0%, 20% { left: 1px; background: #71717a; } 20%, 100% { left: 11px; background: white; } }
                     @keyframes btnActivate { 0%, 20% { opacity: 0.5; border-color: #3f3f46; } 20%, 50% { opacity: 1; border-color: #71717a; color: white; } 50%, 55% { background: #3f3f46; } 55%, 100% { background: transparent; } }
+
+                    @keyframes pulse {
+                        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+                        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+                        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+                    }
+
+                    .pulse-dot { animation: pulse 2s infinite; }
+                    .video-container:hover .play-btn-wrapper { transform: translate(-50%, -50%) scale(1.15) !important; background: rgba(37, 99, 235, 1) !important; }
                 `}</style>
             </div>
         </div>
