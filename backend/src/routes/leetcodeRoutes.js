@@ -81,7 +81,8 @@ router.get('/search', async (req, res) => {
             .filter(p => {
                 const title = (p.title || p.stat?.question__title || p.questionTitle || "").toLowerCase();
                 const slug = (p.title_slug || p.titleSlug || p.stat?.question__title_slug || p.slug || "").toLowerCase();
-                return title.includes(query) || slug.includes(query);
+                const isPaid = p.paid_only === true || p.paid === true || p.stat?.is_new_question === true; // Some APIs use is_new_question for premium
+                return (title.includes(query) || slug.includes(query)) && !isPaid;
             })
             .slice(0, 10) // Limit to top 10
             .map(p => {

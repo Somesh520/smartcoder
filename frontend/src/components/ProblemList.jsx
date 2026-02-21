@@ -31,9 +31,12 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
         // Search Filter
         if (searchTerm) {
             results = results.filter(p =>
-                String(p.title).toLowerCase().includes(searchTerm.toLowerCase()) ||
-                String(p.id).includes(searchTerm)
+                (String(p.title).toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    String(p.id).includes(searchTerm)) && !p.paid
             );
+        } else {
+            // Even if no search, exclude paid ones initially if they leaked through
+            results = results.filter(p => !p.paid);
         }
 
         // Difficulty Filter

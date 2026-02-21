@@ -88,20 +88,19 @@ const ProblemAutocomplete = ({ onSelect, initialValue = "" }) => {
                 }}>
                     {loading && <div style={{ padding: '10px', color: '#a1a1aa', fontSize: '13px', textAlign: 'center' }}>Searching...</div>}
 
-                    {!loading && results.map(problem => (
+                    {!loading && results.filter(p => !p.paid).map(problem => (
                         <div
                             key={problem.id}
-                            onClick={() => !problem.paid && handleSelect(problem)}
+                            onClick={() => handleSelect(problem)}
                             style={{
                                 padding: '10px 12px', borderRadius: '8px',
                                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                                cursor: problem.paid ? 'not-allowed' : 'pointer',
+                                cursor: 'pointer',
                                 background: 'transparent',
                                 transition: 'background 0.1s',
-                                opacity: problem.paid ? 0.5 : 1
                             }}
-                            onMouseEnter={e => !problem.paid && (e.currentTarget.style.background = '#27272a')}
-                            onMouseLeave={e => !problem.paid && (e.currentTarget.style.background = 'transparent')}
+                            onMouseEnter={e => (e.currentTarget.style.background = '#27272a')}
+                            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                         >
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <span style={{ color: 'white', fontSize: '14px', fontWeight: 600 }}>{problem.title}</span>
@@ -113,11 +112,10 @@ const ProblemAutocomplete = ({ onSelect, initialValue = "" }) => {
                                     </span>
                                 </span>
                             </div>
-                            {problem.paid && <Lock size={14} color="#ef4444" />}
                         </div>
                     ))}
 
-                    {!loading && results.length === 0 && query.length >= 2 && (
+                    {!loading && results.filter(p => !p.paid).length === 0 && query.length >= 2 && (
                         <div style={{ padding: '10px', color: '#a1a1aa', fontSize: '13px', textAlign: 'center' }}>No matches found</div>
                     )}
                 </div>

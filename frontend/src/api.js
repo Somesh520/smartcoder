@@ -32,7 +32,8 @@ export const fetchProblems = async () => {
       id: p.stat.frontend_question_id || p.stat.question_id,
       title: p.stat.question__title,
       slug: p.stat.question__title_slug,
-      difficulty: p.difficulty.level === 1 ? 'Easy' : p.difficulty.level === 2 ? 'Medium' : 'Hard'
+      difficulty: p.difficulty.level === 1 ? 'Easy' : p.difficulty.level === 2 ? 'Medium' : 'Hard',
+      paid: p.paid_only === true || p.status === 'notac' // Official API sometimes uses status 'notac' for paid if not logged in, but paid_only is more reliable
     }));
   }
   // Check if it's an array of stat_status_pairs format (has .stat property)
@@ -42,7 +43,8 @@ export const fetchProblems = async () => {
       id: p.stat.frontend_question_id || p.stat.question_id,
       title: p.stat.question__title,
       slug: p.stat.question__title_slug,
-      difficulty: p.difficulty?.level === 1 ? 'Easy' : p.difficulty?.level === 2 ? 'Medium' : 'Hard'
+      difficulty: p.difficulty?.level === 1 ? 'Easy' : p.difficulty?.level === 2 ? 'Medium' : 'Hard',
+      paid: p.paid_only === true || p.paid === true
     }));
   }
   // Alfa API flat format
@@ -54,13 +56,14 @@ export const fetchProblems = async () => {
       id: p.questionFrontendId || p.frontendQuestionId || p.questionId || p.id,
       title: p.title || p.questionTitle,
       slug: p.title_slug || p.titleSlug || p.slug || p.question__title_slug,
-      difficulty: p.difficulty || "Medium"
+      difficulty: p.difficulty || "Medium",
+      paid: p.paidOnly === true || p.isPaid === true || p.paid === true
     }));
   }
   console.log("[API] Normalized Problems Count:", problems.length);
 
-  // Filter valid problems and sort by ID (ascending: 1, 2, 3...)
-  const validProblems = problems.filter(p => p.slug && p.title && p.id);
+  // Filter valid problems, EXCLUDE paid ones, and sort by ID
+  const validProblems = problems.filter(p => p.slug && p.title && p.id && !p.paid);
   validProblems.sort((a, b) => Number(a.id) - Number(b.id));
 
   return validProblems;
