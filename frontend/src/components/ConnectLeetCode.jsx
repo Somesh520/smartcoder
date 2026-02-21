@@ -17,8 +17,11 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
 
     return (
         <div className="page-container" style={{
-            flex: 1,
+            position: 'absolute',
+            top: 0,
+            left: 0,
             width: '100%',
+            height: '100%',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -26,19 +29,20 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
             color: 'white',
             textAlign: 'center',
             padding: '40px 20px',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            zIndex: 1
         }}>
             <div className="main-card" style={{
                 background: 'rgba(24, 24, 27, 0.6)', // Glassmorphism
                 backdropFilter: 'blur(12px)',
-                padding: '30px', // Reduced padding
+                padding: '40px',
                 borderRadius: '24px',
                 boxShadow: '0 20px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
-                maxWidth: '650px',
+                maxWidth: '800px',
                 width: '100%',
                 position: 'relative',
-                // Removed overflow: hidden to prevent clipping
+                margin: 'auto 0' // Center card vertically in the absolute container
             }}>
                 {/* Glow Effect (Moved to a clipped inner container if needed, or left to overflow safely) */}
                 <div style={{
