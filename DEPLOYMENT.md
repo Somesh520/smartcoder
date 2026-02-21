@@ -1,47 +1,53 @@
-# Deployment Guide
+# 🌐 SmartCoder: Deployment Guide
 
-Since this app uses **Socket.IO** (Real-time communication), you cannot deploy everything to Vercel/Netlify alone. Vercel is great for the Frontend, but the Backend needs a server that stays "awake".
-
-## Recommended Stack (Free Tier)
-1.  **Backend**: [Render.com](https://render.com) (Best for Node.js/Socket.IO)
-2.  **Frontend**: [Vercel](https://vercel.com) or [Netlify](https://netlify.com)
+Deploying SmartCoder requires a server that supports persistent connections for **Socket.IO**. Use this guide to launch your platform in minutes.
 
 ---
 
-## Part 1: Deploy Backend (Render)
+## 🛠️ Recommended Stack (Free Tier)
+1.  **Backend**: [Render.com](https://render.com) (Persistent Node.js + Socket.IO Support).
+2.  **Frontend**: [Vercel](https://vercel.com) or [Netlify](https://netlify.com).
+
+---
+
+## 🏗️ Phase 1: Deploy Backend (Render)
 1.  Push your code to GitHub.
 2.  Go to **Render.com** -> New **Web Service**.
-3.  Connect your GitHub repo: `Somesh520/smartcoder`.
-4.  **Settings**:
-    *   **Root Directory**: `backend` (IMPORTANT!)
+3.  Connect your repo: `Somesh520/smartcoder`.
+4.  **Configuration**:
+    *   **Root Directory**: `backend`
     *   **Build Command**: `npm install`
     *   **Start Command**: `node server.js`
 5.  **Environment Variables**:
     *   Key: `CLIENT_URL`
-    *   Value: `https://your-frontend-project.vercel.app` (You will get this in Part 2, for now put `*` or update later).
-6.  Click **Deploy**.
-    *   Copy your backend URL (e.g., `https://smartcoder-api.onrender.com`).
+    *   Value: `https://your-frontend-project.vercel.app` (Update this later).
+6.  Click **Deploy** and copy your backend URL (e.g., `https://smartcoder-api.onrender.com`).
 
 ---
 
-## Part 2: Deploy Frontend (Vercel)
+## 💻 Phase 2: Deploy Frontend (Vercel)
 1.  Go to **Vercel.com** -> **Add New Project**.
-2.  Connect your GitHub repo: `Somesh520/smartcoder`.
+2.  Connect your repo: `Somesh520/smartcoder`.
 3.  **Settings**:
-    *   **Root Directory**: `frontend` (IMPORTANT!)
+    *   **Root Directory**: `frontend`
     *   **Framework Preset**: Vite
     *   **Build Command**: `npm run build`
     *   **Output Directory**: `dist`
-4.  **Environment Variables** (Critical!):
+4.  **Environment Variables**:
     *   Key: `VITE_API_URL`
-    *   Value: `https://your-backend-url.onrender.com` (The URL you copied from Step 1).
+    *   Value: `https://your-backend-url.onrender.com` (From Phase 1).
 5.  Click **Deploy**.
 
 ---
 
-## Part 3: Final Link
-1.  Once Vercel gives you the live domain (e.g., `https://smartcoder-somesh.vercel.app`), go back to **Render Dashboard**.
-2.  Update the `CLIENT_URL` variable to this real domain.
-3.  Redeploy Backend.
+## 🔗 Phase 3: Final Linkage
+1.  Once Vercel gives you the live domain, go back to the **Render Dashboard**.
+2.  Update the `CLIENT_URL` variable with your real Vercel domain.
+3.  Perform a manual redeploy on Render.
 
-**Done!** 🚀
+---
+> [!IMPORTANT]
+> **Root Directory** settings are critical for monorepo structures like this one. Ensure `backend/` and `frontend/` are correctly targeted.
+
+> [!TIP]
+> Use [MongoDB Atlas](https://www.mongodb.com/atlas) for a free, reliable managed database.
