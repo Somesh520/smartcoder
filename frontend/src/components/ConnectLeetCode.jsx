@@ -17,8 +17,8 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
 
     return (
         <div className="page-container" style={{
-            minHeight: '100vh', // Changed to minHeight for scrolling on small screens
-            paddingTop: '80px', // Add padding for fixed header
+            minHeight: '100%', // Changed to 100% to fill parent container
+            paddingTop: 0, // Removed redundant padding
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
