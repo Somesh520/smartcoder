@@ -184,17 +184,46 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                     </div>
 
                     {/* VIDEO TUTORIAL */}
-                    <div style={{ marginTop: '20px', background: '#121214', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '10px' }}>
-                        <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '8px' }}>
-                            <iframe
-                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                                src="https://www.youtube.com/embed/Njv4NZi1OH0?autoplay=1&mute=1&loop=1&playlist=Njv4NZi1OH0"
-                                title="How to participate tutorial"
-                                frameBorder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                                loading="lazy"
-                            ></iframe>
+                    <div style={{ marginTop: '30px', textAlign: 'left', position: 'relative', zIndex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+                            <div style={{ width: '4px', height: '24px', background: '#3b82f6', borderRadius: '2px' }}></div>
+                            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700' }}>Need help? Watch the video</h3>
+                        </div>
+
+                        <div style={{
+                            background: 'rgba(59, 130, 246, 0.05)',
+                            border: '1px solid rgba(59, 130, 246, 0.1)',
+                            padding: '12px 16px',
+                            borderRadius: '12px',
+                            fontSize: '13px',
+                            color: '#93c5fd',
+                            marginBottom: '20px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px'
+                        }}>
+                            <Download size={16} /> <b>Pro Tip:</b> Neeche video tutorial dekho agar samajh nahi aa raha hai.
+                        </div>
+
+                        <div style={{
+                            background: '#121214',
+                            border: '2px solid rgba(255,255,255,0.08)',
+                            borderRadius: '20px',
+                            padding: '8px',
+                            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+                            overflow: 'hidden'
+                        }}>
+                            <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '12px' }}>
+                                <iframe
+                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                                    src="https://www.youtube.com/embed/Njv4NZi1OH0?modestbranding=1&rel=0&iv_load_policy=3&showinfo=0"
+                                    title="How to participate tutorial"
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                    loading="lazy"
+                                ></iframe>
+                            </div>
                         </div>
                     </div>
                 </div>
