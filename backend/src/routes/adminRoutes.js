@@ -1,5 +1,6 @@
 
 import express from 'express';
+import { verifyToken } from '../middleware/authMiddleware.js';
 import { UserManager } from '../services/userManager.js';
 import { RoomManager } from '../services/roomManager.js';
 import User from '../models/User.js';
