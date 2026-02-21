@@ -68,16 +68,16 @@ const Documentation = () => {
                                     background: 'transparent',
                                     border: 'none',
                                     borderBottom: isActive ? '3px solid #a78bfa' : '3px solid transparent',
-                                    color: isActive ? '#f4f4f5' : '#71717a',
+                                    color: isActive ? '#f4f4f5' : '#a1a1aa',
                                     cursor: 'pointer',
                                     fontSize: '15px',
                                     fontWeight: '700',
                                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                     whiteSpace: 'nowrap',
-                                    opacity: isActive ? 1 : 0.7
+                                    opacity: isActive ? 1 : 0.8
                                 }}
                             >
-                                <Icon size={20} color={isActive ? '#a78bfa' : '#71717a'} />
+                                <Icon size={20} color={isActive ? '#a78bfa' : '#a1a1aa'} />
                                 {tab.label}
                             </button>
                         );
@@ -113,20 +113,20 @@ const SectionHeader = ({ title, isExpanded, onToggle, accentColor = '#a78bfa' })
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '18px 24px',
-            background: isExpanded ? 'rgba(167, 139, 250, 0.05)' : 'rgba(255, 255, 255, 0.02)',
-            border: `1px solid ${isExpanded ? accentColor : '#27272a'}`,
+            background: isExpanded ? 'rgba(167, 139, 250, 0.08)' : 'rgba(24, 24, 27, 0.4)',
+            border: `1px solid ${isExpanded ? accentColor : 'rgba(167, 139, 250, 0.15)'}`,
             borderRadius: '12px',
             cursor: 'pointer',
             marginBottom: isExpanded ? '16px' : '12px',
             transition: 'all 0.3s ease',
-            opacity: isExpanded ? 1 : 0.8
+            opacity: 1
         }}
     >
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{ width: '4px', height: '16px', borderRadius: '2px', background: accentColor }}></div>
-            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#f4f4f5' }}>{title}</h3>
+            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: isExpanded ? '#f4f4f5' : '#a1a1aa' }}>{title}</h3>
         </div>
-        {isExpanded ? <ChevronDown size={22} color={accentColor} /> : <ChevronRight size={22} color="#71717a" />}
+        {isExpanded ? <ChevronDown size={22} color={accentColor} /> : <ChevronRight size={22} color="rgba(167, 139, 250, 0.4)" />}
     </div>
 );
 
@@ -184,15 +184,15 @@ const OverviewContent = () => (
                 </ul>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div style={{ padding: '24px', background: '#18181b', border: '1px solid #27272a', borderRadius: '16px' }}>
+                <div style={{ padding: '24px', background: 'rgba(24, 24, 27, 0.6)', border: '1px solid rgba(167, 139, 250, 0.15)', borderRadius: '16px' }}>
                     <h4 style={{ color: '#f4f4f5', marginBottom: '12px', fontWeight: '800' }}>Platform Health</h4>
-                    <p style={{ fontSize: '14px', color: '#71717a', margin: 0 }}>
+                    <p style={{ fontSize: '14px', color: '#a1a1aa', margin: 0 }}>
                         Powered by Node.js 20 LTS and MongoDB Atlas for maximum uptime and scalability.
                     </p>
                 </div>
-                <div style={{ padding: '24px', background: '#18181b', border: '1px solid #27272a', borderRadius: '16px' }}>
+                <div style={{ padding: '24px', background: 'rgba(24, 24, 27, 0.6)', border: '1px solid rgba(167, 139, 250, 0.15)', borderRadius: '16px' }}>
                     <h4 style={{ color: '#f4f4f5', marginBottom: '12px', fontWeight: '800' }}>Global Reach</h4>
-                    <p style={{ fontSize: '14px', color: '#71717a', margin: 0 }}>
+                    <p style={{ fontSize: '14px', color: '#a1a1aa', margin: 0 }}>
                         Integrated with Judge0 for high-speed, secure remote code execution.
                     </p>
                 </div>
@@ -305,10 +305,11 @@ const RoutesContent = () => (
 const RouteItem = ({ path, component, type, description }) => (
     <div style={{
         padding: '24px',
-        background: '#18181b',
-        border: '1px solid #27272a',
+        background: 'rgba(24, 24, 27, 0.6)',
+        border: '1px solid rgba(167, 139, 250, 0.15)',
         borderRadius: '16px',
-        transition: 'transform 0.2s ease'
+        transition: 'all 0.3s ease',
+        cursor: 'default'
     }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <code style={{ color: '#a78bfa', fontSize: '15px', fontWeight: '800' }}>{path}</code>
@@ -333,7 +334,7 @@ const ArchitectureContent = () => (
         <h2 style={{ fontSize: '36px', fontWeight: '900', marginBottom: '28px', color: '#f4f4f5' }}>System Integrity</h2>
 
         <div style={{ display: 'grid', gap: '32px' }}>
-            <div style={{ background: '#18181b', padding: '32px', borderRadius: '20px', border: '1px solid #27272a' }}>
+            <div style={{ background: 'rgba(24, 24, 27, 0.6)', padding: '32px', borderRadius: '20px', border: '1px solid rgba(167, 139, 250, 0.15)' }}>
                 <h3 style={{ fontSize: '20px', color: '#a78bfa', marginBottom: '20px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <Shield size={22} /> Multi-Layer Moderation
                 </h3>
@@ -342,7 +343,7 @@ const ArchitectureContent = () => (
                 </p>
             </div>
 
-            <div style={{ background: '#18181b', padding: '32px', borderRadius: '20px', border: '1px solid #27272a' }}>
+            <div style={{ background: 'rgba(24, 24, 27, 0.6)', padding: '32px', borderRadius: '20px', border: '1px solid rgba(167, 139, 250, 0.15)' }}>
                 <h3 style={{ fontSize: '20px', color: '#a78bfa', marginBottom: '20px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <Filter size={22} /> Intelligent Content Discovery
                 </h3>
@@ -351,7 +352,7 @@ const ArchitectureContent = () => (
                 </p>
             </div>
 
-            <div style={{ background: '#18181b', padding: '32px', borderRadius: '20px', border: '1px solid #27272a' }}>
+            <div style={{ background: 'rgba(24, 24, 27, 0.6)', padding: '32px', borderRadius: '20px', border: '1px solid rgba(167, 139, 250, 0.15)' }}>
                 <h3 style={{ fontSize: '20px', color: '#a78bfa', marginBottom: '20px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <Cpu size={22} /> Real-time Sync Engine
                 </h3>
