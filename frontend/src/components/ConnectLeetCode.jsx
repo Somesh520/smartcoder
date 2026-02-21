@@ -17,16 +17,16 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
 
     return (
         <div className="page-container" style={{
-            minHeight: '100%', // Changed to 100% to fill parent container
-            paddingTop: 0, // Removed redundant padding
+            flex: 1,
+            width: '100%',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
-            background: '#050505', // Match landing page background
+            background: 'linear-gradient(135deg, #0a0a0f 0%, #0e0e14 100%)',
             color: 'white',
             textAlign: 'center',
-            paddingBottom: '40px'
+            padding: '40px 20px',
+            overflowY: 'auto'
         }}>
             <div className="main-card" style={{
                 background: 'rgba(24, 24, 27, 0.6)', // Glassmorphism
