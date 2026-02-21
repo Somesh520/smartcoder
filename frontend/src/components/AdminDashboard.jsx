@@ -4,11 +4,13 @@ import { BASE_URL, getAuthHeaders } from '../api';
 
 const AdminDashboard = ({ onBack }) => {
     const [requests, setRequests] = useState([]);
+    const [stats, setStats] = useState(null);
+    const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(null);
     const [error, setError] = useState('');
 
-    const [activeTab, setActiveTab] = useState('requests');
+    const [activeTab, setActiveTab] = useState('overview');
     const [onlineUsers, setOnlineUsers] = useState([]);
     const [onlineCount, setOnlineCount] = useState(0);
 
@@ -16,14 +18,33 @@ const AdminDashboard = ({ onBack }) => {
     const [allUsersCount, setAllUsersCount] = useState(0);
 
     useEffect(() => {
+        if (activeTab === 'overview') fetchStats();
         if (activeTab === 'requests') fetchRequests();
         if (activeTab === 'users') fetchOnlineUsers();
         if (activeTab === 'all_users') fetchAllUsers();
+        if (activeTab === 'activity') fetchMatches();
     }, [activeTab]);
 
-    // ... (keep online users interval)
+    const fetchStats = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch(`${BASE_URL}/api/admin/stats`, { headers: getAuthHeaders() });
+            if (res.ok) setStats(await res.json());
+        } catch (e) { console.error(e); }
+        finally { setLoading(false); }
+    };
+
+    const fetchMatches = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch(`${BASE_URL}/api/admin/recent-matches`, { headers: getAuthHeaders() });
+            if (res.ok) setMatches(await res.json());
+        } catch (e) { console.error(e); }
+        finally { setLoading(false); }
+    };
 
     const fetchAllUsers = async () => {
+        setLoading(true);
         try {
             const res = await fetch(`${BASE_URL}/api/admin/all-users`, {
                 headers: getAuthHeaders()
@@ -34,6 +55,7 @@ const AdminDashboard = ({ onBack }) => {
                 setAllUsersCount(data.count);
             }
         } catch (e) { console.error(e); }
+        finally { setLoading(false); }
     };
 
     const fetchOnlineUsers = async () => {
@@ -79,7 +101,6 @@ const AdminDashboard = ({ onBack }) => {
             });
 
             if (res.ok) {
-                // Remove from list
                 setRequests(prev => prev.filter(r => r._id !== requestId));
             } else {
                 alert("Action Failed");
@@ -91,118 +112,121 @@ const AdminDashboard = ({ onBack }) => {
         }
     };
 
+    const handleUserAction = async (userId, action, value = null) => {
+        if (action === 'delete' && !window.confirm("Are you sure? This cannot be undone.")) return;
+
+        try {
+            const res = await fetch(`${BASE_URL}/api/admin/user-action`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ userId, action, value })
+            });
+            if (res.ok) {
+                if (action === 'delete') {
+                    setAllUsers(prev => prev.filter(u => u._id !== userId));
+                } else {
+                    const { user: updatedUser } = await res.json();
+                    setAllUsers(prev => prev.map(u => u._id === userId ? { ...u, ...updatedUser } : u));
+                }
+            }
+        } catch (e) {
+            alert("Action failed");
+        }
+    };
+
+    const StatsCard = ({ title, value, icon: Icon, color }) => (
+        <div style={{
+            background: '#18181b', border: '1px solid #27272a', borderRadius: '16px', padding: '24px',
+            display: 'flex', alignItems: 'center', gap: '20px', transition: 'transform 0.2s', cursor: 'default'
+        }}>
+            <div style={{
+                width: '56px', height: '56px', borderRadius: '14px', background: `${color}15`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: color
+            }}>
+                <Icon size={28} />
+            </div>
+            <div>
+                <div style={{ color: '#71717a', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</div>
+                <div style={{ color: '#f4f4f5', fontSize: '28px', fontWeight: 800, marginTop: '4px' }}>{value}</div>
+            </div>
+        </div>
+    );
+
     return (
-        <div style={{ padding: '24px', background: '#09090b', minHeight: '100vh', color: '#e4e4e7' }}>
-            {/* Header ... */}
+        <div style={{ padding: '32px', background: '#09090b', minHeight: '100vh', color: '#e4e4e7' }}>
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '40px' }}>
+                <button
+                    onClick={onBack}
+                    style={{ background: '#18181b', border: '1px solid #27272a', color: '#fff', padding: '10px', borderRadius: '10px', cursor: 'pointer', display: 'flex' }}
+                >
+                    <ArrowLeft size={20} />
+                </button>
+                <div>
+                    <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 800 }}>Admin Command Center</h1>
+                    <p style={{ margin: 0, fontSize: '13px', color: '#71717a' }}>Manage users, payments, and platform health.</p>
+                </div>
+            </div>
 
             {/* Tabs */}
-            <div style={{ display: 'flex', gap: '20px', marginBottom: '24px', borderBottom: '1px solid #27272a' }}>
-                <button
-                    onClick={() => setActiveTab('requests')}
-                    style={{
-                        background: 'transparent', border: 'none', padding: '12px 0',
-                        color: activeTab === 'requests' ? '#a78bfa' : '#71717a',
-                        borderBottom: activeTab === 'requests' ? '2px solid #a78bfa' : '2px solid transparent',
-                        cursor: 'pointer', fontWeight: 600
-                    }}
-                >
-                    Payment Requests
-                </button>
-                <button
-                    onClick={() => setActiveTab('users')}
-                    style={{
-                        background: 'transparent', border: 'none', padding: '12px 0',
-                        color: activeTab === 'users' ? '#a78bfa' : '#71717a',
-                        borderBottom: activeTab === 'users' ? '2px solid #a78bfa' : '2px solid transparent',
-                        cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px'
-                    }}
-                >
-                    Online Users <span style={{ background: '#22c55e', color: '#000', padding: '0 6px', borderRadius: '4px', fontSize: '11px' }}>{onlineCount}</span>
-                </button>
-                <button
-                    onClick={() => setActiveTab('all_users')}
-                    style={{
-                        background: 'transparent', border: 'none', padding: '12px 0',
-                        color: activeTab === 'all_users' ? '#a78bfa' : '#71717a',
-                        borderBottom: activeTab === 'all_users' ? '2px solid #a78bfa' : '2px solid transparent',
-                        cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px'
-                    }}
-                >
-                    All Users <span style={{ background: '#3f3f46', color: '#fff', padding: '0 6px', borderRadius: '4px', fontSize: '11px' }}>{allUsersCount}</span>
-                </button>
+            <div style={{ display: 'flex', gap: '32px', marginBottom: '32px', borderBottom: '1px solid #27272a' }}>
+                {['overview', 'requests', 'users', 'all_users', 'activity'].map(tab => (
+                    <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        style={{
+                            background: 'transparent', border: 'none', padding: '12px 0',
+                            color: activeTab === tab ? '#a78bfa' : '#71717a',
+                            borderBottom: activeTab === tab ? '2px solid #a78bfa' : '2px solid transparent',
+                            cursor: 'pointer', fontWeight: 700, fontSize: '14px', textTransform: 'capitalize',
+                            transition: 'all 0.2s', position: 'relative'
+                        }}
+                    >
+                        {tab.replace('_', ' ')}
+                        {tab === 'users' && onlineCount > 0 && <span style={{ position: 'absolute', top: '4px', right: '-20px', background: '#22c55e', color: '#000', fontSize: '10px', padding: '1px 6px', borderRadius: '10px' }}>{onlineCount}</span>}
+                    </button>
+                ))}
             </div>
 
             {error && <div style={{ color: '#ef4444', background: 'rgba(239,68,68,0.1)', padding: '12px', borderRadius: '8px', marginBottom: '20px' }}>{error}</div>}
 
+            {activeTab === 'overview' && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px' }}>
+                    {stats ? (
+                        <>
+                            <StatsCard title="Total Users" value={stats.totalUsers} icon={User} color="#3b82f6" />
+                            <StatsCard title="Total Revenue" value={`₹${stats.totalRevenue}`} icon={DollarSign} color="#22c55e" />
+                            <StatsCard title="Total Matches" value={stats.totalMatches} icon={CodeCard} color="#f59e0b" />
+                            <StatsCard title="Active Rooms" value={stats.activeRoomsCount} icon={CheckCircle} color="#a78bfa" />
+                        </>
+                    ) : (
+                        <div style={{ display: 'flex', justifyContent: 'center', padding: '40px', gridColumn: '1 / -1' }}><Loader2 className="animate-spin" /></div>
+                    )}
+                </div>
+            )}
+
             {activeTab === 'requests' && (
-                // ... (Payment Requests Content)
                 loading ? (
                     <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}><Loader2 className="animate-spin" /></div>
                 ) : requests.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '60px', color: '#71717a', border: '1px dashed #27272a', borderRadius: '12px' }}>
-                        No pending requests found.
-                    </div>
+                    <div style={{ textAlign: 'center', padding: '60px', color: '#71717a', border: '1px dashed #27272a', borderRadius: '12px' }}>No pending requests.</div>
                 ) : (
                     <div style={{ display: 'grid', gap: '16px' }}>
                         {requests.map(req => (
-                            <div key={req._id} style={{
-                                background: '#18181b', border: '1px solid #27272a', borderRadius: '12px', padding: '20px',
-                                display: 'flex', flexDirection: 'column', gap: '16px'
-                            }}>
-                                {/* User Info & Plan */}
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <div key={req._id} style={{ background: '#18181b', border: '1px solid #27272a', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <div>
-                                        <div style={{ fontSize: '16px', fontWeight: 600, color: '#f4f4f5', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <User size={16} color="#a1a1aa" /> {req.userId?.displayName || 'Unknown User'}
-                                        </div>
-                                        <div style={{ fontSize: '13px', color: '#a1a1aa', marginTop: '4px' }}>
-                                            {req.userId?.email}
-                                        </div>
+                                        <div style={{ fontWeight: 600 }}>{req.userId?.displayName}</div>
+                                        <div style={{ fontSize: '12px', color: '#71717a' }}>{req.userId?.email}</div>
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
                                         <div style={{ fontSize: '18px', fontWeight: 700, color: '#a78bfa' }}>₹{req.amount}</div>
-                                        <div style={{ fontSize: '12px', color: '#e4e4e7', background: 'rgba(167,139,250,0.1)', padding: '2px 8px', borderRadius: '4px', display: 'inline-block', marginTop: '4px' }}>
-                                            +{req.credits} Credits
-                                        </div>
+                                        <div style={{ fontSize: '12px', color: '#a1a1aa' }}>{req.credits} Credits</div>
                                     </div>
                                 </div>
-
-                                {/* Transaction Details */}
-                                <div style={{ background: '#09090b', padding: '12px', borderRadius: '8px', border: '1px solid #27272a' }}>
-                                    <div style={{ fontSize: '11px', color: '#71717a', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Transaction ID</div>
-                                    <div style={{ fontFamily: 'monospace', fontSize: '14px', color: '#e4e4e7' }}>{req.transactionId}</div>
-                                    <div style={{ fontSize: '11px', color: '#52525b', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <Calendar size={10} /> {new Date(req.createdAt).toLocaleString()}
-                                    </div>
-                                </div>
-
-                                {/* Actions */}
-                                <div style={{ display: 'flex', gap: '12px', marginTop: '4px' }}>
-                                    <button
-                                        onClick={() => handleAction(req._id, 'reject')}
-                                        disabled={actionLoading === req._id}
-                                        style={{
-                                            flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #3f3f46',
-                                            background: 'transparent', color: '#e4e4e7', cursor: 'pointer',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                                            fontSize: '13px', fontWeight: 500, transition: 'all 0.2s'
-                                        }}
-                                    >
-                                        {actionLoading === req._id ? <Loader2 size={16} className="animate-spin" /> : <><X size={16} /> Reject</>}
-                                    </button>
-                                    <button
-                                        onClick={() => handleAction(req._id, 'approve')}
-                                        disabled={actionLoading === req._id}
-                                        style={{
-                                            flex: 2, padding: '10px', borderRadius: '8px', border: 'none',
-                                            background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)', color: '#fff', cursor: 'pointer',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                                            fontSize: '13px', fontWeight: 600, boxShadow: '0 4px 12px rgba(22, 163, 74, 0.2)',
-                                            opacity: actionLoading === req._id ? 0.7 : 1
-                                        }}
-                                    >
-                                        {actionLoading === req._id ? <Loader2 size={16} className="animate-spin" /> : <><Check size={16} /> Verify & Approve</>}
-                                    </button>
+                                <div style={{ display: 'flex', gap: '12px' }}>
+                                    <button onClick={() => handleAction(req._id, 'reject')} style={{ flex: 1, padding: '10px', borderRadius: '8px', background: 'transparent', border: '1px solid #3f3f46', color: '#fff', cursor: 'pointer' }}>Reject</button>
+                                    <button onClick={() => handleAction(req._id, 'approve')} style={{ flex: 2, padding: '10px', borderRadius: '8px', background: '#22c55e', border: 'none', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>Verify & Approve</button>
                                 </div>
                             </div>
                         ))}
@@ -211,66 +235,67 @@ const AdminDashboard = ({ onBack }) => {
             )}
 
             {activeTab === 'users' && (
-                // ... (Online Users Content)
-                onlineUsers.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '60px', color: '#71717a', border: '1px dashed #27272a', borderRadius: '12px' }}>
-                        No users currently online.
-                    </div>
-                ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '16px' }}>
-                        {onlineUsers.map(user => (
-                            <div key={user.userId || user.socketId} style={{
-                                background: '#18181b', border: '1px solid #27272a', borderRadius: '12px', padding: '16px',
-                                display: 'flex', alignItems: 'center', gap: '12px'
-                            }}>
-                                <div style={{
-                                    width: '40px', height: '40px', borderRadius: '50%', background: '#27272a',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a1a1aa'
-                                }}>
-                                    <User size={20} />
-                                </div>
-                                <div>
-                                    <div style={{ fontWeight: 600, color: '#f4f4f5' }}>{user.displayName || user.username || 'Anonymous'}</div>
-                                    <div style={{ fontSize: '12px', color: '#71717a' }}>{user.email}</div>
-                                    <div style={{ fontSize: '11px', color: '#22c55e', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' }}></div>
-                                        Online Now
-                                    </div>
-                                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                    {onlineUsers.map(user => (
+                        <div key={user.userId || user.socketId} style={{ background: '#18181b', padding: '20px', borderRadius: '16px', border: '1px solid #27272a', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><User size={24} color="#71717a" /></div>
+                            <div>
+                                <div style={{ fontWeight: 700 }}>{user.displayName}</div>
+                                <div style={{ fontSize: '12px', color: '#71717a' }}>{user.email}</div>
+                                <div style={{ fontSize: '11px', color: '#22c55e', fontWeight: 600, marginTop: '4px' }}>● Online</div>
                             </div>
-                        ))}
-                    </div>
-                )
+                        </div>
+                    ))}
+                </div>
             )}
 
             {activeTab === 'all_users' && (
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
-                        <thead>
-                            <tr style={{ borderBottom: '1px solid #27272a', color: '#a1a1aa' }}>
-                                <th style={{ padding: '12px' }}>User</th>
-                                <th style={{ padding: '12px' }}>Email</th>
-                                <th style={{ padding: '12px' }}>Joined</th>
-                                <th style={{ padding: '12px' }}>Credits</th>
-                                <th style={{ padding: '12px' }}>Status</th>
+                <div style={{ background: '#18181b', borderRadius: '16px', border: '1px solid #27272a', overflow: 'hidden' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead style={{ background: '#09090b' }}>
+                            <tr style={{ color: '#71717a', fontSize: '12px', textTransform: 'uppercase' }}>
+                                <th style={{ padding: '16px', textAlign: 'left' }}>User / Joined</th>
+                                <th style={{ padding: '16px', textAlign: 'center' }}>Tier</th>
+                                <th style={{ padding: '16px', textAlign: 'center' }}>Credits</th>
+                                <th style={{ padding: '16px', textAlign: 'right' }}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {allUsers.map((user, i) => (
-                                <tr key={user._id || i} style={{ borderBottom: '1px solid #1f1f22', color: '#f4f4f5' }}>
-                                    <td style={{ padding: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><User size={14} /></div>
-                                        {user.displayName}
+                            {allUsers.map(user => (
+                                <tr key={user._id} style={{ borderBottom: '1px solid #27272a' }}>
+                                    <td style={{ padding: '16px' }}>
+                                        <div style={{ fontWeight: 600 }}>{user.displayName}</div>
+                                        <div style={{ fontSize: '12px', color: '#71717a' }}>{user.email} • {new Date(user.createdAt).toLocaleDateString()}</div>
                                     </td>
-                                    <td style={{ padding: '12px', color: '#a1a1aa' }}>{user.email}</td>
-                                    <td style={{ padding: '12px', color: '#71717a' }}>{new Date(user.createdAt).toLocaleDateString()}</td>
-                                    <td style={{ padding: '12px' }}>{user.credits}</td>
-                                    <td style={{ padding: '12px' }}>
-                                        {user.isPremium ? (
-                                            <span style={{ background: 'linear-gradient(135deg, #a78bfa, #8b5cf6)', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600 }}>PRO</span>
-                                        ) : (
-                                            <span style={{ background: '#27272a', color: '#a1a1aa', padding: '2px 8px', borderRadius: '4px', fontSize: '11px' }}>FREE</span>
-                                        )}
+                                    <td style={{ padding: '16px', textAlign: 'center' }}>
+                                        <span onClick={() => handleUserAction(user._id, 'togglePremium')} style={{
+                                            background: user.isPremium ? 'linear-gradient(135deg, #a78bfa, #7c3aed)' : '#27272a',
+                                            color: '#fff', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, cursor: 'pointer'
+                                        }}>
+                                            {user.isPremium ? 'PRO' : 'FREE'}
+                                        </span>
+                                    </td>
+                                    <td style={{ padding: '16px', textAlign: 'center' }}>
+                                        <div style={{ fontSize: '15px', fontWeight: 700, color: '#a78bfa' }}>{user.credits}</div>
+                                    </td>
+                                    <td style={{ padding: '16px', textAlign: 'right' }}>
+                                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                            <button
+                                                onClick={() => {
+                                                    const c = prompt("Set Credits:", user.credits);
+                                                    if (c !== null) handleUserAction(user._id, 'setCredits', c);
+                                                }}
+                                                style={{ padding: '6px 12px', borderRadius: '6px', background: 'rgba(59,130,246,0.1)', color: '#3b82f6', border: '1px solid rgba(59,130,246,0.2)', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                                            >
+                                                Edit Credits
+                                            </button>
+                                            <button
+                                                onClick={() => handleUserAction(user._id, 'delete')}
+                                                style={{ padding: '6px', borderRadius: '6px', background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)', cursor: 'pointer' }}
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
@@ -279,9 +304,40 @@ const AdminDashboard = ({ onBack }) => {
                 </div>
             )}
 
+            {activeTab === 'activity' && (
+                <div style={{ display: 'grid', gap: '12px' }}>
+                    {matches.map(m => (
+                        <div key={m._id} style={{ background: '#18181b', padding: '16px', borderRadius: '12px', border: '1px solid #27272a', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                <div style={{ padding: '10px', borderRadius: '10px', background: '#27272a' }}><Code size={20} color="#a1a1aa" /></div>
+                                <div>
+                                    <div style={{ fontWeight: 600 }}>{m.problem?.title}</div>
+                                    <div style={{ fontSize: '12px', color: '#71717a' }}>{m.players?.length} Players • {new Date(m.createdAt).toLocaleString()}</div>
+                                </div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                                <div style={{ fontSize: '12px', color: '#22c55e', fontWeight: 600 }}>Winner: {m.winner || 'Draw/DNF'}</div>
+                                <div style={{ fontSize: '11px', color: '#71717a', marginTop: '4px' }}>Room ID: {m.roomId}</div>
+                            </div>
+                        </div>
+                    ))}
+                    {matches.length === 0 && <div style={{ textAlign: 'center', padding: '40px', color: '#71717a' }}>No recent activity.</div>}
+                </div>
+            )}
+
             <style>{`.animate-spin { animation: spin 1s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
     );
 };
+
+const CodeCard = ({ size, color }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+);
+const CheckCircle = ({ size, color }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+);
+const Code = ({ size, color }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+);
 
 export default AdminDashboard;
