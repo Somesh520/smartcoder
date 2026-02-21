@@ -20,10 +20,12 @@ const Documentation = () => {
     return (
         <div style={{
             minHeight: '100vh',
-            background: '#09090b',
+            background: '#020202',
             color: '#e4e4e7',
-            padding: '80px 20px 40px',
-            fontFamily: "'Inter', sans-serif"
+            padding: '100px 20px 60px',
+            fontFamily: "'Inter', sans-serif",
+            position: 'relative',
+            overflow: 'hidden'
         }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
                 {/* Header */}
@@ -86,13 +88,15 @@ const Documentation = () => {
 
                 {/* Content Area */}
                 <div style={{
-                    background: 'rgba(24, 24, 27, 0.5)',
-                    backdropFilter: 'blur(12px)',
-                    border: '1px solid #27272a',
-                    borderRadius: '20px',
+                    background: 'rgba(9, 9, 11, 0.8)',
+                    backdropFilter: 'blur(16px)',
+                    border: '1px solid rgba(167, 139, 250, 0.2)',
+                    borderRadius: '24px',
                     padding: '48px',
-                    boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
-                    minHeight: '600px'
+                    boxShadow: '0 25px 80px rgba(0,0,0,0.5), inset 0 0 40px rgba(167, 139, 250, 0.02)',
+                    minHeight: '600px',
+                    position: 'relative',
+                    zIndex: 1
                 }}>
                     {activeTab === 'overview' && <OverviewContent />}
                     {activeTab === 'frontend' && <FrontendContent expandedSections={expandedSections} toggleSection={toggleSection} />}
@@ -133,12 +137,13 @@ const SectionHeader = ({ title, isExpanded, onToggle, accentColor = '#a78bfa' })
 const TechItem = ({ name, version, purpose, color = '#a78bfa' }) => (
     <div style={{
         padding: '16px 20px',
-        background: 'rgba(24,24,27,0.4)',
+        background: 'rgba(167, 139, 250, 0.02)',
+        border: '1px solid rgba(167, 139, 250, 0.1)',
         borderLeft: `4px solid ${color}`,
         marginBottom: '10px',
-        borderRadius: '8px',
-        border: '1px solid #27272a',
-        borderLeftWidth: '4px'
+        borderRadius: '10px',
+        transition: 'all 0.3s ease',
+        backdropFilter: 'blur(4px)'
     }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
             <code style={{
@@ -207,7 +212,7 @@ const FrontendContent = ({ expandedSections, toggleSection }) => (
 
         <SectionHeader title="Core Ecosystem" isExpanded={expandedSections.frontendCore} onToggle={() => toggleSection('frontendCore')} />
         {expandedSections.frontendCore && (
-            <div style={{ marginBottom: '24px', display: 'grid', gap: '8px' }}>
+            <div style={{ marginBottom: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '12px' }}>
                 <TechItem name="React" version="19.2.0" purpose="Modern UI library with Concurrent Mode for fluid user interactions." />
                 <TechItem name="Vite" version="7.2.4" purpose="Next-gen build tool providing instantaneous Hot Module Replacement." />
                 <TechItem name="Framer Motion" version="12.27.2" purpose="Production-ready animation engine for premium transitions." />
@@ -216,28 +221,32 @@ const FrontendContent = ({ expandedSections, toggleSection }) => (
 
         <SectionHeader title="Workspace & Editor" isExpanded={expandedSections.frontendEditor} onToggle={() => toggleSection('frontendEditor')} />
         {expandedSections.frontendEditor && (
-            <div style={{ marginBottom: '24px' }}>
-                <TechItem name="Monaco Editor" version="4.7.0" purpose="VS Code-level code editing experience in the browser." />
-                <TechItem name="Prismjs" version="1.30.0" purpose="Specialized syntax highlighting for arena environments." />
-                <TechItem name="React Markdown" version="10.1.0" purpose="Rendering complex problem descriptions with LaTeX/Markdown support." />
+            <div style={{ marginBottom: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '12px' }}>
+                <TechItem name="Monaco Editor" version="4.7.0" purpose="The core of the battle workspace, providing VS Code-level editing." />
+                <TechItem name="Prismjs" version="1.30.0" purpose="Lightweight syntax highlighting for diverse language support." />
+                <TechItem name="React Markdown" version="10.1.0" purpose="Rendering complex LeetCode problem descriptions securely." />
+                <TechItem name="Code Editor" version="0.14.1" purpose="Simple fallback editor for low-bandwidth environments." />
             </div>
         )}
 
-        <SectionHeader title="Real-time & Data" isExpanded={expandedSections.frontendData} onToggle={() => toggleSection('frontendData')} />
+        <SectionHeader title="Real-time & Network" isExpanded={expandedSections.frontendData} onToggle={() => toggleSection('frontendData')} />
         {expandedSections.frontendData && (
-            <div style={{ marginBottom: '24px' }}>
-                <TechItem name="Socket.io-client" version="4.8.3" purpose="Handles real-time battle state and lobby notifications." />
-                <TechItem name="Axios" version="1.13.2" purpose="Authenticated API client for all RESTful interactions." />
-                <TechItem name="React Router" version="7.11.0" purpose="Dynamic client-side routing with protected admin layouts." />
+            <div style={{ marginBottom: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '12px' }}>
+                <TechItem name="Socket.io-client" version="4.8.3" purpose="Handles low-latency battle state and lobby notifications." />
+                <TechItem name="Axios" version="1.13.2" purpose="Enterprise-grade HTTP client for authenticated API requests." />
+                <TechItem name="React Router" version="7.11.0" purpose="Client-side routing with deep-link support for battle rooms." />
             </div>
         )}
 
-        <SectionHeader title="Visual & UX" isExpanded={expandedSections.frontendUI} onToggle={() => toggleSection('frontendUI')} />
+        <SectionHeader title="Graphics & Effects" isExpanded={expandedSections.frontendUI} onToggle={() => toggleSection('frontendUI')} />
         {expandedSections.frontendUI && (
-            <div style={{ marginBottom: '24px' }}>
-                <TechItem name="Lucide React" version="0.562.0" purpose="Sleek, lightweight iconography for the entire interface." />
-                <TechItem name="Canvas Confetti" version="1.9.4" purpose="Victory effects for match winners." />
-                <TechItem name="Three.js" version="0.182.0" purpose="3D background effects and GLSL shader integration." />
+            <div style={{ marginBottom: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '12px' }}>
+                <TechItem name="Three.js" version="0.182.0" purpose="The base 3D engine for premium visual effects." />
+                <TechItem name="@react-three/fiber" version="9.4.2" purpose="React bridge for high-performance 3D rendering." />
+                <TechItem name="Post-Processing" version="3.0.4" purpose="Bloom, Glitch, and CRT effects for the Cyberpunk UI." />
+                <TechItem name="Lucide Icons" version="0.562.0" purpose="Consistent and scalable vector iconography." />
+                <TechItem name="Canvas Confetti" version="1.9.4" purpose="Optimized celebration particles for victory states." />
+                <TechItem name="React Helmet" version="2.0.5" purpose="Dynamic SEO and metadata management per route." />
             </div>
         )}
     </div>
@@ -249,37 +258,44 @@ const BackendContent = ({ expandedSections, toggleSection }) => (
 
         <SectionHeader title="Server Core" isExpanded={expandedSections.backendCore} onToggle={() => toggleSection('backendCore')} />
         {expandedSections.backendCore && (
-            <div style={{ marginBottom: '24px' }}>
-                <TechItem name="Node.js" version="20.19.6" purpose="High-performance async runtime for real-time applications." />
-                <TechItem name="Express" version="5.2.1" purpose="Minimalist web framework handling API request pipelines." />
-                <TechItem name="Socket.io" version="4.8.3" purpose="The backbone of real-time room and duel synchronization." />
+            <div style={{ marginBottom: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '12px' }}>
+                <TechItem name="Node.js" version="20.19.6" purpose="The foundation of the real-time non-blocking architecture." />
+                <TechItem name="Express" version="5.2.1" purpose="High-performance web framework for the API layer." />
+                <TechItem name="Socket.io" version="4.8.3" purpose="Broadcast engine for multi-user synchronization." />
+                <TechItem name="Compression" version="1.8.1" purpose="Gzip optimization for faster JSON payload delivery." />
+                <TechItem name="CORS" version="2.8.5" purpose="Secure Cross-Origin Resource Sharing for the frontend." />
             </div>
         )}
 
         <SectionHeader title="Database & Persistence" isExpanded={expandedSections.backendDB} onToggle={() => toggleSection('backendDB')} />
         {expandedSections.backendDB && (
-            <div style={{ marginBottom: '24px' }}>
-                <TechItem name="MongoDB" version="Atlas" purpose="Scalable NoSQL storage for users, matches, and transactions." />
-                <TechItem name="Mongoose" version="9.1.2" purpose="Sophisticated ODM with strict schema validation." />
-                <TechItem name="Redis" version="5.10.0" purpose="High-speed caching for login sessions and lobby states." />
+            <div style={{ marginBottom: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '12px' }}>
+                <TechItem name="MongoDB Atlas" version="Cloud" purpose="Primary persistent storage for users, matches, and logs." />
+                <TechItem name="Mongoose" version="9.1.2" purpose="Dynamic ODM with field-level schema validation. " />
+                <TechItem name="Redis" version="5.10.0" purpose="Flash-memory storage for session caching and lobby states." />
+                <TechItem name="Connect Redis" version="9.0.0" purpose="External session store for high-availability deployments." />
             </div>
         )}
 
         <SectionHeader title="Security Layer" isExpanded={expandedSections.backendAuth} onToggle={() => toggleSection('backendAuth')} />
         {expandedSections.backendAuth && (
-            <div style={{ marginBottom: '24px' }}>
-                <TechItem name="JWT (JSON Web Token)" version="9.0.3" purpose="Stateless authentication with secure HttpOnly cookies." />
-                <TechItem name="Passport.js" version="0.7.0" purpose="Flexible authentication middleware for OAuth and Local strategies." />
-                <TechItem name="Helmet" version="8.1.0" purpose="Hardening the server by setting various security-related HTTP headers." />
+            <div style={{ marginBottom: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '12px' }}>
+                <TechItem name="JWT" version="9.0.3" purpose="Encrypted tokens for stateless session management." />
+                <TechItem name="Passport.js" version="0.7.0" purpose="Authenticator for Google and GitHub OAuth flows." />
+                <TechItem name="Helmet" version="8.1.0" purpose="Directly hardens Express against well-known web vulnerabilities." />
+                <TechItem name="Rate Limit" version="8.2.1" purpose="DDoS protection at the API endpoint level." />
+                <TechItem name="Dotenv" version="17.2.3" purpose="Zero-dependency secret management for production keys." />
             </div>
         )}
 
         <SectionHeader title="Intelligence & Execution" isExpanded={expandedSections.backendAI} onToggle={() => toggleSection('backendAI')} />
         {expandedSections.backendAI && (
-            <div style={{ marginBottom: '24px' }}>
-                <TechItem name="Google Generative AI" version="0.24.1" purpose="Powers AI code reviews and intelligent hint generation." />
-                <TechItem name="Judge0 API" version="External" purpose="Remote sandboxed code execution for 50+ languages." />
-                <TechItem name="LeetCode Query" version="2.0.1" purpose="Fetching official LeetCode stats for user profiles." />
+            <div style={{ marginBottom: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '12px' }}>
+                <TechItem name="Google GenAI" version="0.24.1" purpose="Powers the intelligent hint system and code reviews." />
+                <TechItem name="Groq SDK" version="0.37.0" purpose="Ultra-fast LPU inference for real-time AI agents." />
+                <TechItem name="LangChain" version="1.2.13" purpose="Orchestration for complex LLM reasoning chains." />
+                <TechItem name="Judge0 API" version="External" purpose="The sandboxed remote code execution engine." />
+                <TechItem name="LeetCode SDK" version="2.0.1" purpose="Native query bridge for LeetCode profile syncing." />
             </div>
         )}
     </div>
