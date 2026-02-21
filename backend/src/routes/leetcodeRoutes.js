@@ -79,21 +79,22 @@ router.get('/search', async (req, res) => {
 
         const matches = allProblems
             .filter(p => {
-                const title = (p.title || p.stat?.question__title || "").toLowerCase();
-                const slug = (p.title_slug || p.stat?.question__title_slug || "").toLowerCase();
+                const title = (p.title || p.stat?.question__title || p.questionTitle || "").toLowerCase();
+                const slug = (p.title_slug || p.titleSlug || p.stat?.question__title_slug || p.slug || "").toLowerCase();
                 return title.includes(query) || slug.includes(query);
             })
             .slice(0, 10) // Limit to top 10
             .map(p => {
                 let diff = "Medium";
-                if (p.difficulty === 'Easy' || p.difficulty?.level === 1) diff = 'Easy';
-                else if (p.difficulty === 'Medium' || p.difficulty?.level === 2) diff = 'Medium';
-                else if (p.difficulty === 'Hard' || p.difficulty?.level === 3) diff = 'Hard';
+                const diffLevel = p.difficulty?.level || p.difficulty;
+                if (diffLevel === 'Easy' || diffLevel === 1) diff = 'Easy';
+                else if (diffLevel === 'Medium' || diffLevel === 2) diff = 'Medium';
+                else if (diffLevel === 'Hard' || diffLevel === 3) diff = 'Hard';
 
                 return {
-                    id: p.stat?.question_id || p.id,
-                    title: p.stat?.question__title || p.title,
-                    slug: p.stat?.question__title_slug || p.title_slug || p.slug,
+                    id: p.stat?.question_id || p.id || p.questionId || p.questionFrontendId,
+                    title: p.stat?.question__title || p.title || p.questionTitle,
+                    slug: p.stat?.question__title_slug || p.title_slug || p.titleSlug || p.slug,
                     difficulty: diff,
                     paid: p.paid_only === true || p.paid === true
                 };

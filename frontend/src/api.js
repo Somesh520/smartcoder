@@ -164,6 +164,22 @@ export const fetchSolvedProblems = async () => {
   }
 };
 
+export const searchProblems = async (query) => {
+  if (!query || query.length < 2) return [];
+  try {
+    const res = await fetch(`${BASE_URL}/api/leetcode/search?q=${encodeURIComponent(query)}`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (e) {
+    console.error("Search API failed", e);
+    return [];
+  }
+};
+
+
 export const fetchDailyChallenge = async () => {
   try {
     const res = await fetch(`${BASE_URL}/api/leetcode/daily`, {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Lock, Check } from 'lucide-react';
+import { searchProblems } from '../api';
 
 const ProblemAutocomplete = ({ onSelect, initialValue = "" }) => {
     const [query, setQuery] = useState(initialValue);
@@ -31,11 +32,7 @@ const ProblemAutocomplete = ({ onSelect, initialValue = "" }) => {
 
             setLoading(true);
             try {
-                // Determine API URL (handle fallback)
-                // We reuse the global API_URL concept or relative path
-                const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-                const res = await fetch(`${API_URL}/api/leetcode/search?q=${encodeURIComponent(query)}`);
-                const data = await res.json();
+                const data = await searchProblems(query);
                 setResults(Array.isArray(data) ? data : []);
             } catch (e) {
                 console.error("Search failed", e);
