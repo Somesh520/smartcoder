@@ -47,11 +47,11 @@ const Documentation = () => {
                 </div>
 
                 {/* Status Bar */}
-                <div className="neo-card" style={{ padding: '12px 24px', marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--text-main)', color: 'var(--accent)' }}>
-                    <div style={{ fontSize: '14px', fontWeight: '800', fontFamily: 'monospace' }}>
+                <div className="neo-card" style={{ padding: '20px 24px', marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-main)', border: 'var(--border-main)', color: 'var(--text-main)', boxShadow: 'var(--shadow-main)' }}>
+                    <div style={{ fontSize: '14px', fontWeight: '950', fontFamily: 'monospace', textTransform: 'uppercase' }}>
                         [ AUTH_MODE: SOCIAL_FORKING ]
                     </div>
-                    <div style={{ fontSize: '14px', fontWeight: '800', fontFamily: 'monospace', textAlign: 'right' }}>
+                    <div style={{ fontSize: '14px', fontWeight: '950', fontFamily: 'monospace', textAlign: 'right', textTransform: 'uppercase' }}>
                         NET_CONNECT: ESTABLISHED<br />
                         DRIVES_READY: 5
                     </div>
@@ -131,15 +131,17 @@ const TechItem = ({ name, version, purpose }) => (
     <div className="neo-card" style={{
         padding: '24px',
         marginBottom: '16px',
-        background: 'var(--bg-card)'
+        background: 'var(--bg-card)',
+        border: 'var(--border-main)',
+        boxShadow: 'var(--shadow-main)'
     }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <div style={{ background: 'var(--text-main)', color: 'var(--bg-card)', padding: '4px 12px', fontWeight: '900', fontSize: '14px' }}>
+            <div style={{ background: 'var(--text-main)', color: 'var(--bg-card)', padding: '4px 12px', fontWeight: '950', fontSize: '14px' }}>
                 {name.toUpperCase()}
             </div>
-            {version && <span style={{ fontWeight: '800', fontSize: '14px', color: 'var(--text-main)' }}>v{version}</span>}
+            {version && <span style={{ fontWeight: '900', fontSize: '14px', color: 'var(--text-main)' }}>v{version}</span>}
         </div>
-        <p style={{ margin: 0, fontSize: '15px', fontWeight: '600', color: 'var(--text-muted)', lineHeight: '1.5' }}>{purpose}</p>
+        <p style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: 'var(--text-muted)', lineHeight: '1.5' }}>{purpose}</p>
     </div>
 );
 

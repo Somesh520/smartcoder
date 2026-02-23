@@ -69,7 +69,13 @@ const CodeBlock = ({ node, inline, className, children, ...props }) => {
                         </button>
                     </div>
                 </div>
-                <pre style={{ margin: 0, padding: '16px', background: 'transparent' }}><code className={`language-${activeLang}`} dangerouslySetInnerHTML={{ __html: highlighted }} /></pre>
+                <pre style={{ margin: 0, padding: '20px', background: 'transparent', overflow: 'auto' }}>
+                    <code
+                        className={`language-${activeLang}`}
+                        style={{ color: 'var(--text-main)', fontSize: '13px', lineHeight: '1.6', fontWeight: 700, fontFamily: "'JetBrains Mono', monospace" }}
+                        dangerouslySetInnerHTML={{ __html: highlighted }}
+                    />
+                </pre>
             </div>
         );
     }
@@ -462,9 +468,10 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme }) => {
                         fontSize: '14px'
                     }}>#{problem.id}</span>
                     <span style={{
-                        color: '#e5e7eb',
-                        fontWeight: 600,
-                        fontSize: '16px'
+                        color: 'var(--text-main)',
+                        fontWeight: 950,
+                        fontSize: '16px',
+                        textTransform: 'uppercase'
                     }}>{problem.title}</span>
                 </div>
 
@@ -484,120 +491,140 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme }) => {
                             margin: 0 0 16px 0;
                             color: var(--text-main);
                             line-height: 1.7;
+                            font-weight: 600;
                         }
                         
                         .problem-content strong {
                             color: var(--text-main);
-                            font-weight: 900;
+                            font-weight: 950;
                         }
                         
                         .problem-content em {
                             color: var(--accent);
                             font-style: italic;
-                            font-weight: 700;
+                            font-weight: 800;
                         }
                         
                         .problem-content code {
-                            background: rgba(59, 130, 246, 0.15);
-                            color: #60a5fa;
+                            background: var(--bg-main);
+                            color: var(--accent);
                             padding: 2px 8px;
-                            border-radius: 4px;
-                            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+                            border: var(--border-main);
+                            border-radius: 0;
+                            font-family: 'JetBrains Mono', monospace;
                             font-size: 14px;
-                            border: 1px solid rgba(59, 130, 246, 0.2);
+                            font-weight: 800;
                         }
                         
                         .problem-content pre {
                             background: var(--bg-main);
                             border: var(--border-main);
-                            border-right: 4px solid var(--accent);
-                            padding: 16px;
+                            padding: 20px;
                             border-radius: 0;
                             overflow-x: auto;
-                            margin: 16px 0;
+                            margin: 20px 0;
                             box-shadow: var(--shadow-main);
+                            position: relative;
+                        }
+
+                        .problem-content pre::before {
+                            content: 'EXAMPLE';
+                            position: absolute;
+                            top: 0;
+                            right: 0;
+                            background: var(--text-main);
+                            color: var(--bg-card);
+                            padding: 2px 8px;
+                            font-size: 10px;
+                            font-weight: 900;
                         }
                         
                         .problem-content pre code {
                             background: none;
                             border: none;
                             padding: 0;
-                            color: #e5e7eb;
+                            color: var(--text-main);
                             font-size: 13px;
+                            font-weight: 700;
+                            line-height: 1.5;
                         }
                         
                         .problem-content ul, .problem-content ol {
                             margin: 16px 0;
                             padding-left: 24px;
+                            color: var(--text-main);
                         }
                         
                         .problem-content li {
                             margin: 8px 0;
-                            color: #d1d5db;
+                            color: var(--text-main);
+                            font-weight: 600;
                         }
                         
                         .problem-content h1, .problem-content h2, .problem-content h3 {
-                            color: #ffffff;
-                            font-weight: 700;
-                            margin: 24px 0 12px 0;
-                            line-height: 1.3;
+                            color: var(--text-main);
+                            font-weight: 950;
+                            margin: 32px 0 16px 0;
+                            line-height: 1.2;
+                            text-transform: uppercase;
                         }
                         
                         .problem-content h1 {
                             font-size: 24px;
-                            border-bottom: 2px solid rgba(34, 197, 94, 0.3);
+                            border-bottom: var(--border-main);
                             padding-bottom: 8px;
                         }
                         
                         .problem-content h2 {
                             font-size: 20px;
-                            color: #22c55e;
+                            color: var(--accent);
                         }
                         
                         .problem-content h3 {
                             font-size: 18px;
-                            color: #3b82f6;
                         }
                         
                         .problem-content img {
                             max-width: 100%;
-                            border-radius: 8px;
-                            margin: 16px 0;
-                            border: 1px solid rgba(255, 255, 255, 0.1);
+                            border: var(--border-main);
+                            margin: 20px 0;
+                            box-shadow: var(--shadow-main);
                         }
                         
                         .problem-content blockquote {
-                            border-left: 3px solid #fbbf24;
-                            background: rgba(251, 191, 36, 0.1);
-                            padding: 12px 16px;
-                            margin: 16px 0;
-                            border-radius: 4px;
-                            color: #fbbf24;
+                            border-left: 4px solid var(--accent);
+                            background: var(--bg-main);
+                            padding: 16px 20px;
+                            margin: 20px 0;
+                            color: var(--text-main);
+                            font-weight: 700;
                         }
                         
                         .problem-content table {
                             width: 100%;
                             border-collapse: collapse;
-                            margin: 16px 0;
+                            margin: 20px 0;
+                            border: var(--border-main);
                         }
                         
                         .problem-content th {
-                            background: rgba(34, 197, 94, 0.15);
-                            color: #22c55e;
+                            background: var(--accent);
+                            color: #000;
                             padding: 12px;
                             text-align: left;
-                            font-weight: 700;
-                            border: 1px solid rgba(34, 197, 94, 0.2);
+                            font-weight: 950;
+                            border: var(--border-main);
                         }
                         
                         .problem-content td {
                             padding: 12px;
-                            border: 1px solid rgba(255, 255, 255, 0.1);
-                            color: #d1d5db;
+                            border: var(--border-main);
+                            color: var(--text-main);
+                            font-weight: 600;
                         }
                         
-                        .problem-content tr:hover {
-                            background: rgba(59, 130, 246, 0.05);
+                        .problem-content tr:nth-child(even) {
+                            background: var(--bg-main);
                         }
                     `}</style>
                     {details ? (
@@ -715,39 +742,32 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme }) => {
                         {/* AI Star Button */}
                         <button
                             onClick={() => setAiOpen(!aiOpen)}
+                            className="neo-btn"
                             style={{
-                                background: aiOpen
-                                    ? 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)'
-                                    : 'linear-gradient(135deg, rgba(167,139,250,0.15) 0%, rgba(124,58,237,0.15) 100%)',
-                                color: aiOpen ? '#fff' : '#a78bfa',
-                                border: '1px solid rgba(167,139,250,0.4)',
-                                padding: '8px 14px',
-                                borderRadius: '6px',
+                                background: aiOpen ? 'var(--accent)' : 'var(--bg-card)',
+                                color: aiOpen ? '#000' : 'var(--text-main)',
+                                padding: '8px 16px',
                                 fontSize: '13px',
-                                fontWeight: 700,
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                transition: 'all 0.3s',
-                                boxShadow: aiOpen
-                                    ? '0 0 20px rgba(167,139,250,0.5)'
-                                    : '0 0 10px rgba(167,139,250,0.2)',
-                                animation: !aiOpen ? (theme === 'dark' ? 'ai-pulse-dark 2s infinite' : 'ai-pulse-light 2s infinite') : 'none'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
-                                e.currentTarget.style.boxShadow = '0 5px 25px rgba(167,139,250,0.5)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                                e.currentTarget.style.boxShadow = aiOpen
-                                    ? '0 0 20px rgba(167,139,250,0.5)'
-                                    : '0 0 10px rgba(167,139,250,0.2)';
+                                border: 'var(--border-main)',
+                                boxShadow: aiOpen ? '0 0 20px rgba(167,139,250,0.4)' : 'var(--shadow-main)',
+                                position: 'relative',
+                                overflow: 'visible'
                             }}
                         >
-                            <Sparkles size={14} />
+                            <Sparkles size={14} style={{ color: aiOpen ? '#000' : '#a78bfa' }} />
                             AI
+                            {!aiOpen && (
+                                <span style={{
+                                    position: 'absolute',
+                                    top: '-4px',
+                                    right: '-4px',
+                                    width: '8px',
+                                    height: '8px',
+                                    background: '#a78bfa',
+                                    borderRadius: '50%',
+                                    boxShadow: '0 0 10px #a78bfa'
+                                }}></span>
+                            )}
                         </button>
                     </div>
                 </div>
@@ -759,47 +779,45 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme }) => {
                         50% { box-shadow: 0 0 20px rgba(167,139,250,0.4), 0 0 40px rgba(167,139,250,0.1); }
                     }
                     .ai-response-content h1, .ai-response-content h2, .ai-response-content h3 {
-                        color: #e5e7eb; font-weight: 700; margin: 16px 0 8px 0;
+                        color: var(--text-main); font-weight: 950; margin: 16px 0 8px 0; text-transform: uppercase;
                     }
-                    .ai-response-content h2 { font-size: 16px; color: #a78bfa; }
-                    .ai-response-content h3 { font-size: 14px; color: #60a5fa; }
-                    .ai-response-content p { margin: 8px 0; line-height: 1.6; }
+                    .ai-response-content h2 { font-size: 16px; color: var(--accent); }
+                    .ai-response-content h3 { font-size: 14px; }
+                    .ai-response-content p { margin: 8px 0; line-height: 1.6; font-weight: 600; color: var(--text-main); }
                     .ai-response-content ul, .ai-response-content ol {
-                        margin: 8px 0; padding-left: 20px;
+                        margin: 8px 0; padding-left: 20px; color: var(--text-main);
                     }
-                    .ai-response-content li { margin: 4px 0; }
+                    .ai-response-content li { margin: 4px 0; font-weight: 600; }
                     .ai-response-content code {
-                        background: rgba(99,102,241,0.15); color: #c4b5fd;
-                        padding: 2px 6px; border-radius: 4px;
-                        font-family: 'JetBrains Mono', monospace; font-size: 12px;
+                        background: var(--bg-main); color: var(--accent);
+                        padding: 2px 6px; border: var(--border-main);
+                        font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 800;
                     }
                     .ai-response-content pre {
-                        background: #0d1117; 
-                        border: 1px solid rgba(167,139,250,0.1);
+                        background: var(--bg-main); 
+                        border: var(--border-main);
                         width: 100%;
-                        border-radius: 8px; 
                         padding: 16px; 
                         margin: 12px 0;
                         overflow-x: auto;
                         max-height: 450px;
                         overflow-y: auto;
+                        box-shadow: var(--shadow-main);
                     }
                     .ai-response-content pre::-webkit-scrollbar { height: 6px; width: 6px; }
-                    .ai-response-content pre::-webkit-scrollbar-track { background: #0d1117; }
-                    .ai-response-content pre::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
-                    .ai-response-content pre::-webkit-scrollbar-thumb:hover { background: #52525b; }
+                    .ai-response-content pre::-webkit-scrollbar-track { background: var(--bg-main); }
+                    .ai-response-content pre::-webkit-scrollbar-thumb { background: var(--text-main); }
                     .ai-response-content pre code {
-                        background: none; padding: 0; color: #e5e7eb;
-                        font-size: 13px; line-height: 1.5;
+                        background: none; padding: 0; color: var(--text-main);
+                        font-size: 13px; line-height: 1.5; font-weight: 700; border: none;
                     }
-                    .ai-response-content strong { color: #f9fafb; }
-                    .ai-response-content em { color: #a78bfa; }
+                    .ai-response-content strong { color: var(--text-main); font-weight: 950; }
+                    .ai-response-content em { color: var(--accent); font-weight: 800; }
                     .ai-code-wrapper {
-                        border: 1px solid rgba(167,139,250,0.1); 
-                        border-radius: 12px;
+                        border: var(--border-main); 
                         margin: 16px 0; overflow: hidden;
-                        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-                        background: #0d1117;
+                        box-shadow: var(--shadow-main);
+                        background: var(--bg-main);
                         transition: transform 0.2s;
                     }
                     .ai-code-wrapper:hover {
@@ -807,8 +825,8 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme }) => {
                     }
                     .ai-code-header {
                         display: flex; justify-content: space-between; align-items: center;
-                        padding: 10px 16px; background: #1c1c24;
-                        border-bottom: 1px solid rgba(167,139,250,0.05);
+                        padding: 10px 16px; background: var(--bg-card);
+                        border-bottom: var(--border-main);
                     }
                     .ai-code-dots { display: flex; gap: 6px; }
                     .ai-dot { width: 10px; height: 10px; border-radius: 50%; opacity: 0.8; transition: opacity 0.2s; }
@@ -825,13 +843,14 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme }) => {
                         text-transform: uppercase; letter-spacing: 1px;
                     }
                     .ai-copy-btn {
-                        background: rgba(255,255,255,0.05); color: #d1d5db;
-                        border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px;
-                        border-radius: 6px; font-size: 11px; font-weight: 600;
+                        background: var(--bg-main); color: var(--text-main);
+                        border: var(--border-main); padding: 4px 12px;
+                        font-size: 11px; font-weight: 900;
                         cursor: pointer; transition: all 0.2s;
+                        text-transform: uppercase;
                     }
                     .ai-copy-btn:hover {
-                        background: rgba(167,139,250,0.2); color: #fff; border-color: rgba(167,139,250,0.4);
+                        background: var(--accent); color: #000;
                     }
                 `}</style>
 
@@ -891,20 +910,20 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme }) => {
                         left: isAiExpanded ? '50%' : 'auto',
                         bottom: isAiExpanded ? '10%' : 0,
                         transform: isAiExpanded ? 'translateX(-50%)' : 'none',
-                        width: isAiExpanded ? '70%' : '400px',
-                        maxWidth: isAiExpanded ? '1000px' : '90%',
-                        height: isAiExpanded ? '80vh' : 'auto',
+                        width: isAiExpanded ? '70%' : '420px',
+                        maxWidth: isAiExpanded ? '1100px' : '95%',
+                        height: isAiExpanded ? '85vh' : 'auto',
                         zIndex: 100,
-                        background: 'rgba(15, 15, 24, 0.95)',
+                        background: 'var(--bg-card)',
                         backdropFilter: 'blur(20px)',
-                        border: isAiExpanded ? '1px solid rgba(167,139,250,0.3)' : 'none',
-                        borderLeft: isAiExpanded ? '1px solid rgba(167,139,250,0.3)' : '1px solid rgba(167,139,250,0.2)',
-                        borderRadius: isAiExpanded ? '24px' : '0',
+                        border: isAiExpanded ? 'var(--border-main)' : 'none',
+                        borderLeft: 'var(--border-main)',
+                        borderRadius: '0',
                         display: 'flex',
                         flexDirection: 'column',
                         animation: isAiExpanded ? 'floatIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)' : 'slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
                         transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                        boxShadow: isAiExpanded ? '0 25px 50px rgba(0,0,0,0.5), 0 0 40px rgba(124,58,237,0.15)' : '-10px 0 40px rgba(0,0,0,0.6)'
+                        boxShadow: 'var(--shadow-main)'
                     }}>
                         <style>{`
                         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
@@ -913,15 +932,15 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme }) => {
 
                         {/* Header (Same as before) */}
                         <div style={{
-                            padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)',
+                            padding: '16px 20px', borderBottom: 'var(--border-main)',
                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                            background: 'linear-gradient(180deg, rgba(167,139,250,0.08) 0%, transparent 100%)'
+                            background: 'var(--bg-main)'
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <Sparkles size={16} color="#a78bfa" />
-                                <span style={{ color: '#e5e7eb', fontWeight: 700, fontSize: '14px' }}>SmartCoder AI</span>
-                                <div style={{ padding: '2px 8px', borderRadius: '12px', background: credits > 0 ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)', border: `1px solid ${credits > 0 ? '#22c55e' : '#ef4444'}`, fontSize: '11px', fontWeight: 600, color: credits > 0 ? '#4ade80' : '#f87171', marginLeft: '8px' }}>
-                                    {credits} Credits
+                                <Sparkles size={16} color="var(--accent)" />
+                                <span style={{ color: 'var(--text-main)', fontWeight: 950, fontSize: '14px', textTransform: 'uppercase' }}>SMARTCODER_AI</span>
+                                <div style={{ padding: '2px 8px', borderRadius: '0', background: 'var(--bg-card)', border: 'var(--border-main)', fontSize: '11px', fontWeight: 900, color: credits > 0 ? '#22c55e' : '#ef4444', marginLeft: '8px' }}>
+                                    {credits} CREDITS
                                 </div>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -951,16 +970,16 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme }) => {
                                             paddingRight: '12px'
                                         }}
                                     >
-                                        <option value="english" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>English</option>
-                                        <option value="hinglish" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Hinglish</option>
-                                        <option value="hindi" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Hindi</option>
-                                        <option value="bhojpuri" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Bhojpuri</option>
-                                        <option value="marathi" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Marathi</option>
-                                        <option value="bengali" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Bengali</option>
-                                        <option value="tamil" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Tamil</option>
-                                        <option value="telugu" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Telugu</option>
-                                        <option value="gujarati" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Gujarati</option>
-                                        <option value="kannada" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Kannada</option>
+                                        <option value="english" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>English</option>
+                                        <option value="hinglish" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>Hinglish</option>
+                                        <option value="hindi" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>Hindi</option>
+                                        <option value="bhojpuri" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>Bhojpuri</option>
+                                        <option value="marathi" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>Marathi</option>
+                                        <option value="bengali" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>Bengali</option>
+                                        <option value="tamil" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>Tamil</option>
+                                        <option value="telugu" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>Telugu</option>
+                                        <option value="gujarati" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>Gujarati</option>
+                                        <option value="kannada" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>Kannada</option>
                                     </select>
                                 </div>
                                 <button
@@ -1017,25 +1036,15 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme }) => {
                                 <div key={idx} style={{
                                     alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
                                     maxWidth: '88%',
-                                    background: msg.role === 'user' ? 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)' : 'rgba(30, 30, 40, 0.7)',
-                                    border: msg.role === 'user' ? 'none' : '1px solid rgba(255,255,255,0.05)',
-                                    color: '#f3f4f6',
-                                    padding: '14px 18px',
-                                    borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                                    boxShadow: msg.role === 'user' ? '0 8px 20px rgba(99,102,241,0.25)' : '0 4px 15px rgba(0,0,0,0.2)',
+                                    background: msg.role === 'user' ? 'var(--accent)' : 'var(--bg-main)',
+                                    border: 'var(--border-main)',
+                                    color: msg.role === 'user' ? '#000' : 'var(--text-main)',
+                                    padding: '16px 20px',
+                                    borderRadius: '0',
+                                    boxShadow: 'var(--shadow-main)',
                                     fontSize: '14px', lineHeight: '1.7',
                                     position: 'relative'
                                 }}>
-                                    {/* Chat Bubble Tail (Optional touch of realism) */}
-                                    <div style={{
-                                        position: 'absolute',
-                                        bottom: 0,
-                                        [msg.role === 'user' ? 'right' : 'left']: '-6px',
-                                        width: '12px', height: '16px',
-                                        background: msg.role === 'user' ? '#4f46e5' : 'rgba(30, 30, 40, 0.9)',
-                                        clipPath: msg.role === 'user' ? 'polygon(0 0, 0% 100%, 100% 100%)' : 'polygon(100% 0, 0 100%, 100% 100%)',
-                                        borderBottom: msg.role === 'user' ? 'none' : '1px solid rgba(255,255,255,0.05)'
-                                    }}></div>
                                     {msg.role === 'user' ? (
                                         <div>{msg.content}</div>
                                     ) : (
@@ -1070,21 +1079,19 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme }) => {
                         </div>
 
                         {/* Input Area */}
-                        <div style={{ padding: '16px 20px', background: 'rgba(0,0,0,0.2)', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <div style={{ padding: '20px', background: 'var(--bg-main)', borderTop: 'var(--border-main)', display: 'flex', gap: '12px', alignItems: 'center' }}>
                             <div style={{ flex: 1, position: 'relative' }}>
                                 <input
                                     type="text"
                                     value={aiMessage}
                                     onChange={(e) => setAiMessage(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && !aiLoading && handleAIAssist()}
-                                    placeholder="Message SmartCoder..."
+                                    placeholder="ASK_SMARTCODER..."
                                     disabled={aiLoading}
-                                    style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '14px 45px 14px 18px', borderRadius: '14px', outline: 'none', fontSize: '14px', transition: 'all 0.2s', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)' }}
-                                    onFocus={(e) => { e.target.style.borderColor = 'rgba(124,58,237,0.5)'; e.target.style.background = 'rgba(255,255,255,0.08)'; }}
-                                    onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.background = 'rgba(255,255,255,0.05)'; }}
+                                    style={{ width: '100%', background: 'var(--bg-card)', border: 'var(--border-main)', color: 'var(--text-main)', padding: '14px 50px 14px 20px', borderRadius: '0', outline: 'none', fontSize: '14px', fontWeight: 700, transition: 'all 0.2s', boxShadow: 'inset var(--shadow-main)' }}
                                 />
-                                <button onClick={() => handleAIAssist()} disabled={aiLoading || !aiMessage.trim()} style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: (aiLoading || !aiMessage.trim()) ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)', color: '#fff', border: 'none', width: '32px', height: '32px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: (aiLoading || !aiMessage.trim()) ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}>
-                                    <Send size={14} style={{ marginLeft: '2px' }} />
+                                <button onClick={() => handleAIAssist()} disabled={aiLoading || !aiMessage.trim()} className="neo-btn" style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: (aiLoading || !aiMessage.trim()) ? 'var(--bg-main)' : 'var(--accent)', color: (aiLoading || !aiMessage.trim()) ? 'var(--text-muted)' : '#000', border: 'var(--border-main)', width: '32px', height: '32px', borderRadius: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: (aiLoading || !aiMessage.trim()) ? 'not-allowed' : 'pointer', boxShadow: 'none' }}>
+                                    <Send size={14} />
                                 </button>
                             </div>
                         </div>
