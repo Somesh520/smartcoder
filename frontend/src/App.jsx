@@ -77,7 +77,7 @@ class ErrorBoundary extends React.Component {
 }
 
 // Main App Component (with Header and routing)
-function MainApp({ initialRoom, theme, toggleTheme }) {
+function MainApp({ initialRoom }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [currentProblem, setCurrentProblem] = useState(null);
@@ -316,8 +316,7 @@ function MainApp({ initialRoom, theme, toggleTheme }) {
                 onShowProblemList={() => navigate('/app/problems')}
                 onGoDetail={() => navigate('/app')}
                 user={userInfo}
-                theme={theme}
-                toggleTheme={toggleTheme}
+                theme="dark"
               />
             )}
             <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', position: 'relative' }}>
@@ -341,7 +340,7 @@ function MainApp({ initialRoom, theme, toggleTheme }) {
                         />
                       </>
                     } />
-                    <Route path="workspace/:problemId" element={<WorkspaceWrapper currentProblem={currentProblem} onBack={handleBack} theme={theme} userInfo={userInfo} />} />
+                    <Route path="workspace/:problemId" element={<WorkspaceWrapper currentProblem={currentProblem} onBack={handleBack} theme="dark" userInfo={userInfo} />} />
 
                     <Route path="history" element={<HistoryPage />} />
                     <Route path="stats" element={<LeetCodePage />} />
@@ -358,7 +357,7 @@ function MainApp({ initialRoom, theme, toggleTheme }) {
                         onBack={handleBackToLobby}
                         setRoomId={setRoomId}
                         setUsername={setUsername}
-                        theme={theme}
+                        theme="dark"
                       />
                     } />
 
@@ -508,7 +507,7 @@ function MainApp({ initialRoom, theme, toggleTheme }) {
 }
 
 // Workspace Wrapper Component (Extracted)
-const WorkspaceWrapper = ({ currentProblem, onBack, theme, userInfo }) => {
+const WorkspaceWrapper = ({ currentProblem, onBack, userInfo }) => {
   const { problemId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -539,7 +538,7 @@ const WorkspaceWrapper = ({ currentProblem, onBack, theme, userInfo }) => {
         title={problem.title ? `${problem.title} - AlgoDuel Workspace` : "Workspace - AlgoDuel"}
         description={`Solve ${problem.title} on AlgoDuel. Real-time execution and competitive environment.`}
       />
-      <Workspace problem={problem} onBack={customHandleBack} theme={theme} user={userInfo} />
+      <Workspace problem={problem} onBack={customHandleBack} theme="dark" user={userInfo} />
     </>
   );
 };
@@ -591,19 +590,9 @@ function App() {
     }
   }, []);
 
-  // --- THEME MANAGEMENT ---
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('theme') || 'light';
-  });
-
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
-  };
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }, []);
 
   return (
     <BrowserRouter>
@@ -622,8 +611,6 @@ function App() {
           <ErrorBoundary>
             <MainApp
               initialRoom={initialRoom}
-              theme={theme}
-              toggleTheme={toggleTheme}
             />
           </ErrorBoundary>
         } />

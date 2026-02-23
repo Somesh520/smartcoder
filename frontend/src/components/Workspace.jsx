@@ -947,7 +947,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }
                                 <div style={{
                                     display: 'flex', alignItems: 'center', background: 'var(--bg-card)',
                                     border: 'var(--border-main)', padding: '2px 8px',
-                                    boxShadow: theme === 'light' ? '2px 2px 0px #000' : 'none',
+                                    boxShadow: 'none',
                                     transition: 'all 0.3s'
                                 }}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>

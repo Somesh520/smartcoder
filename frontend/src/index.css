@@ -1,17 +1,4 @@
-:root[data-theme='light'] {
-  --bg-main: #f3f4f6;
-  --bg-card: #ffffff;
-  --text-main: #000000;
-  --text-muted: #4b5563;
-  --accent: #facc15;
-  --border-main: 3px solid #000000;
-  --shadow-main: 4px 4px 0px 0px #000000;
-  --shadow-hover: 6px 6px 0px 0px #000000;
-  --dot-color: rgba(0, 0, 0, 0.2);
-  --sidebar-bg: #ffffff;
-}
-
-:root[data-theme='dark'] {
+:root {
   --bg-main: #0a0a0a;
   --bg-card: #18181b;
   --text-main: #eff1f6;
@@ -22,10 +9,8 @@
   --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   --dot-color: rgba(255, 255, 255, 0.05);
   --sidebar-bg: #09090b;
-}
 
-/* Fallback/Common Variables */
-:root {
+  /* Fallback/Common Variables */
   --accent-red: #ef4743;
   --accent-yellow: #ffa116;
   --accent-green: #2cbb5d;
@@ -60,24 +45,18 @@ body {
 }
 
 .neo-btn {
-  background: var(--accent);
-  color: #000;
+  background: var(--bg-card);
+  color: var(--text-main);
   border: var(--border-main);
   box-shadow: var(--shadow-main);
   padding: 8px 16px;
-  font-weight: 900;
+  font-weight: 600;
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.1s ease;
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-[data-theme='dark'] .neo-btn {
-  color: var(--text-main);
-  background: var(--bg-card);
-  font-weight: 600;
 }
 
 .neo-btn:active {
@@ -119,15 +98,6 @@ body {
   background: var(--text-muted);
   border: 2px solid var(--bg-main);
   border-radius: 10px;
-}
-
-[data-theme='light'] ::-webkit-scrollbar-track {
-  border-left: 2px solid var(--text-main);
-}
-
-[data-theme='light'] ::-webkit-scrollbar-thumb {
-  background: var(--text-main);
-  border-radius: 0;
 }
 
 /* Existing Utils Refactored ... */

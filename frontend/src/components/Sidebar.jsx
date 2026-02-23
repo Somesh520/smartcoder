@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Code2, Swords, TrendingUp, BookOpen, History, LogOut, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Book, Shield, Star, User, Zap, Sun, Moon } from 'lucide-react';
 import ReviewModal from './ReviewModal';
 
-const Sidebar = ({ onShowProblemList, onGoDetail, user, theme, toggleTheme }) => {
+const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const currentView = location.pathname.includes('/competition') ? 'competition' :
@@ -96,7 +96,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user, theme, toggleTheme }) =>
                             background: 'var(--accent)', border: 'var(--border-main)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             flexShrink: 0,
-                            boxShadow: theme === 'light' ? '4px 4px 0px #000' : 'none',
+                            boxShadow: 'none',
                         }}>
                             <Code2 size={32} color="black" strokeWidth={3} />
                         </div>
@@ -177,21 +177,6 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user, theme, toggleTheme }) =>
 
                 {/* THEME TOGGLE & USER PROFILE */}
                 <div style={{ paddingTop: '16px', borderTop: 'var(--border-main)' }}>
-                    {/* Theme Toggle Button */}
-                    <button
-                        onClick={toggleTheme}
-                        className="neo-btn"
-                        style={{
-                            width: '100%',
-                            marginBottom: '16px',
-                            justifyContent: collapsed ? 'center' : 'flex-start',
-                            background: theme === 'light' ? 'var(--accent)' : 'var(--bg-card)',
-                            boxShadow: theme === 'light' ? 'var(--shadow-main)' : 'none',
-                        }}
-                    >
-                        {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-                        {!collapsed && <span>{theme === 'light' ? 'DARK_MODE' : 'LIGHT_MODE'}</span>}
-                    </button>
 
                     {user?.loggedIn ? (
                         <div className="neo-card" style={{
@@ -241,7 +226,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user, theme, toggleTheme }) =>
                         border: 'var(--border-main)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         color: '#000', cursor: 'pointer', zIndex: 60,
-                        boxShadow: theme === 'light' ? '2px 2px 0px #000' : 'none',
+                        boxShadow: 'none',
                     }}
                 >
                     {collapsed ? <ChevronRight size={18} strokeWidth={3} /> : <ChevronLeft size={18} strokeWidth={3} />}
@@ -252,7 +237,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user, theme, toggleTheme }) =>
             {showLoginModal && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-                    background: theme === 'light' ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.8)',
+                    background: 'rgba(0,0,0,0.8)',
                     backdropFilter: 'blur(4px)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
                 }} onClick={() => setShowLoginModal(false)}>
@@ -269,7 +254,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user, theme, toggleTheme }) =>
                             <div style={{
                                 width: '64px', height: '64px', background: 'var(--accent)',
                                 border: 'var(--border-main)', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                boxShadow: theme === 'light' ? '4px 4px 0px #000' : 'none'
+                                boxShadow: 'none'
                             }}>
                                 <Swords size={32} color="#000" strokeWidth={3} />
                             </div>
