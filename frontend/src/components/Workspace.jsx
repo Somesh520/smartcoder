@@ -82,7 +82,7 @@ const CodeBlock = ({ node, inline, className, children, ...props }) => {
     return <code className={className} {...props}>{children}</code>;
 };
 
-const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme }) => {
+const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }) => {
     const [details, setDetails] = useState(null);
     const [code, setCode] = useState("");
     const [language, setLanguage] = useState("cpp");
@@ -945,11 +945,12 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme }) => {
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <div style={{
-                                    display: 'flex', alignItems: 'center', background: 'linear-gradient(135deg, rgba(167,139,250,0.2) 0%, rgba(124,58,237,0.2) 100%)',
-                                    borderRadius: '8px', padding: '2px 8px', border: '1px solid rgba(167,139,250,0.4)',
-                                    boxShadow: '0 0 10px rgba(167,139,250,0.1)', transition: 'all 0.3s'
+                                    display: 'flex', alignItems: 'center', background: 'var(--bg-card)',
+                                    border: 'var(--border-main)', padding: '2px 8px',
+                                    boxShadow: theme === 'light' ? '2px 2px 0px #000' : 'none',
+                                    transition: 'all 0.3s'
                                 }}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
                                         <circle cx="12" cy="12" r="10"></circle>
                                         <line x1="2" y1="12" x2="22" y2="12"></line>
                                         <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
@@ -959,11 +960,12 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme }) => {
                                         onChange={(e) => setExplainLanguage(e.target.value)}
                                         style={{
                                             background: 'transparent',
-                                            color: '#f3f4f6',
+                                            color: 'var(--text-main)',
                                             border: 'none',
                                             padding: '4px 0',
-                                            fontSize: '12px',
-                                            fontWeight: 600,
+                                            fontSize: '11px',
+                                            fontWeight: 950,
+                                            textTransform: 'uppercase',
                                             outline: 'none',
                                             cursor: 'pointer',
                                             appearance: 'none',
@@ -1035,45 +1037,61 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme }) => {
                             {aiChatHistory.map((msg, idx) => (
                                 <div key={idx} style={{
                                     alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                                    maxWidth: '88%',
-                                    background: msg.role === 'user' ? 'var(--accent)' : 'var(--bg-main)',
-                                    border: 'var(--border-main)',
-                                    color: msg.role === 'user' ? '#000' : 'var(--text-main)',
-                                    padding: '16px 20px',
-                                    borderRadius: '0',
-                                    boxShadow: 'var(--shadow-main)',
-                                    fontSize: '14px', lineHeight: '1.7',
-                                    position: 'relative'
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                                    gap: '8px',
+                                    maxWidth: '90%'
                                 }}>
-                                    {msg.role === 'user' ? (
-                                        <div>{msg.content}</div>
-                                    ) : (
-                                        // verifying availability of actionType
-                                        // If executeAction is defined as: const executeAction = async (actionType) => { ... }
-                                        // Then actionType is available in the scope.
-                                        // However, the lint error says it is not defined.
-                                        // Let me re-read the full file or at least the beginning of the component to see where I added the state. *latest* assistant message to apply animation
-                                        (msg.isNew && idx === aiChatHistory.length - 1) ? (
-                                            <TypewriterEffect text={msg.content} onComplete={() => {
-                                                // Mark as not new after animation
-                                                const updated = [...aiChatHistory];
-                                                updated[idx].isNew = false;
-                                            }} />
-                                        ) : (
-                                            <div className="ai-response-content">
-                                                <Markdown components={{ pre: ({ children }) => <>{children}</>, code: CodeBlock }}>
-                                                    {msg.content}
-                                                </Markdown>
-                                            </div>
-                                        )
+                                    {msg.role === 'user' && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <span style={{ fontSize: '10px', fontWeight: 900, color: 'var(--text-muted)' }}>{user?.displayName || 'YOU'}</span>
+                                            {user?.photos && (
+                                                <img src={user.photos} alt="user" style={{ width: '20px', height: '20px', border: 'var(--border-main)' }} />
+                                            )}
+                                        </div>
                                     )}
+                                    <div style={{
+                                        background: msg.role === 'user' ? 'var(--accent)' : 'var(--bg-main)',
+                                        border: 'var(--border-main)',
+                                        color: msg.role === 'user' ? '#000' : 'var(--text-main)',
+                                        padding: '16px 20px',
+                                        borderRadius: '0',
+                                        boxShadow: 'var(--shadow-main)',
+                                        fontSize: '14px', lineHeight: '1.7',
+                                        position: 'relative',
+                                        width: '100%'
+                                    }}>
+                                        {msg.role === 'user' ? (
+                                            <div>{msg.content}</div>
+                                        ) : (
+                                            // verifying availability of actionType
+                                            // If executeAction is defined as: const executeAction = async (actionType) => { ... }
+                                            // Then actionType is available in the scope.
+                                            // However, the lint error says it is not defined.
+                                            // Let me re-read the full file or at least the beginning of the component to see where I added the state. *latest* assistant message to apply animation
+                                            (msg.isNew && idx === aiChatHistory.length - 1) ? (
+                                                <TypewriterEffect text={msg.content} onComplete={() => {
+                                                    // Mark as not new after animation
+                                                    const updated = [...aiChatHistory];
+                                                    updated[idx].isNew = false;
+                                                }} />
+                                            ) : (
+                                                <div className="ai-response-content">
+                                                    <Markdown components={{ pre: ({ children }) => <>{children}</>, code: CodeBlock }}>
+                                                        {msg.content}
+                                                    </Markdown>
+                                                </div>
+                                            )
+                                        )}
+                                    </div>
                                 </div>
                             ))}
 
                             {aiLoading && (
-                                <div style={{ alignSelf: 'flex-start', background: 'rgba(30, 30, 40, 0.7)', padding: '14px 20px', borderRadius: '18px 18px 18px 4px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <Loader2 size={18} color="#a78bfa" style={{ animation: 'spin 1s linear infinite' }} />
-                                    <span style={{ fontSize: '13px', color: '#a1a1aa', fontWeight: 500 }}>Thinking...</span>
+                                <div style={{ alignSelf: 'flex-start', background: 'var(--bg-main)', border: 'var(--border-main)', padding: '14px 20px', borderRadius: '0', boxShadow: 'var(--shadow-main)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <Loader2 size={18} color="var(--accent)" style={{ animation: 'spin 1s linear infinite' }} />
+                                    <span style={{ fontSize: '13px', color: 'var(--text-main)', fontWeight: 950 }}>THINKING...</span>
                                 </div>
                             )}
                         </div>

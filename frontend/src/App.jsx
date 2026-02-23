@@ -341,7 +341,7 @@ function MainApp({ initialRoom, theme, toggleTheme }) {
                         />
                       </>
                     } />
-                    <Route path="workspace/:problemId" element={<WorkspaceWrapper currentProblem={currentProblem} onBack={handleBack} theme={theme} />} />
+                    <Route path="workspace/:problemId" element={<WorkspaceWrapper currentProblem={currentProblem} onBack={handleBack} theme={theme} userInfo={userInfo} />} />
 
                     <Route path="history" element={<HistoryPage />} />
                     <Route path="stats" element={<LeetCodePage />} />
@@ -508,7 +508,7 @@ function MainApp({ initialRoom, theme, toggleTheme }) {
 }
 
 // Workspace Wrapper Component (Extracted)
-const WorkspaceWrapper = ({ currentProblem, onBack, theme }) => {
+const WorkspaceWrapper = ({ currentProblem, onBack, theme, userInfo }) => {
   const { problemId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -539,7 +539,7 @@ const WorkspaceWrapper = ({ currentProblem, onBack, theme }) => {
         title={problem.title ? `${problem.title} - AlgoDuel Workspace` : "Workspace - AlgoDuel"}
         description={`Solve ${problem.title} on AlgoDuel. Real-time execution and competitive environment.`}
       />
-      <Workspace problem={problem} onBack={customHandleBack} theme={theme} />
+      <Workspace problem={problem} onBack={customHandleBack} theme={theme} user={userInfo} />
     </>
   );
 };

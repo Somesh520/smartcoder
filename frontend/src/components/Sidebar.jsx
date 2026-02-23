@@ -58,7 +58,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user, theme, toggleTheme }) =>
             }}
             title={collapsed ? label : ''}
         >
-            <Icon size={20} color={danger ? '#ef4444' : (active ? '#000' : 'currentColor')} strokeWidth={active ? 3 : 2} />
+            <Icon size={24} color={danger ? '#ef4444' : (active ? '#000' : 'currentColor')} strokeWidth={active ? 3 : 2} />
             {!collapsed && <span>{label}</span>}
         </button>
     );
@@ -92,13 +92,13 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user, theme, toggleTheme }) =>
                         onClick={() => !isInBattle && handleNav(onGoDetail)}
                     >
                         <div style={{
-                            width: '40px', height: '40px',
+                            width: '48px', height: '48px',
                             background: 'var(--accent)', border: 'var(--border-main)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             flexShrink: 0,
                             boxShadow: theme === 'light' ? '4px 4px 0px #000' : 'none',
                         }}>
-                            <Code2 size={24} color="black" strokeWidth={3} />
+                            <Code2 size={32} color="black" strokeWidth={3} />
                         </div>
                         {!collapsed && (
                             <span style={{ fontSize: '24px', fontWeight: 950, color: 'var(--text-main)', letterSpacing: '-1.5px', textTransform: 'uppercase' }}>
@@ -201,7 +201,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user, theme, toggleTheme }) =>
                             <img
                                 src={user.photos}
                                 alt={user.displayName}
-                                style={{ width: '36px', height: '36px', border: '2px solid var(--text-main)' }}
+                                style={{ width: '44px', height: '44px', border: 'var(--border-main)', boxShadow: 'var(--shadow-main)' }}
                             />
                             {!collapsed && (
                                 <div style={{ flex: 1, overflow: 'hidden' }}>
