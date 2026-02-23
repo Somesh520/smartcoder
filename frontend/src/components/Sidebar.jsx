@@ -10,14 +10,8 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
     const currentView = location.pathname.includes('/competition') ? 'competition' :
         location.pathname.includes('/problems') ? 'list' : 'lobby';
 
-    // Disable navigation if in competition
     const isInBattle = currentView === 'competition';
-
-    // const [user, setUser] = useState(null); // REMOVED: Managed by App.jsx
     const [collapsed, setCollapsed] = useState(false);
-
-    // useEffect(() => { ... }, []); // REMOVED: Managed by App.jsx
-
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
@@ -27,9 +21,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
             return;
         }
 
-        // Auth Check (Cookie/State based)
         if (!user?.loggedIn) {
-            console.warn("[Sidebar] Navigation blocked. User state missing.");
             setShowLoginModal(true);
             return;
         }
@@ -45,27 +37,29 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
     const NavItem = ({ icon: Icon, label, active, onClick, danger = false }) => (
         <button
             onClick={onClick}
+            className={active ? "" : ""}
             style={{
                 width: '100%',
                 display: 'flex',
                 alignItems: 'center',
                 gap: collapsed ? '0' : '12px',
                 justifyContent: collapsed ? 'center' : 'flex-start',
-                padding: '12px 16px',
-                background: active ? 'var(--bg-hover)' : 'transparent',
-                border: 'none',
-                borderRadius: '12px',
+                padding: '14px 16px',
+                background: active ? 'var(--neo-yellow)' : 'transparent',
+                border: active ? '2px solid #000' : '2px solid transparent',
+                boxShadow: active ? '4px 4px 0px #000' : 'none',
                 cursor: isInBattle ? 'not-allowed' : 'pointer',
-                color: danger ? '#ef4444' : (active ? 'white' : 'var(--text-secondary)'),
+                color: '#000',
                 fontSize: '14px',
-                fontWeight: 600,
-                transition: 'all 0.2s',
-                marginBottom: '4px',
+                fontWeight: 800,
+                textTransform: 'uppercase',
+                transition: 'all 0.1s',
+                marginBottom: '8px',
                 opacity: isInBattle ? 0.5 : 1
             }}
             title={collapsed ? label : ''}
         >
-            <Icon size={20} color={danger ? '#ef4444' : (active ? '#fff' : 'currentColor')} />
+            <Icon size={20} color={danger ? '#ef4444' : '#000'} strokeWidth={active ? 3 : 2} />
             {!collapsed && <span>{label}</span>}
         </button>
     );
@@ -75,74 +69,60 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
             <aside style={{
                 width: collapsed ? '80px' : '260px',
                 height: '100vh',
-                background: '#09090b', // Darker background for sidebar
-                borderRight: '1px solid var(--border-subtle)',
+                background: '#fff',
+                borderRight: 'var(--neo-border)',
                 display: 'flex',
                 flexDirection: 'column',
                 padding: '24px 16px',
-                transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                transition: 'width 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                 position: 'relative',
                 flexShrink: 0,
                 zIndex: 50,
-                overflow: 'visible' // Ensure toggle button isn't clipped
+                overflow: 'visible'
             }}>
                 {/* BRAND & TOGGLE */}
                 <div style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    marginBottom: '40px', paddingLeft: collapsed ? '4px' : '8px'
+                    marginBottom: '48px', paddingLeft: collapsed ? '4px' : '8px'
                 }}>
                     <div
                         style={{
                             display: 'flex', alignItems: 'center', gap: '12px',
                             cursor: 'pointer'
                         }}
-                        onClick={() => !InBattle && handleNav(onGoDetail)}
+                        onClick={() => !isInBattle && handleNav(onGoDetail)}
                     >
                         <div style={{
-                            width: '36px', height: '36px',
-                            background: 'var(--accent-green)', borderRadius: '10px',
+                            width: '40px', height: '40px',
+                            background: 'var(--neo-yellow)', border: 'var(--neo-border)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             flexShrink: 0,
-                            boxShadow: '0 0 15px rgba(74, 222, 128, 0.3)',
-                            transition: 'all 0.3s'
+                            boxShadow: '4px 4px 0px #000',
                         }}>
-                            <Code2 size={20} color="black" strokeWidth={2.5} />
+                            <Code2 size={24} color="black" strokeWidth={3} />
                         </div>
                         {!collapsed && (
-                            <span style={{ fontSize: '20px', fontWeight: 800, color: 'white', letterSpacing: '-0.5px', whiteSpace: 'nowrap', opacity: 1, transition: 'opacity 0.2s' }}>
-                                AlgoDuel
+                            <span style={{ fontSize: '24px', fontWeight: 950, color: 'black', letterSpacing: '-1.5px', textTransform: 'uppercase' }}>
+                                ALGODUEL
                             </span>
                         )}
                     </div>
-
-                    {/* Header Toggle (Visible only when expanded for cleaner look, or always?) */}
-                    {!collapsed && (
-                        <button
-                            onClick={() => setCollapsed(true)}
-                            style={{
-                                background: 'transparent', border: 'none', color: '#52525b',
-                                cursor: 'pointer', padding: '4px', display: 'flex'
-                            }}
-                        >
-                            <PanelLeftClose size={20} />
-                        </button>
-                    )}
                 </div>
 
                 {/* NAVIGATION */}
                 <div style={{ flex: 1 }}>
                     <div style={{
-                        fontSize: '11px', fontWeight: 700, color: '#52525b',
-                        marginBottom: '10px', paddingLeft: '16px', textTransform: 'uppercase', letterSpacing: '1px',
-                        display: collapsed ? 'none' : 'block'
+                        fontSize: '12px', fontWeight: 900, color: '#000',
+                        marginBottom: '16px', paddingLeft: '8px', textTransform: 'uppercase', letterSpacing: '1px',
+                        display: collapsed ? 'none' : 'block', opacity: 0.5
                     }}>
-                        Menu
+                        MENU_BLOCK
                     </div>
 
                     <NavItem
                         icon={Swords}
                         label="Lobby"
-                        active={!location.pathname.includes('/stats') && !location.pathname.includes('/problems') && !location.pathname.includes('/learn') && !location.pathname.includes('/history')}
+                        active={!location.pathname.includes('/stats') && !location.pathname.includes('/problems') && !location.pathname.includes('/learn') && !location.pathname.includes('/history') && !location.pathname.includes('/docs') && !location.pathname.includes('/admin')}
                         onClick={() => handleNav(onGoDetail)}
                     />
                     <NavItem
@@ -156,12 +136,6 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                         label="Problems"
                         active={currentView === 'list'}
                         onClick={() => handleNav(onShowProblemList)}
-                    />
-                    <NavItem
-                        icon={Zap}
-                        label="PathPradarshak"
-                        active={location.pathname.includes('/pathpradarshak')}
-                        onClick={() => handleNav(() => navigate('/app/pathpradarshak'))}
                     />
                     <NavItem
                         icon={BookOpen}
@@ -179,56 +153,53 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                         icon={Book}
                         label="Docs"
                         active={location.pathname.includes('/docs')}
-                        onClick={() => window.open('/docs', '_blank')}
+                        onClick={() => handleNav(() => navigate('/app/docs'))}
                     />
 
                     <NavItem
                         icon={Star}
-                        label="Rate Us"
+                        label="Rate"
                         active={false}
                         onClick={() => setIsReviewModalOpen(true)}
                     />
 
-                    {/* ADMIN LINK (Visible only to Somesh) */}
                     {user?.loggedIn && user.email === 'someshtiwari532@gmail.com' && (
                         <NavItem
                             icon={Shield}
-                            label="Admin Panel"
+                            label="Admin"
                             active={location.pathname.includes('/admin')}
                             onClick={() => handleNav(() => navigate('/app/admin'))}
                             danger
                         />
                     )}
-
-
                 </div>
 
                 {/* USER PROFILE / LOGOUT */}
-                <div style={{ paddingTop: '20px', borderTop: '1px solid var(--border-subtle)' }}>
+                <div style={{ paddingTop: '24px', borderTop: 'var(--neo-border)' }}>
                     {user?.loggedIn ? (
-                        <div style={{
+                        <div className="neo-card" style={{
                             display: 'flex', alignItems: 'center', gap: '12px',
-                            padding: '10px', borderRadius: '12px', background: 'var(--bg-subtle)'
+                            padding: '12px', background: '#fff'
                         }}>
                             <img
                                 src={user.photos}
                                 alt={user.displayName}
-                                style={{ width: '36px', height: '36px', borderRadius: '50%', border: '2px solid #27272a' }}
+                                style={{ width: '36px', height: '36px', border: '2px solid #000' }}
                             />
                             {!collapsed && (
                                 <div style={{ flex: 1, overflow: 'hidden' }}>
-                                    <div style={{ fontSize: '14px', fontWeight: 600, color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    <div style={{ fontSize: '13px', fontWeight: 900, color: 'black', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textTransform: 'uppercase' }}>
                                         {user.displayName}
                                     </div>
                                     <button
                                         onClick={logout}
                                         style={{
                                             background: 'transparent', border: 'none',
-                                            padding: 0, color: '#ef4444', fontSize: '12px',
-                                            cursor: 'pointer', fontWeight: 500, marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px'
+                                            padding: 0, color: '#ef4444', fontSize: '11px',
+                                            cursor: 'pointer', fontWeight: 800, marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px', textTransform: 'uppercase'
                                         }}
                                     >
-                                        <LogOut size={12} /> Logout
+                                        [ LOGOUT ]
                                     </button>
                                 </div>
                             )}
@@ -236,115 +207,83 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                     ) : (
                         <button
                             onClick={handleLogin}
-                            style={{
-                                width: '100%', background: 'var(--accent-green)',
-                                color: 'black', border: 'none', padding: '12px',
-                                borderRadius: '10px', fontWeight: 700, cursor: 'pointer',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
-                            }}
+                            className="neo-btn"
+                            style={{ width: '100%', justifyContent: 'center' }}
                         >
-                            {!collapsed ? 'Login with Google' : <Code2 size={20} />}
+                            {!collapsed ? 'LOGIN' : <Code2 size={20} />}
                         </button>
                     )}
                 </div>
 
-
-
-                {/* Collapse Toggle (Sidebar Edge) */}
+                {/* Collapse Toggle */}
                 <button
                     onClick={() => setCollapsed(!collapsed)}
-                    className="sidebar-toggle"
                     style={{
-                        position: 'absolute', top: '50%', right: '-12px',
-                        width: '24px', height: '24px', background: '#18181b',
-                        border: '1px solid var(--border-subtle)', borderRadius: '50%',
+                        position: 'absolute', top: '50%', right: '-16px',
+                        width: '32px', height: '32px', background: 'var(--neo-yellow)',
+                        border: 'var(--neo-border)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: '#a1a1aa', cursor: 'pointer', zIndex: 60,
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                        transition: 'transform 0.2s',
-                    }}
-                    onMouseEnter={e => {
-                        e.currentTarget.style.color = 'white';
-                        e.currentTarget.style.borderColor = '#71717a';
-                        e.currentTarget.style.transform = 'scale(1.1)';
-                    }}
-                    onMouseLeave={e => {
-                        e.currentTarget.style.color = '#a1a1aa';
-                        e.currentTarget.style.borderColor = 'var(--border-subtle)';
-                        e.currentTarget.style.transform = 'scale(1)';
+                        color: '#000', cursor: 'pointer', zIndex: 60,
+                        boxShadow: '2px 2px 0px #000',
                     }}
                 >
-                    {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+                    {collapsed ? <ChevronRight size={18} strokeWidth={3} /> : <ChevronLeft size={18} strokeWidth={3} />}
                 </button>
             </aside>
-
 
             {/* LOGIN POPUP MODAL */}
             {showLoginModal && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-                    background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(5px)',
+                    background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(4px)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
                 }} onClick={() => setShowLoginModal(false)}>
 
-                    <div style={{
-                        background: 'rgba(20, 20, 20, 0.9)',
-                        border: '1px solid var(--border-subtle)',
-                        padding: '40px',
-                        borderRadius: '20px',
-                        width: '400px',
+                    <div className="neo-card" style={{
+                        padding: '48px',
+                        width: '420px',
                         textAlign: 'center',
                         position: 'relative',
-                        boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+                        background: '#fff'
                     }} onClick={e => e.stopPropagation()}>
 
-                        <div style={{ marginBottom: '20px' }}>
+                        <div style={{ marginBottom: '32px' }}>
                             <div style={{
-                                width: '60px', height: '60px', background: 'rgba(74, 222, 128, 0.1)',
-                                borderRadius: '50%', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                width: '64px', height: '64px', background: 'var(--neo-yellow)',
+                                border: 'var(--neo-border)', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                boxShadow: '4px 4px 0px #000'
                             }}>
-                                <Swords size={32} color="#4ade80" />
+                                <Swords size={32} color="#000" strokeWidth={3} />
                             </div>
-                            <h2 style={{ margin: '0 0 10px 0', fontSize: '24px', fontWeight: 800 }}>Authentication Required</h2>
-                            <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-                                You must sign in to enter the arena, view problems, or check your battle history.
+                            <h2 style={{ margin: '0 0 12px 0', fontSize: '28px', fontWeight: 950, textTransform: 'uppercase' }}>AUTH_REQUIRED</h2>
+                            <p style={{ margin: 0, color: '#444', fontWeight: '700', lineHeight: '1.5' }}>
+                                YOU MUST SIGN IN TO ENTER THE ARENA, VIEW PROBLEMS, OR CHECK HISTORY.
                             </p>
                         </div>
 
                         <button
                             onClick={handleLogin}
-                            style={{
-                                background: 'var(--accent-green)',
-                                color: 'black',
-                                border: 'none',
-                                padding: '14px',
-                                width: '100%',
-                                borderRadius: '12px',
-                                fontWeight: 700,
-                                cursor: 'pointer',
-                                fontSize: '16px',
-                                transition: 'transform 0.1s'
-                            }}
-                            onMouseDown={e => e.target.style.transform = 'scale(0.98)'}
-                            onMouseUp={e => e.target.style.transform = 'scale(1)'}
+                            className="neo-btn"
+                            style={{ width: '100%', padding: '16px', fontSize: '18px', justifyContent: 'center' }}
                         >
-                            Login with Google
+                            LOGIN WITH GOOGLE
                         </button>
 
                         <button
                             onClick={() => setShowLoginModal(false)}
                             style={{
-                                marginTop: '15px',
+                                marginTop: '20px',
                                 background: 'transparent',
                                 border: 'none',
-                                color: 'var(--text-muted)',
+                                color: '#666',
                                 cursor: 'pointer',
-                                fontSize: '14px'
+                                fontSize: '14px',
+                                fontWeight: '800',
+                                textDecoration: 'underline'
                             }}
                         >
-                            Cancel
+                            CANCEL
                         </button>
-
                     </div>
                 </div>
             )}

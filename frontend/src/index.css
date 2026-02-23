@@ -9,6 +9,15 @@
   --accent-red: #ef4743;
   --accent-yellow: #ffa116;
   --btn-hover: #3e3e3e;
+
+  /* Neo-Brutalism Tokens */
+  --neo-bg: #f3f4f6;
+  --neo-black: #000000;
+  --neo-yellow: #facc15;
+  --neo-white: #ffffff;
+  --neo-border: 3px solid #000000;
+  --neo-shadow: 4px 4px 0px 0px #000000;
+  --neo-shadow-hover: 2px 2px 0px 0px #000000;
 }
 
 * {
@@ -16,36 +25,83 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
-  background-color: var(--bg-body);
-  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--neo-bg);
+  color: var(--neo-black);
   margin: 0;
   min-height: 100vh;
-  /* display: flex;  <-- Removing flex/column on body to let normal flow work better for landing page */
-  /* flex-direction: column; */
   overflow-y: auto;
-  /* Enable Scroll! */
   overflow-x: hidden;
+}
+
+/* Neo-Brutalism Utilities */
+.neo-card {
+  background: var(--neo-white);
+  border: var(--neo-border);
+  box-shadow: var(--neo-shadow);
+  transition: all 0.2s ease;
+}
+
+.neo-card:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+
+.neo-btn {
+  background: var(--neo-yellow);
+  border: var(--neo-border);
+  box-shadow: var(--neo-shadow);
+  padding: 8px 16px;
+  font-weight: 900;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.neo-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px 0px #000000;
+}
+
+.neo-btn:hover {
+  background: #fde047;
+}
+
+.neo-badge {
+  background: var(--neo-black);
+  color: var(--neo-white);
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* Dot Grid Background */
+.dot-bg {
+  background-color: var(--neo-bg);
+  background-image: radial-gradient(#00000033 1.5px, transparent 1.5px);
+  background-size: 32px 32px;
 }
 
 /* SCROLLBAR */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-body);
+  background: var(--neo-bg);
+  border-left: 2px solid var(--neo-black);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #555;
-  border-radius: 4px;
+  background: var(--neo-black);
+  border: 2px solid var(--neo-bg);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #777;
-}
+/* Existing Utils Refactored ... */
 
 /* UTILS */
 .badge {
