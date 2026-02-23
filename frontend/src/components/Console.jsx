@@ -10,7 +10,8 @@ const Console = ({
     customInput,
     setCustomInput,
     showInputSection,
-    setShowInputSection
+    setShowInputSection,
+    theme
 }) => {
     const [activeTab, setActiveTab] = useState(0);
     const [height, setHeight] = useState(350);
@@ -52,8 +53,8 @@ const Console = ({
     };
 
     const tabVariants = {
-        inactive: { color: '#9ca3af', scale: 1 },
-        active: { color: '#fff', scale: 1.05 }
+        inactive: { color: 'var(--text-muted)', scale: 1 },
+        active: { color: 'var(--text-main)', scale: 1.05 }
     };
 
     const getResultContent = () => {
@@ -76,10 +77,10 @@ const Console = ({
                         <Loader2 size={48} color="#3b82f6" style={{ animation: 'spin 1s linear infinite', position: 'relative', zIndex: 1 }} />
                     </div>
                     <div style={{
-                        fontSize: '14px', color: '#9ca3af', fontWeight: 600, letterSpacing: '1px',
+                        fontSize: '14px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '1px',
                         display: 'flex', alignItems: 'center', gap: '8px'
                     }}>
-                        <span className="typing-dots">EXECUTING CODE</span>
+                        <span className="typing-dots">EXECUTING_CODE</span>
                     </div>
                     <style>{`
                         @keyframes pulse-glow { 0%, 100% { opacity: 0.5; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
@@ -102,22 +103,21 @@ const Console = ({
                     style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
                 >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                        <label style={{ fontSize: '12px', color: '#9ca3af', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                            Input (Stdin)
+                        <label style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 950, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                            INPUT_STDIN
                         </label>
                     </div>
 
                     <textarea
-                        className="custom-input glass-input"
+                        className="custom-input neo-input"
                         value={customInput}
                         onChange={(e) => setCustomInput(e.target.value)}
                         placeholder="Enter input here..."
                         style={{
                             flex: 1,
-                            background: 'rgba(0, 0, 0, 0.3)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            color: '#e5e7eb',
-                            borderRadius: '8px',
+                            background: 'var(--bg-main)',
+                            border: 'var(--border-main)',
+                            color: 'var(--text-main)',
                             padding: '16px',
                             fontFamily: "'JetBrains Mono', monospace",
                             fontSize: '14px',
@@ -128,10 +128,9 @@ const Console = ({
                         }}
                     />
                     <style>{`
-                        .glass-input:focus {
-                            border-color: rgba(59, 130, 246, 0.5) !important;
-                            background: rgba(0, 0, 0, 0.5) !important;
-                            box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
+                        .neo-input:focus {
+                            border-color: var(--accent) !important;
+                            box-shadow: var(--shadow-main);
                         }
                     `}</style>
                 </motion.div>
@@ -161,9 +160,9 @@ const Console = ({
                         <span>Compilation Error</span>
                     </div>
                     <pre style={{
-                        color: '#fca5a5', background: '#0f0f10', padding: '16px',
-                        borderRadius: '8px', fontSize: '13px', lineHeight: '1.6',
-                        border: '1px solid rgba(239, 68, 68, 0.15)', overflowX: 'auto',
+                        color: 'var(--accent-red)', background: 'var(--bg-main)', padding: '16px',
+                        fontSize: '13px', lineHeight: '1.6',
+                        border: 'var(--border-main)', overflowX: 'auto',
                         fontFamily: "'JetBrains Mono', monospace"
                     }}>
                         {result.full_runtime_error || result.compile_error}
@@ -177,12 +176,12 @@ const Console = ({
                     </button>
                     <style>{`
                         .action-btn {
-                            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-                            color: #fff; border: none; padding: 8px 16px; border-radius: 6px;
-                            font-size: 13px; fontWeight: 600; cursor: pointer;
+                            background: var(--accent);
+                            color: black; border: var(--border-main); padding: 8px 16px; 
+                            font-size: 13px; font-weight: 800; cursor: pointer;
                             transition: transform 0.2s, box-shadow 0.2s;
                         }
-                        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+                        .action-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-main); }
                     `}</style>
                 </motion.div>
             );
@@ -205,9 +204,10 @@ const Console = ({
                 {!isRunCode && result.status_msg && (
                     <div style={{
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        padding: '12px 20px', marginBottom: '20px', borderRadius: '12px',
-                        background: isAccepted ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                        border: `1px solid ${isAccepted ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
+                        padding: '12px 20px', marginBottom: '20px',
+                        background: 'var(--bg-main)',
+                        border: 'var(--border-main)',
+                        boxShadow: 'var(--shadow-main)'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             {isAccepted ? <CheckCircle2 size={24} color="#22c55e" /> : <XCircle size={24} color="#ef4444" />}
@@ -226,8 +226,8 @@ const Console = ({
                         )}
                         <style>{`
                             .stat-pill {
-                                background: rgba(0,0,0,0.2); padding: 6px 12px; border-radius: 6px;
-                                font-size: 13px; color: #d1d5db; font-weight: 600;
+                                background: var(--bg-card); padding: 6px 12px; border: var(--border-main);
+                                font-size: 13px; color: var(--text-main); font-weight: 800;
                             }
                         `}</style>
                     </div>
@@ -254,7 +254,7 @@ const Console = ({
                                     transition: 'background 0.2s'
                                 }}
                             >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: activeTab === i ? '#fff' : '#9ca3af' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 900, color: activeTab === i ? 'var(--text-main)' : 'var(--text-muted)' }}>
 
                                     <span style={{
                                         width: '8px', height: '8px', borderRadius: '50%',
@@ -266,8 +266,8 @@ const Console = ({
                                     <motion.div
                                         layoutId="activeTab"
                                         style={{
-                                            position: 'absolute', bottom: 0, left: 0, right: 0, height: '2px',
-                                            background: '#3b82f6', borderRadius: '2px'
+                                            position: 'absolute', bottom: 0, left: 0, right: 0, height: '3px',
+                                            background: 'var(--accent)', borderRadius: '0'
                                         }}
                                     />
                                 )}
@@ -294,12 +294,11 @@ const Console = ({
             style={{
                 position: 'absolute', bottom: 0, width: '100%',
                 maxHeight: 'calc(100% - 50px)',
-                background: 'rgba(15, 15, 20, 0.95)',
-                backdropFilter: 'blur(16px)',
-                borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                background: 'var(--bg-card)',
+                borderTop: 'var(--border-main)',
                 display: 'flex', flexDirection: 'column',
                 zIndex: 50,
-                boxShadow: '0 -10px 40px rgba(0, 0, 0, 0.5)'
+                boxShadow: 'var(--shadow-main)'
             }}
         >
             {/* Header / Resize Handle */}
@@ -319,21 +318,22 @@ const Console = ({
                     height: '45px', minHeight: '45px',
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     padding: '0 20px', cursor: 'pointer',
-                    background: 'linear-gradient(90deg, rgba(30, 30, 40, 0.5) 0%, rgba(20, 20, 30, 0.5) 100%)',
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
+                    background: 'var(--bg-main)',
+                    borderBottom: 'var(--border-main)'
                 }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Terminal size={16} color="#3b82f6" />
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#e5e7eb', letterSpacing: '0.5px' }}>CONSOLE</span>
+                    <Terminal size={16} color="var(--accent)" />
+                    <span style={{ fontSize: '13px', fontWeight: 950, color: 'var(--text-main)', letterSpacing: '0.5px' }}>CONSOLE</span>
                     {result && !isLoading && (
                         <span style={{
-                            fontSize: '11px', padding: '2px 8px', borderRadius: '12px',
-                            background: result.run_success !== false ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                            color: result.run_success !== false ? '#4ade80' : '#f87171',
-                            border: `1px solid ${result.run_success !== false ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
+                            fontSize: '11px', padding: '2px 8px',
+                            background: result.run_success !== false ? 'var(--accent-green)' : 'var(--accent-red)',
+                            color: result.run_success !== false ? 'black' : 'white',
+                            border: 'var(--border-main)',
+                            fontWeight: 900, textTransform: 'uppercase'
                         }}>
-                            {result.status_msg || (result.run_success !== false ? 'Success' : 'Error')}
+                            {result.status_msg || (result.run_success !== false ? 'SUCCESS' : 'ERROR')}
                         </span>
                     )}
                 </div>
@@ -341,7 +341,7 @@ const Console = ({
                     <div className="resize-hint" style={{ display: 'flex', alignItems: 'center', gap: '4px', opacity: 0.4 }}>
                         <GripHorizontal size={14} />
                     </div>
-                    {isOpen ? <ChevronDown size={18} color="#9ca3af" /> : <ChevronUp size={18} color="#9ca3af" />}
+                    {isOpen ? <ChevronDown size={18} color="var(--text-muted)" /> : <ChevronUp size={18} color="var(--text-muted)" />}
                 </div>
             </div>
 
@@ -358,20 +358,20 @@ const Console = ({
 // Helper Component for IO Blocks
 const IOBlock = ({ label, content, highlight }) => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <span style={{ fontSize: '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+        <span style={{ fontSize: '11px', fontWeight: 900, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
             {label}
         </span>
         <div style={{
-            background: 'rgba(0, 0, 0, 0.3)',
+            background: 'var(--bg-main)',
             padding: '12px 16px',
-            borderRadius: '8px',
+            borderRadius: '0',
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: '13px',
-            color: highlight === 'red' ? '#fca5a5' : highlight === 'green' ? '#86efac' : '#e5e7eb',
-            border: `1px solid ${highlight === 'red' ? 'rgba(239, 68, 68, 0.3)' : highlight === 'green' ? 'rgba(34, 197, 94, 0.3)' : 'rgba(255, 255, 255, 0.08)'}`,
+            color: highlight === 'red' ? 'var(--accent-red)' : highlight === 'green' ? 'var(--accent-green)' : 'var(--text-main)',
+            border: 'var(--border-main)',
             whiteSpace: 'pre-wrap',
             lineHeight: '1.6',
-            boxShadow: highlight ? `0 0 15px ${highlight === 'red' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)'}` : 'none'
+            boxShadow: 'var(--shadow-main)'
         }}>
             {content || <span style={{ opacity: 0.3, fontStyle: 'italic' }}>Empty</span>}
         </div>

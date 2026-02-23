@@ -135,50 +135,53 @@ const AdminDashboard = ({ onBack }) => {
     };
 
     const StatsCard = ({ title, value, icon: Icon, color }) => (
-        <div style={{
-            background: '#18181b', border: '1px solid #27272a', borderRadius: '16px', padding: '24px',
-            display: 'flex', alignItems: 'center', gap: '20px', transition: 'transform 0.2s', cursor: 'default'
+        <div className="neo-card" style={{
+            background: 'var(--bg-card)', border: 'var(--border-main)', borderRadius: '0', padding: '24px',
+            display: 'flex', alignItems: 'center', gap: '20px', transition: 'transform 0.2s', cursor: 'default',
+            boxShadow: 'var(--shadow-main)'
         }}>
             <div style={{
-                width: '56px', height: '56px', borderRadius: '14px', background: `${color}15`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', color: color
+                width: '56px', height: '56px', borderRadius: '0', background: color,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'black',
+                border: 'var(--border-main)'
             }}>
                 <Icon size={28} />
             </div>
             <div>
-                <div style={{ color: '#71717a', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</div>
-                <div style={{ color: '#f4f4f5', fontSize: '28px', fontWeight: 800, marginTop: '4px' }}>{value}</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</div>
+                <div style={{ color: 'var(--text-main)', fontSize: '28px', fontWeight: 950, marginTop: '4px' }}>{value}</div>
             </div>
         </div>
     );
 
     return (
-        <div style={{ padding: '32px', background: '#09090b', minHeight: '100vh', color: '#e4e4e7' }}>
+        <div style={{ padding: '32px', background: 'var(--bg-main)', minHeight: '100vh', color: 'var(--text-main)' }}>
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '40px' }}>
                 <button
                     onClick={onBack}
-                    style={{ background: '#18181b', border: '1px solid #27272a', color: '#fff', padding: '10px', borderRadius: '10px', cursor: 'pointer', display: 'flex' }}
+                    className="neo-btn"
+                    style={{ background: 'var(--bg-card)', border: 'var(--border-main)', color: 'var(--text-main)', padding: '10px', borderRadius: '0', cursor: 'pointer', display: 'flex' }}
                 >
                     <ArrowLeft size={20} />
                 </button>
                 <div>
-                    <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 800 }}>Admin Command Center</h1>
-                    <p style={{ margin: 0, fontSize: '13px', color: '#71717a' }}>Manage users, payments, and platform health.</p>
+                    <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 950, textTransform: 'uppercase' }}>ADMIN_COMMAND_CENTER</h1>
+                    <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)', fontWeight: 700 }}>Manage users, payments, and platform health.</p>
                 </div>
             </div>
 
             {/* Tabs */}
-            <div style={{ display: 'flex', gap: '32px', marginBottom: '32px', borderBottom: '1px solid #27272a' }}>
+            <div style={{ display: 'flex', gap: '32px', marginBottom: '32px', borderBottom: 'var(--border-main)' }}>
                 {['overview', 'requests', 'users', 'all_users', 'activity'].map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         style={{
                             background: 'transparent', border: 'none', padding: '12px 0',
-                            color: activeTab === tab ? '#a78bfa' : '#71717a',
-                            borderBottom: activeTab === tab ? '2px solid #a78bfa' : '2px solid transparent',
-                            cursor: 'pointer', fontWeight: 700, fontSize: '14px', textTransform: 'capitalize',
+                            color: activeTab === tab ? 'var(--accent)' : 'var(--text-muted)',
+                            borderBottom: activeTab === tab ? '4px solid var(--accent)' : '4px solid transparent',
+                            cursor: 'pointer', fontWeight: 950, fontSize: '14px', textTransform: 'uppercase',
                             transition: 'all 0.2s', position: 'relative'
                         }}
                     >
@@ -209,24 +212,24 @@ const AdminDashboard = ({ onBack }) => {
                 loading ? (
                     <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}><Loader2 className="animate-spin" /></div>
                 ) : requests.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '60px', color: '#71717a', border: '1px dashed #27272a', borderRadius: '12px' }}>No pending requests.</div>
+                    <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-muted)', border: 'var(--border-main)', borderRadius: '0', background: 'var(--bg-card)', fontWeight: 700 }}>No pending requests.</div>
                 ) : (
                     <div style={{ display: 'grid', gap: '16px' }}>
                         {requests.map(req => (
-                            <div key={req._id} style={{ background: '#18181b', border: '1px solid #27272a', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div key={req._id} className="neo-card" style={{ background: 'var(--bg-card)', border: 'var(--border-main)', borderRadius: '0', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', boxShadow: 'var(--shadow-main)' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <div>
-                                        <div style={{ fontWeight: 600 }}>{req.userId?.displayName}</div>
-                                        <div style={{ fontSize: '12px', color: '#71717a' }}>{req.userId?.email}</div>
+                                        <div style={{ fontWeight: 950, textTransform: 'uppercase' }}>{req.userId?.displayName}</div>
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700 }}>{req.userId?.email}</div>
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
-                                        <div style={{ fontSize: '18px', fontWeight: 700, color: '#a78bfa' }}>₹{req.amount}</div>
-                                        <div style={{ fontSize: '12px', color: '#a1a1aa' }}>{req.credits} Credits</div>
+                                        <div style={{ fontSize: '18px', fontWeight: 950, color: 'var(--accent)' }}>₹{req.amount}</div>
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 800 }}>{req.credits} CREDITS</div>
                                     </div>
                                 </div>
                                 <div style={{ display: 'flex', gap: '12px' }}>
-                                    <button onClick={() => handleAction(req._id, 'reject')} style={{ flex: 1, padding: '10px', borderRadius: '8px', background: 'transparent', border: '1px solid #3f3f46', color: '#fff', cursor: 'pointer' }}>Reject</button>
-                                    <button onClick={() => handleAction(req._id, 'approve')} style={{ flex: 2, padding: '10px', borderRadius: '8px', background: '#22c55e', border: 'none', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>Verify & Approve</button>
+                                    <button onClick={() => handleAction(req._id, 'reject')} style={{ flex: 1, padding: '10px', borderRadius: '0', background: 'transparent', border: 'var(--border-main)', color: 'var(--text-main)', cursor: 'pointer', fontWeight: 950 }}>REJECT</button>
+                                    <button onClick={() => handleAction(req._id, 'approve')} className="neo-btn" style={{ flex: 2, padding: '10px', borderRadius: '0', background: 'var(--accent-green)', border: 'var(--border-main)', color: 'black', fontWeight: 950, cursor: 'pointer' }}>VERIFY & APPROVE</button>
                                 </div>
                             </div>
                         ))}
@@ -237,12 +240,12 @@ const AdminDashboard = ({ onBack }) => {
             {activeTab === 'users' && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
                     {onlineUsers.map(user => (
-                        <div key={user.userId || user.socketId} style={{ background: '#18181b', padding: '20px', borderRadius: '16px', border: '1px solid #27272a', display: 'flex', gap: '12px', alignItems: 'center' }}>
-                            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><User size={24} color="#71717a" /></div>
+                        <div key={user.userId || user.socketId} className="neo-card" style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '0', border: 'var(--border-main)', display: 'flex', gap: '12px', alignItems: 'center', boxShadow: 'var(--shadow-main)' }}>
+                            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--bg-main)', border: 'var(--border-main)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><User size={24} color="var(--text-muted)" /></div>
                             <div>
-                                <div style={{ fontWeight: 700 }}>{user.displayName}</div>
-                                <div style={{ fontSize: '12px', color: '#71717a' }}>{user.email}</div>
-                                <div style={{ fontSize: '11px', color: '#22c55e', fontWeight: 600, marginTop: '4px' }}>● Online</div>
+                                <div style={{ fontWeight: 950, textTransform: 'uppercase' }}>{user.displayName}</div>
+                                <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700 }}>{user.email}</div>
+                                <div style={{ fontSize: '11px', color: 'var(--accent-green)', fontWeight: 950, marginTop: '4px' }}>● ONLINE</div>
                             </div>
                         </div>
                     ))}
@@ -250,10 +253,10 @@ const AdminDashboard = ({ onBack }) => {
             )}
 
             {activeTab === 'all_users' && (
-                <div style={{ background: '#18181b', borderRadius: '16px', border: '1px solid #27272a', overflow: 'hidden' }}>
+                <div className="neo-card" style={{ background: 'var(--bg-card)', borderRadius: '0', border: 'var(--border-main)', overflow: 'hidden', boxShadow: 'var(--shadow-main)' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead style={{ background: '#09090b' }}>
-                            <tr style={{ color: '#71717a', fontSize: '12px', textTransform: 'uppercase' }}>
+                        <thead style={{ background: 'var(--bg-main)', borderBottom: 'var(--border-main)' }}>
+                            <tr style={{ color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase', fontWeight: 950 }}>
                                 <th style={{ padding: '16px', textAlign: 'left' }}>User / Joined</th>
                                 <th style={{ padding: '16px', textAlign: 'center' }}>Tier</th>
                                 <th style={{ padding: '16px', textAlign: 'center' }}>Credits</th>
@@ -262,21 +265,21 @@ const AdminDashboard = ({ onBack }) => {
                         </thead>
                         <tbody>
                             {allUsers.map(user => (
-                                <tr key={user._id} style={{ borderBottom: '1px solid #27272a' }}>
+                                <tr key={user._id} style={{ borderBottom: 'var(--border-main)' }}>
                                     <td style={{ padding: '16px' }}>
-                                        <div style={{ fontWeight: 600 }}>{user.displayName}</div>
-                                        <div style={{ fontSize: '12px', color: '#71717a' }}>{user.email} • {new Date(user.createdAt).toLocaleDateString()}</div>
+                                        <div style={{ fontWeight: 950, textTransform: 'uppercase' }}>{user.displayName}</div>
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700 }}>{user.email} • {new Date(user.createdAt).toLocaleDateString()}</div>
                                     </td>
                                     <td style={{ padding: '16px', textAlign: 'center' }}>
                                         <span onClick={() => handleUserAction(user._id, 'togglePremium')} style={{
-                                            background: user.isPremium ? 'linear-gradient(135deg, #a78bfa, #7c3aed)' : '#27272a',
-                                            color: '#fff', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, cursor: 'pointer'
+                                            background: user.isPremium ? 'var(--accent)' : 'var(--bg-main)',
+                                            color: user.isPremium ? 'black' : 'var(--text-main)', padding: '4px 10px', borderRadius: '0', border: 'var(--border-main)', fontSize: '11px', fontWeight: 950, cursor: 'pointer'
                                         }}>
                                             {user.isPremium ? 'PRO' : 'FREE'}
                                         </span>
                                     </td>
                                     <td style={{ padding: '16px', textAlign: 'center' }}>
-                                        <div style={{ fontSize: '15px', fontWeight: 700, color: '#a78bfa' }}>{user.credits}</div>
+                                        <div style={{ fontSize: '15px', fontWeight: 950, color: 'var(--accent)' }}>{user.credits}</div>
                                     </td>
                                     <td style={{ padding: '16px', textAlign: 'right' }}>
                                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
@@ -285,13 +288,13 @@ const AdminDashboard = ({ onBack }) => {
                                                     const c = prompt("Set Credits:", user.credits);
                                                     if (c !== null) handleUserAction(user._id, 'setCredits', c);
                                                 }}
-                                                style={{ padding: '6px 12px', borderRadius: '6px', background: 'rgba(59,130,246,0.1)', color: '#3b82f6', border: '1px solid rgba(59,130,246,0.2)', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                                                style={{ padding: '6px 12px', borderRadius: '0', background: 'var(--bg-main)', color: 'var(--text-main)', border: 'var(--border-main)', fontSize: '12px', fontWeight: 950, cursor: 'pointer' }}
                                             >
-                                                Edit Credits
+                                                EDIT_CREDITS
                                             </button>
                                             <button
                                                 onClick={() => handleUserAction(user._id, 'delete')}
-                                                style={{ padding: '6px', borderRadius: '6px', background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)', cursor: 'pointer' }}
+                                                style={{ padding: '6px', borderRadius: '0', background: 'var(--accent-red)', color: 'black', border: 'var(--border-main)', cursor: 'pointer' }}
                                             >
                                                 <X size={16} />
                                             </button>
@@ -307,21 +310,21 @@ const AdminDashboard = ({ onBack }) => {
             {activeTab === 'activity' && (
                 <div style={{ display: 'grid', gap: '12px' }}>
                     {matches.map(m => (
-                        <div key={m._id} style={{ background: '#18181b', padding: '16px', borderRadius: '12px', border: '1px solid #27272a', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div key={m._id} className="neo-card" style={{ background: 'var(--bg-card)', padding: '16px', borderRadius: '0', border: 'var(--border-main)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: 'var(--shadow-main)' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                <div style={{ padding: '10px', borderRadius: '10px', background: '#27272a' }}><Code size={20} color="#a1a1aa" /></div>
+                                <div style={{ padding: '10px', borderRadius: '0', background: 'var(--bg-main)', border: 'var(--border-main)' }}><Code size={20} color="var(--text-muted)" /></div>
                                 <div>
-                                    <div style={{ fontWeight: 600 }}>{m.problem?.title}</div>
-                                    <div style={{ fontSize: '12px', color: '#71717a' }}>{m.players?.length} Players • {new Date(m.createdAt).toLocaleString()}</div>
+                                    <div style={{ fontWeight: 950, textTransform: 'uppercase' }}>{m.problem?.title}</div>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700 }}>{m.players?.length} Players • {new Date(m.createdAt).toLocaleString()}</div>
                                 </div>
                             </div>
                             <div style={{ textAlign: 'right' }}>
-                                <div style={{ fontSize: '12px', color: '#22c55e', fontWeight: 600 }}>Winner: {m.winner || 'Draw/DNF'}</div>
-                                <div style={{ fontSize: '11px', color: '#71717a', marginTop: '4px' }}>Room ID: {m.roomId}</div>
+                                <div style={{ fontSize: '12px', color: 'var(--accent-green)', fontWeight: 950 }}>WINNER: {m.winner || 'DRAW/DNF'}</div>
+                                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', fontWeight: 800 }}>ROOM ID: {m.roomId}</div>
                             </div>
                         </div>
                     ))}
-                    {matches.length === 0 && <div style={{ textAlign: 'center', padding: '40px', color: '#71717a' }}>No recent activity.</div>}
+                    {matches.length === 0 && <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)', border: 'var(--border-main)', borderRadius: '0', background: 'var(--bg-card)', fontWeight: 700 }}>No recent activity.</div>}
                 </div>
             )}
 

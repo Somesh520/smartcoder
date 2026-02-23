@@ -19,7 +19,7 @@ const LANGUAGE_MAP = {
     'php': 'php'
 };
 
-const CodeEditor = ({ code, onChange, language }) => {
+const CodeEditor = ({ code, onChange, language, theme }) => {
     const editorRef = useRef(null);
 
     const monacoLang = LANGUAGE_MAP[language] || 'cpp';
@@ -66,7 +66,34 @@ const CodeEditor = ({ code, onChange, language }) => {
             }
         });
 
-        monaco.editor.setTheme('leetcode-dark');
+        monaco.editor.defineTheme('leetcode-light', {
+            base: 'vs',
+            inherit: true,
+            rules: [
+                { token: 'comment', foreground: '707070', fontStyle: 'italic' },
+                { token: 'keyword', foreground: '0000ff', fontStyle: 'bold' },
+                { token: 'string', foreground: '008000' },
+                { token: 'number', foreground: '000000', fontStyle: 'bold' },
+                { token: 'type', foreground: '2b91af' },
+                { token: 'function', foreground: '000000', fontStyle: 'bold' },
+                { token: 'variable', foreground: '000000' },
+                { token: 'operator', foreground: '000000', fontStyle: 'bold' },
+            ],
+            colors: {
+                'editor.background': '#ffffff',
+                'editor.foreground': '#000000',
+                'editor.lineHighlightBackground': '#f0f0f0',
+                'editor.selectionBackground': '#add6ff',
+                'editorLineNumber.foreground': '#888888',
+                'editorLineNumber.activeForeground': '#000000',
+                'editorCursor.foreground': '#000000',
+                'editorIndentGuide.background': '#d3d3d3',
+                'editorIndentGuide.activeBackground': '#939393',
+                'editorGutter.background': '#ffffff',
+            }
+        });
+
+        monaco.editor.setTheme(theme === 'dark' ? 'leetcode-dark' : 'leetcode-light');
 
         editor.addAction({
             id: 'format-code',
@@ -80,7 +107,7 @@ const CodeEditor = ({ code, onChange, language }) => {
         });
 
         editor.focus();
-    }, [monacoLang]);
+    }, [monacoLang, theme]);
 
     const handleChange = (value) => {
         if (onChange) onChange(value || '');
@@ -103,7 +130,9 @@ const CodeEditor = ({ code, onChange, language }) => {
                 loading={
                     <div style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        height: '100%', background: '#0d1117', color: '#6b7280',
+                        height: '100%',
+                        background: 'var(--bg-main)',
+                        color: 'var(--text-muted)',
                         fontFamily: "'Inter', sans-serif", fontSize: '14px'
                     }}>
                         Loading editor...

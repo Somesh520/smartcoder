@@ -6,10 +6,10 @@ import LoadingScreen from './LoadingScreen';
 
 
 const Modal = ({ title, children, actions }) => (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-        <div style={{ background: '#18181b', border: '1px solid #333', padding: '30px', borderRadius: '12px', width: '400px', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
-            <h2 style={{ marginTop: 0, fontSize: '24px', color: 'white' }}>{title}</h2>
-            <div style={{ color: '#a1a1aa', margin: '15px 0' }}>{children}</div>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+        <div className="neo-card" style={{ background: 'var(--bg-card)', padding: '30px', width: '400px', textAlign: 'center' }}>
+            <h2 style={{ marginTop: 0, fontSize: '24px', color: 'var(--text-main)', fontWeight: 950, textTransform: 'uppercase' }}>{title}</h2>
+            <div style={{ color: 'var(--text-muted)', margin: '15px 0', fontWeight: 700 }}>{children}</div>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '25px' }}>{actions}</div>
         </div>
     </div>
@@ -458,7 +458,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
     const showOverlay = roomState.status === 'waiting' || roomState.status === 'starting';
 
     return (
-        <div style={{ height: '100vh', width: '100vw', position: 'relative', overflow: 'hidden', background: '#09090b' }}>
+        <div style={{ height: '100vh', width: '100vw', position: 'relative', overflow: 'hidden', background: 'var(--bg-main)' }}>
 
             {/* INVISIBLE AUDIO ELEMENT FOR REMOTE STREAM (Keep this always mounted) */}
             <audio ref={remoteAudioRef} autoPlay playsInline style={{ display: 'none' }} />
@@ -466,10 +466,9 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
             {/* WAITING / VS OVERLAY (Absolute Positioned) */}
             {showOverlay && (
                 <div style={{
-                    position: 'absolute', inset: 0, zIndex: 50, background: '#09090b',
+                    position: 'absolute', inset: 0, zIndex: 50, background: 'var(--bg-main)',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                     transition: 'opacity 0.5s ease-out',
-                    // If we are starting, we want this to stay visible until the very end, effectively covering the loading workspace
                 }}>
                     {(() => {
 
@@ -523,10 +522,10 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                                             zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'center'
                                         }}>
                                             <div style={{
-                                                width: '100px', height: '100px', borderRadius: '50%', background: '#09090b',
-                                                border: '4px solid #f59e0b', boxShadow: '0 0 50px rgba(245, 158, 11, 0.5)',
+                                                width: '100px', height: '100px', borderRadius: '50%', background: 'var(--bg-card)',
+                                                border: 'var(--border-main)', boxShadow: 'var(--shadow-main)',
                                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                fontSize: '40px', fontWeight: 900, color: '#f59e0b', fontStyle: 'italic',
+                                                fontSize: '40px', fontWeight: 950, color: 'var(--accent)', fontStyle: 'italic',
                                                 animation: isStarting ? 'glitch 0.2s infinite' : 'pulse-fast 2s infinite'
                                             }}>
                                                 VS
@@ -537,16 +536,16 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'slideInLeft 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)' }}>
                                             <div style={{
                                                 width: '140px', height: '140px', borderRadius: '50%',
-                                                background: `linear - gradient(135deg, #22c55e, #10b981)`,
+                                                background: `var(--accent-green)`,
                                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                boxShadow: '0 0 50px rgba(34, 197, 94, 0.5)',
-                                                marginBottom: '24px', border: '5px solid #fff',
+                                                boxShadow: 'var(--shadow-main)',
+                                                marginBottom: '24px', border: 'var(--border-main)',
                                                 animation: isStarting ? 'glitch 0.3s infinite' : 'float 6s ease-in-out infinite'
                                             }}>
-                                                <Users size={70} color="white" />
+                                                <Users size={70} color="black" />
                                             </div>
-                                            <h2 style={{ fontSize: '36px', fontWeight: 800, color: 'white', marginBottom: '8px', textShadow: '0 4px 10px rgba(0,0,0,0.5)' }}>{username}</h2>
-                                            <div style={{ padding: '6px 20px', background: '#22c55e20', color: '#4ade80', borderRadius: '20px', fontSize: '14px', fontWeight: 700, border: '1px solid #22c55e50' }}>READY</div>
+                                            <h2 style={{ fontSize: '36px', fontWeight: 950, color: 'var(--text-main)', marginBottom: '8px', textTransform: 'uppercase' }}>{username}</h2>
+                                            <div style={{ padding: '6px 20px', background: 'var(--accent-green)', color: 'black', border: 'var(--border-main)', fontSize: '14px', fontWeight: 900 }}>READY</div>
                                         </div>
 
                                         {/* PLAYER 2 (OPPONENT or SEARCHING) */}
@@ -611,14 +610,14 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                                                         {/* Avatar Circle */}
                                                         <div style={{
                                                             width: '100px', height: '100px', borderRadius: '50%',
-                                                            background: u.id === socket.id ? '#22c55e' : (i % 2 === 0 ? '#3b82f6' : '#ef4444'),
-                                                            border: '4px solid white',
+                                                            background: u.id === socket.id ? 'var(--accent-green)' : (i % 2 === 0 ? 'var(--accent)' : 'var(--accent-red)'),
+                                                            border: 'var(--border-main)',
                                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                            boxShadow: u.id === socket.id ? '0 0 30px #22c55e' : '0 0 20px rgba(0,0,0,0.5)',
+                                                            boxShadow: 'var(--shadow-main)',
                                                             marginBottom: '10px', position: 'relative'
                                                         }}>
                                                             {i === 0 && <div style={{ position: 'absolute', top: '-20px', fontSize: '24px', animation: 'float 3s infinite' }}>👑</div>}
-                                                            {u.id === socket.id ? <Users size={40} color="white" /> : <Sword size={40} color="white" />}
+                                                            {u.id === socket.id ? <Users size={40} color="black" /> : <Sword size={40} color="black" />}
                                                         </div>
 
                                                         {/* Name Tag */}
@@ -652,29 +651,23 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                                             BATTLE STARTING IN 3...
                                         </div>
                                     ) : (
-                                        <div style={{ background: '#18181b', padding: '16px 24px', borderRadius: '16px', border: '1px solid #27272a', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)' }}>
+                                        <div style={{ background: 'var(--bg-card)', padding: '16px 24px', border: 'var(--border-main)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', boxShadow: 'var(--shadow-main)' }}>
 
                                             {/* HOST START BUTTON */}
                                             {roomState.users?.[0]?.id === socket.id && (
                                                 <button
                                                     onClick={() => socket.emit('startGame', { roomId })}
                                                     disabled={userCount < 2}
+                                                    className="neo-btn"
                                                     style={{
                                                         width: '100%',
-                                                        padding: '12px',
-                                                        borderRadius: '8px',
-                                                        border: 'none',
-                                                        background: userCount >= 2 ? '#eab308' : '#3f3f46',
-                                                        color: userCount >= 2 ? 'black' : '#71717a',
-                                                        fontWeight: 700,
-                                                        fontSize: '16px',
-                                                        cursor: userCount >= 2 ? 'pointer' : 'not-allowed',
-                                                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                                                        transition: 'all 0.2s'
+                                                        background: userCount >= 2 ? 'var(--accent)' : 'var(--bg-main)',
+                                                        color: userCount >= 2 ? 'black' : 'var(--text-muted)',
+                                                        justifyContent: 'center',
                                                     }}
                                                 >
                                                     <Sword size={20} />
-                                                    {userCount < 2 ? "Waiting for Players..." : "START BATTLE"}
+                                                    {userCount < 2 ? "WAITING..." : "START_BATTLE"}
                                                 </button>
                                             )}
 
@@ -684,8 +677,8 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
 
                                             <div style={{ color: '#a1a1aa', fontSize: '13px', fontWeight: 500 }}>INVITE A FRIEND ({userCount}/5)</div>
                                             <div style={{ display: 'flex', gap: '10px' }}>
-                                                <div style={{ background: '#27272a', padding: '10px 16px', borderRadius: '8px', fontFamily: 'monospace', color: 'white', letterSpacing: '1px', border: '1px solid #3f3f46' }}>{roomId}</div>
-                                                <button onClick={copyLink} style={{ background: '#2563eb', border: 'none', borderRadius: '8px', padding: '0 20px', color: 'white', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <div style={{ background: 'var(--bg-main)', padding: '10px 16px', border: 'var(--border-main)', fontFamily: 'monospace', color: 'var(--text-main)', letterSpacing: '1px', fontWeight: 900 }}>{roomId}</div>
+                                                <button onClick={copyLink} className="neo-btn" style={{ padding: '0 20px', background: '#3b82f6', color: 'white' }}>
                                                     <Users size={16} /> COPY
                                                 </button>
                                             </div>
@@ -721,10 +714,9 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                     {winnerModal && (
                         <div style={{
                             position: 'fixed', inset: 0, zIndex: 2000,
-                            background: 'rgba(9, 9, 11, 0.95)',
+                            background: 'rgba(0,0,0,0.8)',
                             backdropFilter: 'blur(15px)',
                             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                            animation: 'fadeIn 0.5s ease-out'
                         }}>
                             {/* Confetti / Particle Effects could go here */}
 
@@ -754,12 +746,10 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                             })()}
 
                             {/* RESULTS TABLE */}
-                            <div style={{
+                            <div className="neo-card" style={{
                                 width: '100%', maxWidth: '700px',
-                                background: '#18181b', borderRadius: '24px',
-                                border: '1px solid #27272a',
+                                background: 'var(--bg-card)',
                                 padding: '30px',
-                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
                             }}>
                                 <div style={{ display: 'grid', gridTemplateColumns: '50px 2fr 1fr 1fr', paddingBottom: '16px', borderBottom: '1px solid #333', color: '#71717a', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '16px' }}>
                                     <div>#</div>

@@ -58,14 +58,14 @@ const SubmissionSuccess = ({ isOpen, onClose, stats }) => {
                         exit={{ scale: 0.8, opacity: 0 }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
                         style={{
-                            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-                            border: '1px solid rgba(34, 197, 94, 0.3)',
-                            borderRadius: '24px',
+                            background: 'var(--bg-card)',
+                            border: 'var(--border-main)',
+                            borderRadius: '0',
                             padding: '40px',
                             maxWidth: '500px',
                             width: '90%',
                             textAlign: 'center',
-                            boxShadow: '0 0 50px rgba(34, 197, 94, 0.2)',
+                            boxShadow: 'var(--shadow-main)',
                             position: 'relative',
                             overflow: 'hidden'
                         }}
@@ -81,7 +81,7 @@ const SubmissionSuccess = ({ isOpen, onClose, stats }) => {
                             onClick={onClose}
                             style={{
                                 position: 'absolute', top: '16px', right: '16px',
-                                background: 'transparent', border: 'none', color: '#64748b',
+                                background: 'transparent', border: 'none', color: 'var(--text-muted)',
                                 cursor: 'pointer'
                             }}
                         >
@@ -102,11 +102,11 @@ const SubmissionSuccess = ({ isOpen, onClose, stats }) => {
                             }}>
                                 <Trophy size={40} color="#22c55e" />
                             </div>
-                            <h2 style={{ fontSize: '28px', fontWeight: 800, color: '#fff', margin: '0 0 8px' }}>
-                                Solution Accepted!
+                            <h2 style={{ fontSize: '28px', fontWeight: 950, color: 'var(--text-main)', margin: '0 0 8px', textTransform: 'uppercase' }}>
+                                SOLUTION_ACCEPTED
                             </h2>
-                            <p style={{ color: '#94a3b8', fontSize: '16px', margin: 0 }}>
-                                You solved this problem properly.
+                            <p style={{ color: 'var(--text-muted)', fontSize: '16px', margin: 0, fontWeight: 700 }}>
+                                Problem solved successfully.
                             </p>
                         </motion.div>
 
@@ -130,15 +130,15 @@ const SubmissionSuccess = ({ isOpen, onClose, stats }) => {
                         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                             <button
                                 onClick={onClose}
+                                className="neo-btn"
                                 style={{
-                                    background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-                                    color: '#fff', border: 'none', padding: '12px 24px',
-                                    borderRadius: '12px', fontSize: '15px', fontWeight: 600,
+                                    background: 'var(--accent-green)',
+                                    color: 'black', border: 'var(--border-main)', padding: '12px 24px',
+                                    fontSize: '15px', fontWeight: 950,
                                     cursor: 'pointer', flex: 1,
-                                    boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)'
                                 }}
                             >
-                                Continue Coding
+                                CONTINUE_CODING
                             </button>
 
                         </div>
@@ -151,21 +151,22 @@ const SubmissionSuccess = ({ isOpen, onClose, stats }) => {
 
 const StatCard = ({ label, value, icon, color, borderColor }) => (
     <motion.div
-        whileHover={{ scale: 1.05 }}
+        whileHover={{ scale: 1.05, translateY: -5 }}
         style={{
-            background: color,
-            border: `1px solid ${borderColor}`,
+            background: 'var(--bg-main)',
+            border: 'var(--border-main)',
             padding: '20px',
-            borderRadius: '16px',
+            borderRadius: '0',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '8px'
+            gap: '8px',
+            boxShadow: 'var(--shadow-main)'
         }}
     >
-        <div style={{ opacity: 0.8 }}>{icon}</div>
-        <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>{label}</div>
-        <div style={{ fontSize: '20px', fontWeight: 800, color: '#fff' }}>{value}</div>
+        <div style={{ opacity: 1 }}>{icon}</div>
+        <div style={{ fontSize: '13px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 950, letterSpacing: '0.5px' }}>{label}</div>
+        <div style={{ fontSize: '20px', fontWeight: 950, color: 'var(--text-main)' }}>{value}</div>
     </motion.div>
 );
 

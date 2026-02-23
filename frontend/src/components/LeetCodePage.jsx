@@ -18,7 +18,7 @@ const LeetCodePage = () => {
     };
 
     return (
-        <div style={{ minHeight: '100vh', background: '#000', paddingTop: '40px', paddingBottom: '80px' }}>
+        <div style={{ minHeight: '100vh', background: 'var(--bg-main)', paddingTop: '40px', paddingBottom: '80px' }}>
             <SEO
                 title="LeetCode Stats - AlgoDuel"
                 description="Track your LeetCode progress, streaks, and contribution graph on AlgoDuel."

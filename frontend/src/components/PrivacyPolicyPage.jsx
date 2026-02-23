@@ -8,18 +8,18 @@ const PrivacyPolicyPage = () => {
             padding: '60px 20px',
             maxWidth: '800px',
             margin: '0 auto',
-            color: '#e4e4e7',
+            color: 'var(--text-main)',
             fontFamily: "'Inter', sans-serif",
             lineHeight: '1.6',
-            background: '#050505',
+            background: 'var(--bg-main)',
             minHeight: '100vh'
         }}>
-            <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#00FFFF', textDecoration: 'none', marginBottom: '40px', fontWeight: '600' }}>
-                <ArrowLeft size={20} /> Back to Home
+            <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--accent)', textDecoration: 'none', marginBottom: '40px', fontWeight: 950, textTransform: 'uppercase' }}>
+                <ArrowLeft size={20} /> BACK_TO_HOME
             </Link>
 
-            <h1 style={{ fontSize: '42px', fontWeight: '800', marginBottom: '10px', color: 'white' }}>Privacy Policy</h1>
-            <p style={{ color: '#a1a1aa', marginBottom: '40px' }}>Last Updated: January 24, 2026</p>
+            <h1 style={{ fontSize: '42px', fontWeight: 950, marginBottom: '10px', color: 'var(--text-main)', textTransform: 'uppercase' }}>PRIVACY_POLICY</h1>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '40px', fontWeight: 700 }}>Last Updated: January 24, 2026</p>
 
             <section style={{ marginBottom: '30px' }}>
                 <h2 style={{ fontSize: '24px', color: 'white', marginBottom: '15px' }}>1. Introduction</h2>
@@ -77,7 +77,7 @@ const PrivacyPolicyPage = () => {
                 <p style={{ color: '#00FFFF', marginTop: '10px' }}>support@algoduel.com</p>
             </section>
 
-            <footer style={{ borderTop: '1px solid #333', paddingTop: '20px', fontSize: '14px', color: '#71717a' }}>
+            <footer style={{ borderTop: 'var(--border-main)', paddingTop: '20px', fontSize: '14px', color: 'var(--text-muted)', fontWeight: 700 }}>
                 &copy; {new Date().getFullYear()} AlgoDuel Systems. All rights reserved.
             </footer>
         </div>

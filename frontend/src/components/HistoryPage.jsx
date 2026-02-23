@@ -43,19 +43,19 @@ const HistoryPage = () => {
     };
 
     return (
-        <div style={{ padding: '60px 20px', maxWidth: '900px', margin: '0 auto', color: 'white', fontFamily: 'Inter, sans-serif' }}>
+        <div style={{ padding: '60px 20px', maxWidth: '900px', margin: '0 auto', color: 'var(--text-main)', fontFamily: "'Inter', sans-serif" }}>
 
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '40px' }}>
                 <button
                     onClick={() => navigate('/app')}
-                    className="hover-scale"
+                    className="neo-btn"
                     style={{
-                        background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid var(--border-subtle)',
-                        color: 'white',
+                        background: 'var(--bg-card)',
+                        border: 'var(--border-main)',
+                        color: 'var(--text-main)',
                         padding: '12px',
-                        borderRadius: '12px',
+                        borderRadius: '0',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease'
                     }}
@@ -63,10 +63,10 @@ const HistoryPage = () => {
                     <ArrowLeft size={24} />
                 </button>
                 <div>
-                    <h1 style={{ margin: 0, fontSize: '32px', fontWeight: 800, background: 'linear-gradient(to right, #fff, #a1a1aa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                        Battle History
+                    <h1 style={{ margin: 0, fontSize: '32px', fontWeight: 950, color: 'var(--text-main)', textTransform: 'uppercase' }}>
+                        BATTLE_HISTORY
                     </h1>
-                    <p style={{ margin: '5px 0 0 0', color: 'var(--text-secondary)', fontSize: '14px' }}>
+                    <p style={{ margin: '5px 0 0 0', color: 'var(--text-muted)', fontSize: '14px', fontWeight: 700 }}>
                         Your recent arena performance
                     </p>
                 </div>
@@ -81,13 +81,14 @@ const HistoryPage = () => {
                 <div style={{
                     textAlign: 'center',
                     padding: '80px',
-                    background: 'rgba(255,255,255,0.02)',
-                    border: '1px dashed var(--border-subtle)',
-                    borderRadius: '20px'
+                    background: 'var(--bg-card)',
+                    border: 'var(--border-main)',
+                    borderRadius: '0',
+                    boxShadow: 'var(--shadow-main)'
                 }}>
-                    <Swords size={64} color="#52525b" style={{ marginBottom: '20px', opacity: 0.5 }} />
-                    <h3 style={{ color: 'white', marginBottom: '10px' }}>No Battles Yet</h3>
-                    <p style={{ color: 'var(--text-muted)' }}>Enter the arena to prove your worth!</p>
+                    <Swords size={64} color="var(--text-muted)" style={{ marginBottom: '20px', opacity: 0.5 }} />
+                    <h3 style={{ color: 'var(--text-main)', marginBottom: '10px', fontWeight: 950, textTransform: 'uppercase' }}>NO_BATTLES_YET</h3>
+                    <p style={{ color: 'var(--text-muted)', fontWeight: 700 }}>Enter the arena to prove your worth!</p>
                 </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -96,40 +97,45 @@ const HistoryPage = () => {
                         return (
                             <div
                                 key={match._id || i}
-                                className="glass-panel hover-card"
+                                className="neo-card hover-card"
                                 style={{
                                     padding: '24px',
-                                    borderRadius: '16px',
+                                    borderRadius: '0',
+                                    background: 'var(--bg-card)',
                                     display: 'grid',
                                     gridTemplateColumns: '1fr auto',
                                     gap: '20px',
                                     alignItems: 'center',
                                     transition: 'transform 0.2s, box-shadow 0.2s',
-                                    borderLeft: `4px solid ${result.color}`
+                                    border: 'var(--border-main)',
+                                    borderLeft: `8px solid ${result.color}`,
+                                    boxShadow: 'var(--shadow-main)'
                                 }}
                             >
                                 {/* Left: Info */}
                                 <div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                                        <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>{match.problem?.title || 'Unknown Challenge'}</h3>
+                                        <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 950, color: 'var(--text-main)', textTransform: 'uppercase' }}>{match.problem?.title || 'Unknown Challenge'}</h3>
                                         <span style={{
                                             fontSize: '11px',
                                             padding: '4px 8px',
-                                            borderRadius: '20px',
-                                            background: 'rgba(255,255,255,0.1)',
-                                            color: 'var(--text-secondary)'
+                                            borderRadius: '0',
+                                            background: 'var(--bg-main)',
+                                            border: 'var(--border-main)',
+                                            color: 'var(--text-muted)',
+                                            fontWeight: 800
                                         }}>
                                             {match.roomId}
                                         </span>
                                     </div>
 
-                                    <div style={{ display: 'flex', gap: '20px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+                                    <div style={{ display: 'flex', gap: '20px', fontSize: '13px', color: 'var(--text-muted)', fontWeight: 700 }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                            <Calendar size={14} opacity={0.7} />
+                                            <Calendar size={14} opacity={1} />
                                             {new Date(match.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                         </div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                            <Clock size={14} opacity={0.7} />
+                                            <Clock size={14} opacity={1} />
                                             {new Date(match.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
                                         </div>
                                     </div>
@@ -142,12 +148,13 @@ const HistoryPage = () => {
                                         alignItems: 'center',
                                         gap: '8px',
                                         padding: '8px 16px',
-                                        borderRadius: '12px',
-                                        background: `${result.color}20`, // 20% opacity of color
-                                        color: result.color,
-                                        fontWeight: 700,
+                                        borderRadius: '0',
+                                        background: result.color,
+                                        color: 'black',
+                                        fontWeight: 950,
                                         fontSize: '14px',
-                                        border: `1px solid ${result.color}40`
+                                        border: 'var(--border-main)',
+                                        textTransform: 'uppercase'
                                     }}>
                                         {result.icon}
                                         {result.label}

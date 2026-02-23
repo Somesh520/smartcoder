@@ -1,23 +1,34 @@
+:root[data-theme='light'] {
+  --bg-main: #f3f4f6;
+  --bg-card: #ffffff;
+  --text-main: #000000;
+  --text-muted: #4b5563;
+  --accent: #facc15;
+  --border-main: 3px solid #000000;
+  --shadow-main: 4px 4px 0px 0px #000000;
+  --shadow-hover: 6px 6px 0px 0px #000000;
+  --dot-color: rgba(0, 0, 0, 0.2);
+  --sidebar-bg: #ffffff;
+}
+
+:root[data-theme='dark'] {
+  --bg-main: #0a0a0a;
+  --bg-card: #18181b;
+  --text-main: #eff1f6;
+  --text-muted: #a1a1aa;
+  --accent: #2cbb5d;
+  --border-main: 1px solid #27272a;
+  --shadow-main: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --dot-color: rgba(255, 255, 255, 0.05);
+  --sidebar-bg: #09090b;
+}
+
+/* Fallback/Common Variables */
 :root {
-  --bg-body: #1a1a1a;
-  --bg-panel: #262626;
-  --bg-editor: #1e1e1e;
-  --border-color: #383838;
-  --text-primary: #eff1f6;
-  --text-secondary: #9ca3af;
-  --accent-green: #2cbb5d;
   --accent-red: #ef4743;
   --accent-yellow: #ffa116;
-  --btn-hover: #3e3e3e;
-
-  /* Neo-Brutalism Tokens */
-  --neo-bg: #f3f4f6;
-  --neo-black: #000000;
-  --neo-yellow: #facc15;
-  --neo-white: #ffffff;
-  --neo-border: 3px solid #000000;
-  --neo-shadow: 4px 4px 0px 0px #000000;
-  --neo-shadow-hover: 2px 2px 0px 0px #000000;
+  --accent-green: #2cbb5d;
 }
 
 * {
@@ -26,31 +37,33 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background-color: var(--neo-bg);
-  color: var(--neo-black);
+  background-color: var(--bg-main);
+  color: var(--text-main);
   margin: 0;
   min-height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Neo-Brutalism Utilities */
+/* Neo-Brutalism Utilities (Adaptive) */
 .neo-card {
-  background: var(--neo-white);
-  border: var(--neo-border);
-  box-shadow: var(--neo-shadow);
+  background: var(--bg-card);
+  border: var(--border-main);
+  box-shadow: var(--shadow-main);
   transition: all 0.2s ease;
 }
 
 .neo-card:hover {
   transform: translate(-1px, -1px);
-  box-shadow: 6px 6px 0px 0px #000000;
+  box-shadow: var(--shadow-hover);
 }
 
 .neo-btn {
-  background: var(--neo-yellow);
-  border: var(--neo-border);
-  box-shadow: var(--neo-shadow);
+  background: var(--accent);
+  color: #000;
+  border: var(--border-main);
+  box-shadow: var(--shadow-main);
   padding: 8px 16px;
   font-weight: 900;
   text-transform: uppercase;
@@ -61,18 +74,25 @@ body {
   gap: 8px;
 }
 
+[data-theme='dark'] .neo-btn {
+  color: var(--text-main);
+  background: var(--bg-card);
+  font-weight: 600;
+}
+
 .neo-btn:active {
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0px 0px #000000;
+  box-shadow: none;
 }
 
 .neo-btn:hover {
-  background: #fde047;
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 .neo-badge {
-  background: var(--neo-black);
-  color: var(--neo-white);
+  background: var(--text-main);
+  color: var(--bg-main);
   padding: 2px 8px;
   font-size: 12px;
   font-weight: 800;
@@ -81,24 +101,33 @@ body {
 
 /* Dot Grid Background */
 .dot-bg {
-  background-color: var(--neo-bg);
-  background-image: radial-gradient(#00000033 1.5px, transparent 1.5px);
+  background-color: var(--bg-main);
+  background-image: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
   background-size: 32px 32px;
 }
 
 /* SCROLLBAR */
 ::-webkit-scrollbar {
-  width: 12px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--neo-bg);
-  border-left: 2px solid var(--neo-black);
+  background: var(--bg-main);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--neo-black);
-  border: 2px solid var(--neo-bg);
+  background: var(--text-muted);
+  border: 2px solid var(--bg-main);
+  border-radius: 10px;
+}
+
+[data-theme='light'] ::-webkit-scrollbar-track {
+  border-left: 2px solid var(--text-main);
+}
+
+[data-theme='light'] ::-webkit-scrollbar-thumb {
+  background: var(--text-main);
+  border-radius: 0;
 }
 
 /* Existing Utils Refactored ... */

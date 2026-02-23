@@ -20,7 +20,7 @@ const Documentation = () => {
     return (
         <div className="dot-bg" style={{
             minHeight: '100vh',
-            color: '#000',
+            color: 'var(--text-main)',
             padding: '120px 24px 80px',
             fontFamily: "'Inter', sans-serif",
             position: 'relative'
@@ -28,7 +28,7 @@ const Documentation = () => {
             <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
                 {/* Header */}
                 <div style={{ marginBottom: '64px', position: 'relative' }}>
-                    <div style={{ display: 'inline-block', background: 'var(--neo-yellow)', border: 'var(--neo-border)', padding: '4px 12px', marginBottom: '16px', fontWeight: '900' }}>
+                    <div style={{ display: 'inline-block', background: 'var(--accent)', border: 'var(--border-main)', color: '#000', padding: '4px 12px', marginBottom: '16px', fontWeight: '900' }}>
                         SMARTCODER v1.2.0
                     </div>
                     <h1 style={{
@@ -39,15 +39,15 @@ const Documentation = () => {
                         textTransform: 'uppercase',
                         letterSpacing: '-2px'
                     }}>
-                        DOCS <span style={{ background: 'var(--neo-yellow)', padding: '0 12px', border: 'var(--neo-border)', boxShadow: '6px 6px 0px #000' }}>EXCHANGE</span>
+                        DOCS <span style={{ background: 'var(--accent)', color: '#000', padding: '0 12px', border: 'var(--border-main)', boxShadow: 'var(--shadow-main)' }}>EXCHANGE</span>
                     </h1>
-                    <p style={{ fontSize: '20px', fontWeight: '700', color: '#333', maxWidth: '600px', textTransform: 'uppercase' }}>
+                    <p style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-muted)', maxWidth: '600px', textTransform: 'uppercase' }}>
                         Share your path. Steal their knowledge. Modern engineering reference.
                     </p>
                 </div>
 
                 {/* Status Bar */}
-                <div className="neo-card" style={{ padding: '12px 24px', marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#000', color: '#22c55e' }}>
+                <div className="neo-card" style={{ padding: '12px 24px', marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--text-main)', color: 'var(--accent)' }}>
                     <div style={{ fontSize: '14px', fontWeight: '800', fontFamily: 'monospace' }}>
                         [ AUTH_MODE: SOCIAL_FORKING ]
                     </div>
@@ -74,7 +74,8 @@ const Documentation = () => {
                                 onClick={() => setActiveTab(tab.id)}
                                 className="neo-btn"
                                 style={{
-                                    background: isActive ? 'var(--neo-yellow)' : '#fff',
+                                    background: isActive ? 'var(--accent)' : 'var(--bg-card)',
+                                    color: isActive ? '#000' : 'var(--text-main)',
                                     padding: '12px 24px',
                                     fontSize: '16px',
                                     whiteSpace: 'nowrap'
@@ -114,10 +115,11 @@ const SectionHeader = ({ title, isExpanded, onToggle }) => (
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '20px 28px',
-            background: isExpanded ? 'var(--neo-yellow)' : '#fff',
+            background: isExpanded ? 'var(--accent)' : 'var(--bg-card)',
+            color: isExpanded ? '#000' : 'var(--text-main)',
             cursor: 'pointer',
             marginBottom: isExpanded ? '20px' : '12px',
-            boxShadow: isExpanded ? '6px 6px 0px #000' : 'var(--neo-shadow)'
+            boxShadow: isExpanded ? 'var(--shadow-hover)' : 'var(--shadow-main)'
         }}
     >
         <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '900', textTransform: 'uppercase' }}>{title}</h3>
@@ -129,15 +131,15 @@ const TechItem = ({ name, version, purpose }) => (
     <div className="neo-card" style={{
         padding: '24px',
         marginBottom: '16px',
-        background: '#fff'
+        background: 'var(--bg-card)'
     }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <div style={{ background: '#000', color: '#fff', padding: '4px 12px', fontWeight: '900', fontSize: '14px' }}>
+            <div style={{ background: 'var(--text-main)', color: 'var(--bg-card)', padding: '4px 12px', fontWeight: '900', fontSize: '14px' }}>
                 {name.toUpperCase()}
             </div>
-            {version && <span style={{ fontWeight: '800', fontSize: '14px' }}>v{version}</span>}
+            {version && <span style={{ fontWeight: '800', fontSize: '14px', color: 'var(--text-main)' }}>v{version}</span>}
         </div>
-        <p style={{ margin: 0, fontSize: '15px', fontWeight: '600', color: '#444', lineHeight: '1.5' }}>{purpose}</p>
+        <p style={{ margin: 0, fontSize: '15px', fontWeight: '600', color: 'var(--text-muted)', lineHeight: '1.5' }}>{purpose}</p>
     </div>
 );
 
@@ -147,12 +149,12 @@ const OverviewContent = () => (
 
         <div style={{ marginBottom: '48px' }}>
             <p style={{ fontSize: '20px', lineHeight: '1.6', fontWeight: '700' }}>
-                SmartCoder is a <span style={{ background: 'var(--neo-yellow)' }}>high-performance real-time competitive programming platform</span>. Engage in 1v1 battle duels, solve curated challenges, and sync stats within a brutalist aesthetic.
+                SmartCoder is a <span style={{ background: 'var(--accent)', color: '#000', padding: '0 4px' }}>high-performance real-time competitive programming platform</span>. Engage in 1v1 battle duels, solve curated challenges, and sync stats within a brutalist aesthetic.
             </p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '32px' }}>
-            <div className="neo-card" style={{ padding: '32px', background: '#fff' }}>
+            <div className="neo-card" style={{ padding: '32px', background: 'var(--bg-card)' }}>
                 <h3 style={{ fontSize: '24px', marginBottom: '24px', fontWeight: '900', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <Zap size={24} /> CORE_FEATURES
                 </h3>
@@ -161,20 +163,20 @@ const OverviewContent = () => (
                         'Real-time Code Sync', 'Live 1v1 Duels', 'Smart Discovery', 'Admin CommandCenter', 'LeetCode Synergy', 'Multi-Engine Execution'
                     ].map(feature => (
                         <div key={feature} style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '800' }}>
-                            <div style={{ width: '8px', height: '8px', background: 'var(--neo-yellow)', border: '2px solid #000' }}></div>
+                            <div style={{ width: '8px', height: '8px', background: 'var(--accent)', border: 'var(--border-main)' }}></div>
                             {feature.toUpperCase()}
                         </div>
                     ))}
                 </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div className="neo-card" style={{ padding: '24px', background: 'var(--neo-yellow)' }}>
+                <div className="neo-card" style={{ padding: '24px', background: 'var(--accent)', color: '#000' }}>
                     <h4 style={{ marginBottom: '12px', fontWeight: '900' }}>SYSTEM HEALTH</h4>
                     <p style={{ fontSize: '14px', fontWeight: '700', margin: 0 }}>
                         POWERED BY NODE.JS 20 LTS & MONGODB ATLAS.
                     </p>
                 </div>
-                <div className="neo-card" style={{ padding: '24px', background: '#000', color: '#fff' }}>
+                <div className="neo-card" style={{ padding: '24px', background: 'var(--text-main)', color: 'var(--bg-card)' }}>
                     <h4 style={{ marginBottom: '12px', fontWeight: '900' }}>GLOBAL EXECUTION</h4>
                     <p style={{ fontSize: '14px', fontWeight: '700', margin: 0 }}>
                         INTEGRATED WITH JUDGE0 CLUSTER.
@@ -252,18 +254,18 @@ const RoutesContent = () => (
 const RouteItem = ({ path, component, type, description }) => (
     <div className="neo-card" style={{
         padding: '24px',
-        background: '#fff'
+        background: 'var(--bg-card)'
     }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <code style={{ background: 'var(--neo-yellow)', padding: '2px 8px', border: '2px solid #000', fontSize: '14px', fontWeight: '900' }}>{path}</code>
+            <code style={{ background: 'var(--accent)', color: '#000', padding: '2px 8px', border: 'var(--border-main)', fontSize: '14px', fontWeight: '900' }}>{path}</code>
             <span className="neo-badge" style={{
                 background: type === 'ADMIN' ? '#ef4444' : type === 'SECURE' ? '#3b82f6' : '#22c55e',
             }}>
                 {type}
             </span>
         </div>
-        <div style={{ fontSize: '13px', fontWeight: '800', marginBottom: '8px', opacity: 0.6 }}>COMPONENT: {component}</div>
-        <p style={{ margin: 0, fontSize: '14px', fontWeight: '700', lineHeight: '1.4' }}>{description}</p>
+        <div style={{ fontSize: '13px', fontWeight: '800', marginBottom: '8px', color: 'var(--text-muted)' }}>COMPONENT: {component}</div>
+        <p style={{ margin: 0, fontSize: '14px', fontWeight: '700', lineHeight: '1.4', color: 'var(--text-main)' }}>{description}</p>
     </div>
 );
 
@@ -277,11 +279,11 @@ const ArchitectureContent = () => (
                 { icon: Filter, title: 'Intelligent Discovery', text: 'Global filtering engine. Hides paid content for free users. Multi-field indexing (Slug, Title, ID) for fast retrieval.' },
                 { icon: Cpu, title: 'Real-time Sync Engine', text: 'Socket.IO 4.x powered. Isolated namespaces per room. Debounced sync maintains performance.' }
             ].map(item => (
-                <div key={item.title} className="neo-card" style={{ padding: '32px', background: '#fff' }}>
-                    <h3 style={{ fontSize: '24px', marginBottom: '16px', fontWeight: '900', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div key={item.title} className="neo-card" style={{ padding: '32px', background: 'var(--bg-card)' }}>
+                    <h3 style={{ fontSize: '24px', marginBottom: '16px', fontWeight: '900', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '16px', color: 'var(--text-main)' }}>
                         <item.icon size={28} /> {item.title}
                     </h3>
-                    <p style={{ fontSize: '16px', fontWeight: '700', lineHeight: '1.6', color: '#333' }}>
+                    <p style={{ fontSize: '16px', fontWeight: '700', lineHeight: '1.6', color: 'var(--text-muted)' }}>
                         {item.text}
                     </p>
                 </div>

@@ -105,60 +105,60 @@ const Lobby = ({ socket, onJoin, onPracticeSolo, userInfo }) => {
 
     return (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', position: 'relative', gap: '40px' }}>
-            {/* Background Glow */}
+            {/* Background Glow (Only in Dark Mode) */}
             <div style={{
                 position: 'absolute', width: '600px', height: '600px',
-                background: 'radial-gradient(circle, rgba(34,197,94,0.15) 0%, rgba(0,0,0,0) 70%)',
-                top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 0, pointerEvents: 'none'
+                background: 'radial-gradient(circle, var(--dot-color) 0%, transparent 70%)',
+                top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 0, pointerEvents: 'none',
+                opacity: 0.5
             }} />
 
-            <div className="glass-panel animate-scale-in" style={{
+            <div className="neo-card animate-scale-in" style={{
                 width: '100%', maxWidth: '480px',
-                padding: '0', borderRadius: '24px',
-                background: 'rgba(20, 20, 25, 0.75)',
-                backdropFilter: 'blur(24px)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                padding: '0', borderRadius: '0',
+                background: 'var(--bg-card)',
+                border: 'var(--border-main)',
                 overflow: 'hidden', zIndex: 1
             }}>
                 {/* Header Section */}
-                <div style={{ padding: '40px 40px 30px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div style={{ display: 'inline-flex', padding: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', marginBottom: '25px' }}>
+                <div style={{ padding: '40px 40px 30px', textAlign: 'center', borderBottom: 'var(--border-main)', background: 'var(--bg-main)', opacity: 0.9 }}>
+                    <div style={{ display: 'inline-flex', padding: '4px', background: 'var(--bg-card)', border: 'var(--border-main)', marginBottom: '25px' }}>
                         <button
                             onClick={() => setMode('create')}
                             style={{
-                                padding: '8px 24px', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
-                                background: mode === 'create' ? 'var(--accent-green)' : 'transparent',
-                                color: mode === 'create' ? 'black' : '#a1a1aa',
-                                border: 'none', cursor: 'pointer', transition: 'all 0.3s ease'
+                                padding: '8px 24px', fontSize: '13px', fontWeight: 700,
+                                background: mode === 'create' ? 'var(--accent)' : 'transparent',
+                                color: mode === 'create' ? 'black' : 'var(--text-muted)',
+                                border: 'none', cursor: 'pointer', transition: 'all 0.3s ease',
+                                textTransform: 'uppercase'
                             }}
                         >
-                            Create Lobby
+                            CREATE_LOBBY
                         </button>
                         <button
                             onClick={() => setMode('join')}
                             style={{
-                                padding: '8px 24px', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
+                                padding: '8px 24px', fontSize: '13px', fontWeight: 700,
                                 background: mode === 'join' ? '#3b82f6' : 'transparent',
-                                color: mode === 'join' ? 'white' : '#a1a1aa',
-                                border: 'none', cursor: 'pointer', transition: 'all 0.3s ease'
+                                color: mode === 'join' ? 'white' : 'var(--text-muted)',
+                                border: 'none', cursor: 'pointer', transition: 'all 0.3s ease',
+                                textTransform: 'uppercase'
                             }}
                         >
-                            Join Lobby
+                            JOIN_LOBBY
                         </button>
                     </div>
 
                     <h1 style={{
-                        fontSize: '32px', fontWeight: 800, margin: '0 0 10px 0',
-                        backgroundImage: mode === 'create' ? 'linear-gradient(135deg, #fff 0%, #4ade80 100%)' : 'linear-gradient(135deg, #fff 0%, #60a5fa 100%)',
-                        backgroundClip: 'text', WebkitBackgroundClip: 'text',
-                        color: 'transparent', WebkitTextFillColor: 'transparent',
+                        fontSize: '32px', fontWeight: 950, margin: '0 0 10px 0',
+                        color: 'var(--text-main)',
+                        textTransform: 'uppercase',
                         letterSpacing: '-1px', display: 'inline-block'
                     }}>
-                        {mode === 'create' ? 'Host a Battle' : 'Enter the Arena'}
+                        {mode === 'create' ? 'HOST_BATTLE' : 'ENTER_ARENA'}
                     </h1>
-                    <p style={{ color: '#a1a1aa', fontSize: '14px', lineHeight: '1.5' }}>
-                        {mode === 'create' ? 'Configure settings and invite a friend.' : 'Paste a room code or join a public game.'}
+                    <p style={{ color: 'var(--text-muted)', fontSize: '14px', lineHeight: '1.5', fontWeight: 700 }}>
+                        {mode === 'create' ? 'CONFIGURE SETTINGS AND INVITE A FRIEND.' : 'PASTE A ROOM CODE OR JOIN A PUBLIC GAME.'}
                     </p>
                 </div>
 
@@ -246,18 +246,16 @@ const Lobby = ({ socket, onJoin, onPracticeSolo, userInfo }) => {
                     <div style={{ marginTop: '10px' }}>
                         <button
                             onClick={() => checkAuth(mode === 'create' ? handleCreate : handleJoin)}
-                            className={mode === 'create' ? "btn-primary" : "btn-blue"} // Assuming btn-blue exists or fallback
+                            className="neo-btn"
                             style={{
-                                width: '100%', padding: '16px', fontSize: '16px', fontWeight: 700, borderRadius: '14px',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
-                                background: mode === 'create' ? 'var(--accent-green)' : '#3b82f6', color: mode === 'create' ? 'black' : 'white', border: 'none', cursor: 'pointer',
-                                boxShadow: mode === 'create' ? '0 0 20px rgba(74, 222, 128, 0.4)' : '0 0 20px rgba(59, 130, 246, 0.4)',
-                                transition: 'transform 0.2s',
+                                width: '100%', padding: '16px', fontSize: '16px', fontWeight: 900,
+                                justifyContent: 'center', gap: '10px',
+                                background: mode === 'create' ? 'var(--accent)' : '#3b82f6',
+                                color: mode === 'create' ? 'black' : 'white',
+                                border: 'var(--border-main)',
                             }}
-                            onMouseOver={e => e.currentTarget.style.transform = 'scale(1.02)'}
-                            onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
                         >
-                            {mode === 'create' ? <><Sword size={18} /> Launch Battle</> : <><Zap size={18} /> Join Now</>}
+                            {mode === 'create' ? <><Sword size={18} /> LAUNCH_BATTLE</> : <><Zap size={18} /> JOIN_NOW</>}
                         </button>
 
                         <button
@@ -280,8 +278,8 @@ const Lobby = ({ socket, onJoin, onPracticeSolo, userInfo }) => {
 
             {/* PUBLIC ROOMS LIST */}
             <div style={{ width: '100%', maxWidth: '700px', zIndex: 1 }}>
-                <h3 style={{ color: 'white', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Globe size={18} color="#4ade80" /> Live Public Battles
+                <h3 style={{ color: 'var(--text-main)', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 900, textTransform: 'uppercase' }}>
+                    <Globe size={18} color="var(--accent)" /> LIVE_BATTLES
                 </h3>
 
                 {publicRooms.length === 0 ? (
@@ -294,31 +292,26 @@ const Lobby = ({ socket, onJoin, onPracticeSolo, userInfo }) => {
                 ) : (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px' }}>
                         {publicRooms.map(room => (
-                            <div key={room.id} className="glass-panel" style={{
-                                padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)',
+                            <div key={room.id} className="neo-card" style={{
+                                padding: '20px', background: 'var(--bg-card)',
                                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                                transition: 'transform 0.2s', cursor: 'pointer'
+                                cursor: 'pointer'
                             }}
                                 onClick={() => checkAuth(() => handleJoinPublic(room.id))}
-                                onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                                onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
                             >
                                 <div>
-                                    <div style={{ fontSize: '13px', color: 'var(--accent-green)', fontWeight: 700, marginBottom: '4px' }}>
+                                    <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 900, marginBottom: '4px', textTransform: 'uppercase' }}>
                                         {room.difficulty} • {room.topic === 'all' ? 'Random' : room.topic.toUpperCase()}
                                     </div>
-                                    <div style={{ color: 'white', fontWeight: 600, fontSize: '16px' }}>
+                                    <div style={{ color: 'var(--text-main)', fontWeight: 900, fontSize: '16px', textTransform: 'uppercase' }}>
                                         {room.host}'s Lobby
                                     </div>
-                                    <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginTop: '6px' }}>
-                                        Waiting for opponent...
+                                    <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginTop: '6px', fontWeight: 700 }}>
+                                        WAITING_FOR_OPPONENT...
                                     </div>
                                 </div>
-                                <button style={{
-                                    background: 'rgba(74, 222, 128, 0.1)', color: '#4ade80', border: '1px solid rgba(74, 222, 128, 0.2)',
-                                    padding: '8px 16px', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer'
-                                }}>
-                                    Join
+                                <button className="neo-btn" style={{ padding: '8px 16px', fontSize: '12px' }}>
+                                    JOIN
                                 </button>
                             </div>
                         ))}
@@ -335,57 +328,36 @@ const Lobby = ({ socket, onJoin, onPracticeSolo, userInfo }) => {
                     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
                 }} onClick={() => setShowLoginModal(false)}>
 
-                    <div style={{
-                        background: 'rgba(20, 20, 20, 0.9)',
-                        border: '1px solid var(--border-subtle)',
+                    <div className="neo-card" style={{
+                        background: 'var(--bg-card)',
                         padding: '40px',
-                        borderRadius: '20px',
                         width: '400px',
                         textAlign: 'center',
                         position: 'relative',
-                        boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
                     }} onClick={e => e.stopPropagation()}>
 
                         <div style={{ marginBottom: '20px' }}>
                             <div style={{
-                                width: '60px', height: '60px', background: 'rgba(74, 222, 128, 0.1)',
-                                borderRadius: '50%', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                width: '60px', height: '60px', background: 'var(--accent)',
+                                border: 'var(--border-main)', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center'
                             }}>
-                                <Sword size={32} color="#4ade80" />
+                                <Sword size={32} color="black" />
                             </div>
-                            <h2 style={{ margin: '0 0 10px 0', fontSize: '24px', fontWeight: 800 }}>Authentication Required</h2>
-                            <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-                                You must sign in to Host a Battle, Join specific Rooms, or Practice Solo.
+                            <h2 style={{ margin: '0 0 10px 0', fontSize: '24px', fontWeight: 950, textTransform: 'uppercase', color: 'var(--text-main)' }}>AUTH_REQUIRED</h2>
+                            <p style={{ margin: 0, color: 'var(--text-muted)', fontWeight: '700', lineHeight: '1.5' }}>
+                                YOU MUST SIGN IN TO HOST OR JOIN BATTLES.
                             </p>
                         </div>
 
-                        {/* Login logic now handled by Header/App via API URL, but here explicit link is fine/safe if matches Header */}
-                        {/* Ideally reuse Header's logic but direct link is acceptable here as fallback */}
-                        {/* Actually, let's use the same logic as Header if possible, or just the hardcoded relative path 
-                            which we know works because we fixed the Header one to use absolute path.
-                            Wait, Header uses absolute URL. Here we should likely use the same.
-                         */}
                         <button
                             onClick={async () => {
                                 const { BASE_URL } = await import('../api');
                                 window.location.href = `${BASE_URL}/auth/google`;
                             }}
-                            style={{
-                                background: 'var(--accent-green)',
-                                color: 'black',
-                                border: 'none',
-                                padding: '14px',
-                                width: '100%',
-                                borderRadius: '12px',
-                                fontWeight: 700,
-                                cursor: 'pointer',
-                                fontSize: '16px',
-                                transition: 'transform 0.1s'
-                            }}
-                            onMouseDown={e => e.target.style.transform = 'scale(0.98)'}
-                            onMouseUp={e => e.target.style.transform = 'scale(1)'}
+                            className="neo-btn"
+                            style={{ width: '100%', justifyContent: 'center' }}
                         >
-                            Login with Google
+                            LOGIN WITH GOOGLE
                         </button>
 
                         <button
@@ -396,12 +368,13 @@ const Lobby = ({ socket, onJoin, onPracticeSolo, userInfo }) => {
                                 border: 'none',
                                 color: 'var(--text-muted)',
                                 cursor: 'pointer',
-                                fontSize: '14px'
+                                fontSize: '14px',
+                                fontWeight: 800,
+                                textDecoration: 'underline'
                             }}
                         >
-                            Cancel
+                            CANCEL
                         </button>
-
                     </div>
                 </div>
             )}
@@ -414,15 +387,15 @@ const inputGroupStyle = {
 };
 
 const labelStyle = {
-    display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 800,
-    color: '#71717a', letterSpacing: '0.8px', textTransform: 'uppercase'
+    display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 900,
+    color: 'var(--text-muted)', letterSpacing: '0.8px', textTransform: 'uppercase'
 };
 
 const inputStyle = {
-    width: '100%', padding: '14px 16px', background: 'rgba(0,0,0,0.3)',
-    border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px',
-    color: 'white', fontSize: '15px', outline: 'none', transition: 'all 0.2s',
-    fontWeight: 500
+    width: '100%', padding: '14px 16px', background: 'var(--bg-main)',
+    border: 'var(--border-main)', borderRadius: '0',
+    color: 'var(--text-main)', fontSize: '15px', outline: 'none', transition: 'all 0.2s',
+    fontWeight: 700
 };
 
 const selectStyle = {

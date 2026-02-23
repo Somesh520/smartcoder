@@ -75,8 +75,8 @@ const ModernSpinner = ({ size = 60, color = '#22c55e', text = '' }) => {
             {text && (
                 <div style={{
                     fontSize: '14px',
-                    fontWeight: 600,
-                    color: '#9ca3af',
+                    fontWeight: 800,
+                    color: 'var(--text-muted)',
                     letterSpacing: '2px',
                     textTransform: 'uppercase',
                     animation: 'fadeInOut 2s ease-in-out infinite'

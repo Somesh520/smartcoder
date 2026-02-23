@@ -104,22 +104,23 @@ const LeetCodeStats = ({ onSelectProblem }) => {
     };
 
     return (
-        <div style={{ width: '100%', color: 'white', fontFamily: "'Inter', sans-serif" }} id="leetcode-stats">
+        <div style={{ width: '100%', color: 'var(--text-main)', fontFamily: "'Inter', sans-serif" }} id="leetcode-stats">
             <div style={{ margin: '0 auto', maxWidth: '1100px', padding: '40px' }}>
 
                 {/* DAILY CHALLENGE BANNER */}
                 {dailyChallenge && (
                     <div style={{
-                        background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
-                        border: '1px solid rgba(99, 102, 241, 0.3)',
-                        borderRadius: '20px',
+                        background: 'var(--bg-card)',
+                        border: 'var(--border-main)',
+                        borderRadius: '0',
                         padding: '24px 32px',
                         marginBottom: '30px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         position: 'relative',
-                        overflow: 'hidden'
+                        overflow: 'hidden',
+                        boxShadow: 'var(--shadow-main)'
                     }}>
                         <div style={{
                             position: 'absolute', top: 0, right: 0, width: '200px', height: '200px',
@@ -138,36 +139,36 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                                 <Zap size={28} color="#fff" />
                             </div>
                             <div>
-                                <div style={{ fontSize: '12px', color: '#a5b4fc', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
-                                    Daily Challenge • {dailyChallenge.date}
+                                <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
+                                    DAILY_CHALLENGE • {dailyChallenge.date}
                                 </div>
-                                <div style={{ fontSize: '20px', fontWeight: 700, color: 'white', marginBottom: '4px' }}>
+                                <div style={{ fontSize: '20px', fontWeight: 950, color: 'var(--text-main)', marginBottom: '4px', textTransform: 'uppercase' }}>
                                     #{dailyChallenge.questionId}. {dailyChallenge.title}
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                     <span style={{
-                                        padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 700,
-                                        background: getDifficultyColor(dailyChallenge.difficulty) + '20',
-                                        color: getDifficultyColor(dailyChallenge.difficulty),
+                                        padding: '4px 10px', borderRadius: '0', fontSize: '11px', fontWeight: 950,
+                                        background: getDifficultyColor(dailyChallenge.difficulty),
+                                        color: 'black', border: 'var(--border-main)',
                                         textTransform: 'uppercase'
                                     }}>
                                         {dailyChallenge.difficulty}
                                     </span>
-                                    <span style={{ fontSize: '12px', color: '#64748b' }}>
-                                        {dailyChallenge.acRate?.toFixed(1)}% acceptance
+                                    <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700 }}>
+                                        {dailyChallenge.acRate?.toFixed(1)}% ACCEPTANCE
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        <button onClick={handleSolveDaily} style={{
-                            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                            color: 'white', border: 'none', padding: '14px 28px', borderRadius: '12px',
-                            fontWeight: 700, fontSize: '14px', cursor: 'pointer',
+                        <button onClick={handleSolveDaily} className="neo-btn" style={{
+                            background: 'var(--accent)',
+                            color: 'black', border: 'var(--border-main)', padding: '14px 28px', borderRadius: '0',
+                            fontWeight: 950, fontSize: '14px', cursor: 'pointer',
                             display: 'flex', alignItems: 'center', gap: '8px',
-                            boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)', transition: 'all 0.2s', zIndex: 1
+                            zIndex: 1
                         }}>
-                            <Code2 size={18} /> Solve Now
+                            <Code2 size={18} /> SOLVE_NOW
                         </button>
                     </div>
                 )}
@@ -175,43 +176,43 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
 
                     {/* LEFT: STATS CARD */}
-                    <div style={{
-                        background: '#09090b', borderRadius: '24px', border: '1px solid #27272a',
-                        padding: '30px', position: 'relative', overflow: 'hidden'
+                    <div className="neo-card" style={{
+                        background: 'var(--bg-card)', borderRadius: '0', border: 'var(--border-main)',
+                        padding: '30px', position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-main)'
                     }}>
                         <div style={{
                             position: 'absolute', top: '-20%', right: '-10%', width: '200px', height: '200px',
                             background: 'radial-gradient(circle, rgba(34,211,238,0.1) 0%, transparent 70%)', filter: 'blur(40px)'
                         }} />
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', color: '#22d3ee', fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase' }}>
-                            <div style={{ width: '20px', height: '2px', background: '#22d3ee' }} />
-                            LEETCODE STATS
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', color: 'var(--accent)', fontSize: '11px', fontWeight: 950, letterSpacing: '2px', textTransform: 'uppercase' }}>
+                            <div style={{ width: '20px', height: '3px', background: 'var(--accent)' }} />
+                            LEETCODE_STATS
                         </div>
 
                         {!stats ? (
                             <div>
-                                <h2 style={{ fontSize: '28px', fontWeight: 800, marginBottom: '12px', color: 'white' }}>
-                                    Connect your <span style={{ color: '#22d3ee' }}>Profile</span>
+                                <h2 style={{ fontSize: '28px', fontWeight: 950, marginBottom: '12px', color: 'var(--text-main)', textTransform: 'uppercase' }}>
+                                    Connect <span style={{ color: 'var(--accent)' }}>Profile</span>
                                 </h2>
-                                <p style={{ fontSize: '14px', color: '#71717a', marginBottom: '24px' }}>
+                                <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '24px', fontWeight: 700 }}>
                                     Enter your LeetCode username to view stats
                                 </p>
 
                                 <form onSubmit={handleSubmit} style={{ position: 'relative' }}>
-                                    <Search style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#52525b' }} size={18} />
+                                    <Search style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} size={18} />
                                     <input
                                         type="text" placeholder="Enter username..." value={username}
                                         onChange={(e) => setUsername(e.target.value)}
                                         style={{
-                                            width: '100%', padding: '14px 14px 14px 44px', background: '#18181b',
-                                            border: '1px solid #27272a', borderRadius: '12px', color: 'white', fontSize: '14px', outline: 'none'
+                                            width: '100%', padding: '14px 14px 14px 44px', boxSizing: 'border-box', background: 'var(--bg-main)',
+                                            border: 'var(--border-main)', borderRadius: '0', color: 'var(--text-main)', fontSize: '14px', outline: 'none', fontWeight: 700
                                         }}
                                     />
                                     <button type="submit" disabled={loading} style={{
                                         position: 'absolute', right: '6px', top: '6px', bottom: '6px', padding: '0 20px',
-                                        background: loading ? '#27272a' : '#22d3ee', color: loading ? '#71717a' : 'black',
-                                        border: 'none', borderRadius: '8px', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', fontSize: '12px'
+                                        background: loading ? 'var(--bg-card)' : 'var(--accent)', color: 'black',
+                                        border: 'var(--border-main)', borderRadius: '0', fontWeight: 950, cursor: loading ? 'not-allowed' : 'pointer', fontSize: '12px'
                                     }}>
                                         {loading ? <Loader2 size={16} className="animate-spin" /> : 'CONNECT'}
                                     </button>
@@ -228,54 +229,54 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                                 {/* User Info */}
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
                                     {stats.avatar ? (
-                                        <img src={stats.avatar} alt="" style={{ width: '56px', height: '56px', borderRadius: '50%', border: '2px solid #27272a' }} />
+                                        <img src={stats.avatar} alt="" style={{ width: '56px', height: '56px', borderRadius: '50%', border: 'var(--border-main)' }} />
                                     ) : (
                                         <div style={{
                                             width: '56px', height: '56px', borderRadius: '50%',
-                                            background: 'linear-gradient(135deg, #22d3ee 0%, #0ea5e9 100%)',
+                                            background: 'var(--accent)',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            fontSize: '20px', fontWeight: 800, color: 'white'
+                                            fontSize: '20px', fontWeight: 950, color: 'black', border: 'var(--border-main)'
                                         }}>
                                             {stats.username?.charAt(0).toUpperCase()}
                                         </div>
                                     )}
                                     <div>
-                                        <div style={{ fontSize: '18px', fontWeight: 700, color: 'white' }}>{stats.realName || stats.username}</div>
-                                        <div style={{ fontSize: '13px', color: '#71717a' }}>@{stats.username}</div>
+                                        <div style={{ fontSize: '18px', fontWeight: 950, color: 'var(--text-main)', textTransform: 'uppercase' }}>{stats.realName || stats.username}</div>
+                                        <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 700 }}>@{stats.username}</div>
                                     </div>
                                     <button onClick={() => { setStats(null); setSubmissions([]); localStorage.removeItem('leetcode_username'); }}
-                                        style={{ marginLeft: 'auto', fontSize: '12px', color: '#ef4444', background: 'transparent', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
+                                        style={{ marginLeft: 'auto', fontSize: '12px', color: 'var(--accent-red)', background: 'transparent', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontWeight: 800 }}>
                                         Disconnect
                                     </button>
                                 </div>
 
                                 {/* Stats Grid */}
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '20px' }}>
-                                    <div style={{ background: '#18181b', padding: '16px', borderRadius: '12px', border: '1px solid #27272a' }}>
-                                        <div style={{ fontSize: '11px', color: '#71717a', marginBottom: '4px', textTransform: 'uppercase' }}>Ranking</div>
-                                        <div style={{ fontSize: '20px', fontWeight: 800, color: 'white' }}>#{parseInt(stats.ranking || 0).toLocaleString()}</div>
+                                    <div style={{ background: 'var(--bg-main)', padding: '16px', borderRadius: '0', border: 'var(--border-main)', boxShadow: 'var(--shadow-main)' }}>
+                                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', fontWeight: 950 }}>Ranking</div>
+                                        <div style={{ fontSize: '20px', fontWeight: 950, color: 'var(--text-main)' }}>#{parseInt(stats.ranking || 0).toLocaleString()}</div>
                                     </div>
-                                    <div style={{ background: '#18181b', padding: '16px', borderRadius: '12px', border: '1px solid #27272a' }}>
-                                        <div style={{ fontSize: '11px', color: '#71717a', marginBottom: '4px', textTransform: 'uppercase' }}>Acceptance</div>
-                                        <div style={{ fontSize: '20px', fontWeight: 800, color: '#22c55e' }}>{stats.acceptanceRate}%</div>
+                                    <div style={{ background: 'var(--bg-main)', padding: '16px', borderRadius: '0', border: 'var(--border-main)', boxShadow: 'var(--shadow-main)' }}>
+                                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', fontWeight: 950 }}>Acceptance</div>
+                                        <div style={{ fontSize: '20px', fontWeight: 950, color: 'var(--accent-green)' }}>{stats.acceptanceRate}%</div>
                                     </div>
                                 </div>
 
                                 {/* Progress */}
                                 <div style={{ marginBottom: '16px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#a1a1aa' }}>Problems Solved</span>
-                                        <span style={{ fontSize: '16px', fontWeight: 800, color: 'white' }}>{stats.totalSolved}</span>
+                                        <span style={{ fontSize: '13px', fontWeight: 950, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Problems Solved</span>
+                                        <span style={{ fontSize: '16px', fontWeight: 950, color: 'var(--text-main)' }}>{stats.totalSolved}</span>
                                     </div>
-                                    <div style={{ display: 'flex', height: '8px', borderRadius: '4px', overflow: 'hidden', background: '#27272a' }}>
-                                        <div style={{ width: `${(stats.easySolved / Math.max(stats.totalSolved, 1)) * 100}%`, background: '#22c55e' }} />
-                                        <div style={{ width: `${(stats.mediumSolved / Math.max(stats.totalSolved, 1)) * 100}%`, background: '#eab308' }} />
-                                        <div style={{ width: `${(stats.hardSolved / Math.max(stats.totalSolved, 1)) * 100}%`, background: '#ef4444' }} />
+                                    <div style={{ display: 'flex', height: '12px', borderRadius: '0', overflow: 'hidden', background: 'var(--bg-main)', border: 'var(--border-main)' }}>
+                                        <div style={{ width: `${(stats.easySolved / Math.max(stats.totalSolved, 1)) * 100}%`, background: 'var(--accent-green)' }} />
+                                        <div style={{ width: `${(stats.mediumSolved / Math.max(stats.totalSolved, 1)) * 100}%`, background: 'var(--accent)' }} />
+                                        <div style={{ width: `${(stats.hardSolved / Math.max(stats.totalSolved, 1)) * 100}%`, background: 'var(--accent-red)' }} />
                                     </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '12px' }}>
-                                        <span style={{ color: '#22c55e' }}>Easy: {stats.easySolved}</span>
-                                        <span style={{ color: '#eab308' }}>Medium: {stats.mediumSolved}</span>
-                                        <span style={{ color: '#ef4444' }}>Hard: {stats.hardSolved}</span>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '12px', fontWeight: 800 }}>
+                                        <span style={{ color: 'var(--accent-green)' }}>EASY: {stats.easySolved}</span>
+                                        <span style={{ color: 'var(--accent)' }}>MEDIUM: {stats.mediumSolved}</span>
+                                        <span style={{ color: 'var(--accent-red)' }}>HARD: {stats.hardSolved}</span>
                                     </div>
                                 </div>
                             </div>
@@ -283,18 +284,18 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                     </div>
 
                     {/* RIGHT: RECENT SUBMISSIONS */}
-                    <div style={{
-                        background: '#09090b', borderRadius: '24px', border: '1px solid #27272a',
-                        padding: '30px', position: 'relative', overflow: 'hidden'
+                    <div className="neo-card" style={{
+                        background: 'var(--bg-card)', borderRadius: '0', border: 'var(--border-main)',
+                        padding: '30px', position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-main)'
                     }}>
                         <div style={{
                             position: 'absolute', top: '-20%', left: '-10%', width: '200px', height: '200px',
                             background: 'radial-gradient(circle, rgba(34,197,94,0.1) 0%, transparent 70%)', filter: 'blur(40px)'
                         }} />
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', color: '#22c55e', fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase' }}>
-                            <div style={{ width: '20px', height: '2px', background: '#22c55e' }} />
-                            RECENT SUBMISSIONS
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', color: 'var(--accent-green)', fontSize: '11px', fontWeight: 950, letterSpacing: '2px', textTransform: 'uppercase' }}>
+                            <div style={{ width: '20px', height: '3px', background: 'var(--accent-green)' }} />
+                            RECENT_SUBMISSIONS
                         </div>
 
                         {submissions.length > 0 ? (
@@ -305,10 +306,10 @@ const LeetCodeStats = ({ onSelectProblem }) => {
 
                                     return (
                                         <div key={sub.id || idx} style={{
-                                            background: '#18181b', padding: '14px 16px', borderRadius: '12px', border: '1px solid #27272a',
+                                            background: 'var(--bg-main)', padding: '14px 16px', borderRadius: '0', border: 'var(--border-main)',
                                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                                             cursor: canClick ? 'pointer' : 'default', transition: 'all 0.2s',
-                                            opacity: canClick ? 1 : 0.7
+                                            opacity: canClick ? 1 : 0.7, boxShadow: 'var(--shadow-main)'
                                         }}
                                             onClick={() => {
                                                 if (canClick && onSelectProblem) {
@@ -316,13 +317,13 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                                                 }
                                             }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                {sub.status === 'Accepted' ? <CheckCircle2 size={18} color="#22c55e" /> : <XCircle size={18} color="#ef4444" />}
+                                                {sub.status === 'Accepted' ? <CheckCircle2 size={18} color="var(--accent-green)" /> : <XCircle size={18} color="var(--accent-red)" />}
                                                 <div>
-                                                    <div style={{ fontSize: '14px', fontWeight: 600, color: 'white', marginBottom: '2px' }}>{sub.title}</div>
-                                                    <div style={{ fontSize: '11px', color: '#71717a' }}>{sub.lang} • {sub.runtime} • {sub.memory}</div>
+                                                    <div style={{ fontSize: '14px', fontWeight: 950, color: 'var(--text-main)', marginBottom: '2px', textTransform: 'uppercase' }}>{sub.title}</div>
+                                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>{sub.lang} • {sub.runtime} • {sub.memory}</div>
                                                 </div>
                                             </div>
-                                            <div style={{ fontSize: '11px', color: '#52525b', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            <div style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 800 }}>
                                                 <Clock size={12} /> {formatTimestamp(sub.timestamp)}
                                             </div>
                                         </div>
@@ -345,44 +346,44 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                         {/* Streak Cards */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
                             <div style={{
-                                background: '#09090b', borderRadius: '20px', border: '1px solid #27272a',
-                                padding: '24px', display: 'flex', alignItems: 'center', gap: '16px', position: 'relative', overflow: 'hidden'
+                                background: 'var(--bg-card)', borderRadius: '0', border: 'var(--border-main)',
+                                padding: '24px', display: 'flex', alignItems: 'center', gap: '16px', position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-main)'
                             }}>
                                 <div style={{ position: 'absolute', top: '-30%', right: '-10%', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(251,146,60,0.15) 0%, transparent 70%)', filter: 'blur(30px)' }} />
                                 <div style={{
-                                    width: '52px', height: '52px', borderRadius: '14px',
-                                    background: 'linear-gradient(135deg, #f97316 0%, #ef4444 100%)',
+                                    width: '52px', height: '52px', borderRadius: '0',
+                                    background: 'var(--accent)',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    boxShadow: '0 0 20px rgba(249,115,22,0.3)', flexShrink: 0
+                                    flexShrink: 0, border: 'var(--border-main)'
                                 }}>
-                                    <Flame size={26} color="#fff" />
+                                    <Flame size={26} color="black" />
                                 </div>
                                 <div>
-                                    <div style={{ fontSize: '11px', color: '#71717a', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px', fontWeight: 700 }}>Current Streak</div>
-                                    <div style={{ fontSize: '32px', fontWeight: 900, color: 'white', lineHeight: 1 }}>
+                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px', fontWeight: 950 }}>Current Streak</div>
+                                    <div style={{ fontSize: '32px', fontWeight: 950, color: 'var(--text-main)', lineHeight: 1 }}>
                                         {calendarData?.streak || 0}
-                                        <span style={{ fontSize: '14px', color: '#f97316', marginLeft: '6px', fontWeight: 600 }}>days</span>
+                                        <span style={{ fontSize: '14px', color: 'var(--accent)', marginLeft: '6px', fontWeight: 950 }}>DAYS</span>
                                     </div>
                                 </div>
                             </div>
                             <div style={{
-                                background: '#09090b', borderRadius: '20px', border: '1px solid #27272a',
-                                padding: '24px', display: 'flex', alignItems: 'center', gap: '16px', position: 'relative', overflow: 'hidden'
+                                background: 'var(--bg-card)', borderRadius: '0', border: 'var(--border-main)',
+                                padding: '24px', display: 'flex', alignItems: 'center', gap: '16px', position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-main)'
                             }}>
                                 <div style={{ position: 'absolute', top: '-30%', right: '-10%', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%)', filter: 'blur(30px)' }} />
                                 <div style={{
-                                    width: '52px', height: '52px', borderRadius: '14px',
-                                    background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                                    width: '52px', height: '52px', borderRadius: '0',
+                                    background: 'var(--accent-green)',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    boxShadow: '0 0 20px rgba(34,197,94,0.3)', flexShrink: 0
+                                    flexShrink: 0, border: 'var(--border-main)'
                                 }}>
-                                    <Trophy size={26} color="#fff" />
+                                    <Trophy size={26} color="black" />
                                 </div>
                                 <div>
-                                    <div style={{ fontSize: '11px', color: '#71717a', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px', fontWeight: 700 }}>Total Active Days</div>
-                                    <div style={{ fontSize: '32px', fontWeight: 900, color: 'white', lineHeight: 1 }}>
+                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px', fontWeight: 950 }}>Total Active Days</div>
+                                    <div style={{ fontSize: '32px', fontWeight: 950, color: 'var(--text-main)', lineHeight: 1 }}>
                                         {calendarData?.totalActiveDays || 0}
-                                        <span style={{ fontSize: '14px', color: '#22c55e', marginLeft: '6px', fontWeight: 600 }}>days</span>
+                                        <span style={{ fontSize: '14px', color: 'var(--accent-green)', marginLeft: '6px', fontWeight: 950 }}>DAYS</span>
                                     </div>
                                 </div>
                             </div>
@@ -390,24 +391,24 @@ const LeetCodeStats = ({ onSelectProblem }) => {
 
                         {/* Heatmap */}
                         <div style={{
-                            background: '#09090b', borderRadius: '24px', border: '1px solid #27272a',
-                            padding: '28px', position: 'relative', overflow: 'hidden'
+                            background: 'var(--bg-card)', borderRadius: '0', border: 'var(--border-main)',
+                            padding: '28px', position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-main)'
                         }}>
                             <div style={{ position: 'absolute', bottom: '-20%', left: '-5%', width: '250px', height: '250px', background: 'radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 70%)', filter: 'blur(50px)' }} />
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#22c55e', fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase' }}>
-                                    <div style={{ width: '20px', height: '2px', background: '#22c55e' }} />
-                                    SUBMISSION ACTIVITY
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-green)', fontSize: '11px', fontWeight: 950, letterSpacing: '2px', textTransform: 'uppercase' }}>
+                                    <div style={{ width: '20px', height: '3px', background: 'var(--accent-green)' }} />
+                                    SUBMISSION_ACTIVITY
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#52525b' }}>
-                                    Less
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 800 }}>
+                                    LESS
                                     {[0, 1, 2, 3, 4].map(level => (
                                         <div key={level} style={{
-                                            width: '12px', height: '12px', borderRadius: '3px',
-                                            background: level === 0 ? '#18181b' : level === 1 ? '#064e3b' : level === 2 ? '#059669' : level === 3 ? '#10b981' : '#34d399'
+                                            width: '12px', height: '12px', borderRadius: '0', border: '1px solid var(--border-subtle)',
+                                            background: level === 0 ? 'var(--bg-main)' : level === 1 ? '#064e3b' : level === 2 ? '#059669' : level === 3 ? '#10b981' : '#34d399'
                                         }} />
                                     ))}
-                                    More
+                                    MORE
                                 </div>
                             </div>
                             {(() => {
@@ -438,7 +439,7 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                                 const maxCount = Math.max(...dayData.map(d => d.count), 1);
 
                                 const getColor = (count) => {
-                                    if (count === 0) return '#18181b';
+                                    if (count === 0) return 'var(--bg-main)';
                                     const ratio = count / maxCount;
                                     if (ratio <= 0.25) return '#064e3b';
                                     if (ratio <= 0.5) return '#059669';
@@ -499,7 +500,7 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                                                             title={`${day.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}: ${day.count} submission${day.count !== 1 ? 's' : ''}`}
                                                             style={{
                                                                 width: `${cellSize}px`, height: `${cellSize}px`,
-                                                                borderRadius: '3px',
+                                                                borderRadius: '0', border: '1px solid var(--border-subtle)',
                                                                 background: getColor(day.count),
                                                                 transition: 'transform 0.1s',
                                                                 cursor: 'default'

@@ -2,12 +2,12 @@ import React from 'react';
 
 const WorkflowPage = ({ onNavigate, onGetStarted }) => {
     return (
-        <div style={{ minHeight: '100vh', background: '#09090b', color: 'white', fontFamily: "'Inter', sans-serif" }}>
+        <div style={{ minHeight: '100vh', background: 'var(--bg-main)', color: 'var(--text-main)', fontFamily: "'Inter', sans-serif" }}>
             <Navbar onNavigate={onNavigate} onGetStarted={onGetStarted} current="workflow" />
 
             <div style={{ maxWidth: '800px', margin: '120px auto 40px', padding: '0 20px' }}>
-                <h1 style={{ textAlign: 'center', fontSize: '48px', fontWeight: 800, marginBottom: '60px', background: 'linear-gradient(to right, #fff, #a1a1aa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                    How It Works
+                <h1 style={{ textAlign: 'center', fontSize: '48px', fontWeight: 950, marginBottom: '60px', color: 'var(--text-main)', textTransform: 'uppercase' }}>
+                    HOW_IT_WORKS
                 </h1>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
@@ -27,33 +27,33 @@ const Navbar = ({ onNavigate, onGetStarted, current }) => {
         <nav style={{
             position: 'fixed', top: 0, left: 0, right: 0, padding: '20px 40px',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            backdropFilter: 'blur(10px)', background: 'rgba(9, 9, 11, 0.8)', borderBottom: '1px solid #27272a', zIndex: 100
+            backdropFilter: 'blur(10px)', background: 'var(--bg-main)', borderBottom: 'var(--border-main)', zIndex: 100
         }}>
-            <div onClick={() => onNavigate('landing')} style={{ cursor: 'pointer', fontWeight: 800, fontSize: '20px' }}>
-                <span style={{ color: '#22c55e' }}>Algo</span>Duel.
+            <div onClick={() => onNavigate('landing')} style={{ cursor: 'pointer', fontWeight: 950, fontSize: '20px', color: 'var(--text-main)', textTransform: 'uppercase' }}>
+                <span style={{ color: 'var(--accent)' }}>ALGO</span>DUEL.
             </div>
-            <div style={{ display: 'flex', gap: '30px', fontSize: '14px', fontWeight: 500, color: '#a1a1aa' }}>
-                <button onClick={() => onNavigate('purpose')} style={{ ...navBtnStyle, color: current === 'purpose' ? 'white' : '#a1a1aa' }}>Purpose</button>
-                <button onClick={() => onNavigate('workflow')} style={{ ...navBtnStyle, color: current === 'workflow' ? 'white' : '#a1a1aa' }}>How it Works</button>
-                <button onClick={() => onNavigate('about')} style={{ ...navBtnStyle, color: current === 'about' ? 'white' : '#a1a1aa' }}>About Us</button>
+            <div style={{ display: 'flex', gap: '30px', fontSize: '14px', fontWeight: 950, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                <button onClick={() => onNavigate('purpose')} style={{ ...navBtnStyle, color: current === 'purpose' ? 'var(--text-main)' : 'var(--text-muted)' }}>Purpose</button>
+                <button onClick={() => onNavigate('workflow')} style={{ ...navBtnStyle, color: current === 'workflow' ? 'var(--text-main)' : 'var(--text-muted)' }}>How it Works</button>
+                <button onClick={() => onNavigate('about')} style={{ ...navBtnStyle, color: current === 'about' ? 'var(--text-main)' : 'var(--text-muted)' }}>About Us</button>
             </div>
-            <button onClick={onGetStarted} style={{ padding: '8px 20px', fontSize: '13px', fontWeight: 600, background: '#22c55e', color: 'black', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Play Now</button>
+            <button onClick={onGetStarted} className="neo-btn" style={{ padding: '8px 20px', fontSize: '13px', fontWeight: 950, background: 'var(--accent)', color: 'black', border: 'var(--border-main)', borderRadius: '0', cursor: 'pointer', textTransform: 'uppercase' }}>Play Now</button>
         </nav>
     );
 };
 
 const Step = ({ number, title, desc }) => (
-    <div style={{ display: 'flex', gap: '30px', alignItems: 'flex-start', background: '#121214', padding: '30px', borderRadius: '16px', border: '1px solid #27272a' }}>
-        <div style={{ fontSize: '24px', fontWeight: 800, color: '#22c55e', opacity: 0.8 }}>
+    <div className="neo-card" style={{ display: 'flex', gap: '30px', alignItems: 'flex-start', background: 'var(--bg-card)', padding: '30px', borderRadius: '0', border: 'var(--border-main)', boxShadow: 'var(--shadow-main)' }}>
+        <div style={{ fontSize: '24px', fontWeight: 950, color: 'var(--accent)', opacity: 0.8 }}>
             {number}
         </div>
         <div>
-            <h3 style={{ fontSize: '20px', fontWeight: 700, margin: '0 0 10px 0', color: 'white' }}>{title}</h3>
-            <p style={{ fontSize: '16px', color: '#a1a1aa', margin: 0, lineHeight: '1.6' }}>{desc}</p>
+            <h3 style={{ fontSize: '20px', fontWeight: 950, margin: '0 0 10px 0', color: 'var(--text-main)', textTransform: 'uppercase' }}>{title}</h3>
+            <p style={{ fontSize: '16px', color: 'var(--text-muted)', margin: 0, lineHeight: '1.6', fontWeight: 700 }}>{desc}</p>
         </div>
     </div>
 );
 
-const navBtnStyle = { background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: 500 };
+const navBtnStyle = { background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: 950 };
 
 export default WorkflowPage;

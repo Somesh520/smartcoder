@@ -77,7 +77,7 @@ class ErrorBoundary extends React.Component {
 }
 
 // Main App Component (with Header and routing)
-function MainApp({ initialRoom }) {
+function MainApp({ initialRoom, theme, toggleTheme }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [currentProblem, setCurrentProblem] = useState(null);
@@ -316,6 +316,8 @@ function MainApp({ initialRoom }) {
                 onShowProblemList={() => navigate('/app/problems')}
                 onGoDetail={() => navigate('/app')}
                 user={userInfo}
+                theme={theme}
+                toggleTheme={toggleTheme}
               />
             )}
             <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', position: 'relative' }}>
@@ -339,7 +341,7 @@ function MainApp({ initialRoom }) {
                         />
                       </>
                     } />
-                    <Route path="workspace/:problemId" element={<WorkspaceWrapper currentProblem={currentProblem} onBack={handleBack} />} />
+                    <Route path="workspace/:problemId" element={<WorkspaceWrapper currentProblem={currentProblem} onBack={handleBack} theme={theme} />} />
 
                     <Route path="history" element={<HistoryPage />} />
                     <Route path="stats" element={<LeetCodePage />} />
@@ -356,6 +358,7 @@ function MainApp({ initialRoom }) {
                         onBack={handleBackToLobby}
                         setRoomId={setRoomId}
                         setUsername={setUsername}
+                        theme={theme}
                       />
                     } />
 
@@ -505,7 +508,7 @@ function MainApp({ initialRoom }) {
 }
 
 // Workspace Wrapper Component (Extracted)
-const WorkspaceWrapper = ({ currentProblem, onBack }) => {
+const WorkspaceWrapper = ({ currentProblem, onBack, theme }) => {
   const { problemId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -536,7 +539,7 @@ const WorkspaceWrapper = ({ currentProblem, onBack }) => {
         title={problem.title ? `${problem.title} - AlgoDuel Workspace` : "Workspace - AlgoDuel"}
         description={`Solve ${problem.title} on AlgoDuel. Real-time execution and competitive environment.`}
       />
-      <Workspace problem={problem} onBack={customHandleBack} />
+      <Workspace problem={problem} onBack={customHandleBack} theme={theme} />
     </>
   );
 };
@@ -588,6 +591,20 @@ function App() {
     }
   }, []);
 
+  // --- THEME MANAGEMENT ---
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+  };
+
   return (
     <BrowserRouter>
       <Routes>
@@ -603,7 +620,11 @@ function App() {
         } />    {/* Main App */}
         <Route path="/*" element={
           <ErrorBoundary>
-            <MainApp initialRoom={initialRoom} />
+            <MainApp
+              initialRoom={initialRoom}
+              theme={theme}
+              toggleTheme={toggleTheme}
+            />
           </ErrorBoundary>
         } />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />

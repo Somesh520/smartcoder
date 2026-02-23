@@ -75,13 +75,13 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
     };
 
     return (
-        <div style={{
+        <div className="dot-bg" style={{
             position: 'absolute',
             top: 0,
             left: 0,
             width: '100%',
             height: '100%',
-            background: 'linear-gradient(135deg, #0a0a0f 0%, #0e0e14 100%)',
+            background: 'var(--bg-main)',
             padding: '30px',
             overflowY: 'auto'
         }}>
@@ -134,13 +134,12 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                             <h1 style={{
                                 margin: 0,
                                 fontSize: '28px',
-                                fontWeight: 800,
-                                background: 'linear-gradient(to right, #ffffff, #9ca3af)',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
+                                fontWeight: 950,
+                                color: 'var(--text-main)',
+                                textTransform: 'uppercase',
                                 letterSpacing: '-0.5px'
                             }}>
-                                Problem Arena
+                                PROBLEM_ARENA
                             </h1>
                             <p style={{
                                 margin: 0,
@@ -156,16 +155,13 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                 </div>
 
                 {/* Search and Filter Bar */}
-                <div style={{
+                <div className="neo-card" style={{
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '15px',
                     marginBottom: '25px',
-                    background: 'rgba(14, 14, 20, 0.6)',
-                    padding: '20px',
-                    borderRadius: '16px',
-                    border: '1px solid rgba(255, 255, 255, 0.05)',
-                    backdropFilter: 'blur(10px)'
+                    background: 'var(--bg-card)',
+                    padding: '24px',
                 }}>
                     <div style={{ display: 'flex', gap: '15px', width: '100%' }}>
                         <div style={{ position: 'relative', flex: 1 }}>
@@ -197,23 +193,14 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                         </div>
                         <button
                             onClick={onRefresh}
+                            className="neo-btn"
                             style={{
-                                background: 'rgba(59, 130, 246, 0.1)',
-                                color: '#60a5fa',
-                                border: '1px solid rgba(59, 130, 246, 0.2)',
                                 padding: '12px 20px',
-                                borderRadius: '10px',
-                                cursor: 'pointer',
-                                fontWeight: 700,
                                 fontSize: '13px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                transition: 'all 0.2s'
                             }}
                         >
                             <RefreshCw size={16} />
-                            Sync Problems
+                            SYNC_PROBLEMS
                         </button>
                     </div>
 
@@ -299,20 +286,18 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                 )}
 
                 {!loading && (
-                    <div style={{
-                        background: 'rgba(14, 14, 20, 0.4)',
-                        borderRadius: '12px',
-                        border: '1px solid rgba(255, 255, 255, 0.05)',
+                    <div className="neo-card" style={{
+                        background: 'var(--bg-card)',
                         overflow: 'hidden',
-                        backdropFilter: 'blur(10px)'
                     }}>
                         {/* Table Header */}
                         <div style={{
                             display: 'grid',
                             gridTemplateColumns: '60px 1fr 140px 80px',
                             padding: '16px 20px',
-                            background: 'rgba(0, 0, 0, 0.3)',
-                            borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
+                            background: 'var(--text-main)',
+                            color: 'var(--bg-card)',
+                            borderBottom: 'var(--border-main)'
                         }}>
                             <div style={{ color: '#6b7280', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
                                 Status
@@ -342,9 +327,9 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                                         gridTemplateColumns: '60px 1fr 140px 80px',
                                         padding: '18px 20px',
                                         cursor: 'pointer',
-                                        borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
+                                        borderBottom: 'var(--border-main)',
                                         transition: 'all 0.2s',
-                                        background: isHovered ? 'rgba(59, 130, 246, 0.08)' : 'transparent',
+                                        background: isHovered ? 'var(--accent)' : 'transparent',
                                         position: 'relative'
                                     }}
                                 >
@@ -391,9 +376,10 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                                         </span>
                                         <span style={{
                                             fontSize: '15px',
-                                            fontWeight: 600,
-                                            color: isHovered ? '#ffffff' : '#e5e7eb',
-                                            transition: 'color 0.2s'
+                                            fontWeight: 900,
+                                            color: isHovered ? '#000' : 'var(--text-main)',
+                                            transition: 'color 0.2s',
+                                            textTransform: 'uppercase'
                                         }}>
                                             {p.title}
                                         </span>

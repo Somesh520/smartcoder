@@ -76,7 +76,7 @@ const CodeBlock = ({ node, inline, className, children, ...props }) => {
     return <code className={className} {...props}>{children}</code>;
 };
 
-const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
+const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme }) => {
     const [details, setDetails] = useState(null);
     const [code, setCode] = useState("");
     const [language, setLanguage] = useState("cpp");
@@ -370,13 +370,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                         setLoading(false);
                         setResult(res);
 
-                        // Placeholder to satisfy the tool requirement. I will use view_file to debug first.
-                        // Actually, I can just fix the previous messy edit where I might have closed the brace early.
-                        // In the previous multi_replace (Step 1334), I replaced:
-                        //     } finally {
-                        //         setLoading(false);
-                        //     }
-                        // };
+                        // Previous comment cleanup
                         if (type === 'submit' && res.status_msg === 'Accepted') {
                             setShowSuccessModal(true);
                             if (onSubmissionSuccess) {
@@ -403,7 +397,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
             display: 'flex',
             height: 'calc(100vh - 50px)',
             width: '100%',
-            background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)',
+            background: 'var(--bg-main)',
             position: 'relative',
             overflow: 'hidden'
         }}>
@@ -430,56 +424,36 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
             }}></div>
 
             {/* LEFT PANEL - Problem Description */}
-            <div style={{
+            <div className="neo-card" style={{
                 width: `${leftWidth}%`,
                 minWidth: '20%',
                 maxWidth: '65%',
                 flex: 'none',
-                borderRight: '1px solid rgba(34, 197, 94, 0.2)',
                 display: 'flex',
                 flexDirection: 'column',
-                background: 'rgba(14, 14, 20, 0.6)',
-                borderRadius: '12px',
-                border: '1px solid rgba(255, 255, 255, 0.05)',
-                backdropFilter: 'blur(10px)',
-                overflow: 'hidden'
+                background: 'var(--bg-card)',
+                overflow: 'hidden',
+                borderRadius: '0'
             }}>
                 {/* Problem Header */}
                 <div style={{
                     padding: '20px 24px',
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-                    background: 'rgba(0, 0, 0, 0.3)',
+                    borderBottom: 'var(--border-main)',
+                    background: 'var(--bg-main)',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px'
                 }}>
                     <button
                         onClick={onBack}
+                        className="neo-btn"
                         style={{
-                            background: 'rgba(34, 197, 94, 0.15)',
-                            border: '1px solid rgba(34, 197, 94, 0.3)',
-                            color: '#22c55e',
                             padding: '8px 16px',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
                             fontSize: '13px',
-                            fontWeight: 600,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.target.style.background = 'rgba(34, 197, 94, 0.25)';
-                            e.target.style.transform = 'translateX(-2px)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.target.style.background = 'rgba(34, 197, 94, 0.15)';
-                            e.target.style.transform = 'translateX(0)';
                         }}
                     >
                         <ArrowLeft size={14} />
-                        Back
+                        BACK
                     </button>
                     <Trophy size={18} color="#fbbf24" />
                     <span style={{
@@ -501,24 +475,26 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                     flex: 1,
                     fontSize: '15px',
                     lineHeight: '1.7',
-                    color: '#d1d5db'
+                    color: 'var(--text-main)',
+                    background: 'var(--bg-card)'
                 }}>
                     <style>{`
                         /* Problem Description Styling */
                         .problem-content p {
                             margin: 0 0 16px 0;
-                            color: #d1d5db;
+                            color: var(--text-main);
                             line-height: 1.7;
                         }
                         
                         .problem-content strong {
-                            color: #ffffff;
-                            font-weight: 700;
+                            color: var(--text-main);
+                            font-weight: 900;
                         }
                         
                         .problem-content em {
-                            color: #22c55e;
+                            color: var(--accent);
                             font-style: italic;
+                            font-weight: 700;
                         }
                         
                         .problem-content code {
@@ -532,14 +508,14 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                         }
                         
                         .problem-content pre {
-                            background: rgba(0, 0, 0, 0.4);
-                            border: 1px solid rgba(59, 130, 246, 0.2);
-                            border-left: 3px solid #3b82f6;
+                            background: var(--bg-main);
+                            border: var(--border-main);
+                            border-right: 4px solid var(--accent);
                             padding: 16px;
-                            border-radius: 8px;
+                            border-radius: 0;
                             overflow-x: auto;
                             margin: 16px 0;
-                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                            box-shadow: var(--shadow-main);
                         }
                         
                         .problem-content pre code {
@@ -654,8 +630,8 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                 <div style={{
                     width: '2px',
                     height: '100%',
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    transition: 'background 0.2s',
+                    background: 'var(--text-main)',
+                    opacity: 0.2,
                     borderRadius: '2px'
                 }}></div>
             </div>
@@ -666,22 +642,19 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                 minWidth: 0,
                 display: 'flex',
                 flexDirection: 'column',
-                background: 'rgba(14, 14, 20, 0.8)',
-                backdropFilter: 'blur(10px)',
+                background: 'var(--bg-main)',
                 position: 'relative',
-                boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.3)',
                 overflow: 'hidden'
             }}>
                 {/* Editor Toolbar */}
                 <div className="editor-toolbar" style={{
                     height: '50px',
-                    borderBottom: '1px solid rgba(59, 130, 246, 0.2)',
+                    borderBottom: 'var(--border-main)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     padding: '0 15px',
-                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%)',
-                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+                    background: 'var(--bg-card)',
                     overflowX: 'auto',
                     scrollbarWidth: 'none'
                 }}>
@@ -694,20 +667,19 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                             value={language}
                             onChange={handleLanguageChange}
                             style={{
-                                background: 'rgba(59, 130, 246, 0.1)',
-                                color: '#fff',
-                                border: '1px solid rgba(59, 130, 246, 0.3)',
+                                background: 'var(--bg-main)',
+                                color: 'var(--text-main)',
+                                border: 'var(--border-main)',
                                 fontSize: '13px',
                                 cursor: 'pointer',
                                 outline: 'none',
                                 padding: '6px 12px',
-                                borderRadius: '6px',
-                                fontWeight: 600,
-                                boxShadow: '0 0 10px rgba(59, 130, 246, 0.2)'
+                                borderRadius: '0',
+                                fontWeight: 900,
                             }}
                         >
                             {availableSnippets.length > 0 ? (
-                                availableSnippets.map(s => <option key={s.langSlug} value={s.langSlug}>{s.lang}</option>)
+                                availableSnippets.map(s => <option key={s.langSlug} value={s.langSlug} style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>{s.lang}</option>)
                             ) : <option value="cpp">C++</option>}
                         </select>
                     </div>
@@ -717,60 +689,28 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                         <button
                             onClick={() => executeAction('run')}
                             disabled={!details || loading}
+                            className="neo-btn"
                             style={{
-                                background: (!details || loading) ? '#374151' : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                                color: (!details || loading) ? '#9ca3af' : '#fff',
-                                cursor: (!details || loading) ? 'not-allowed' : 'pointer',
-                                border: '1px solid rgba(59, 130, 246, 0.5)',
+                                background: (!details || loading) ? 'var(--bg-main)' : 'var(--accent)',
+                                color: (!details || loading) ? 'var(--text-muted)' : 'black',
                                 padding: '8px 16px',
-                                borderRadius: '6px',
                                 fontSize: '13px',
-                                fontWeight: 600,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                transition: 'all 0.2s',
-                                boxShadow: (!details || loading) ? 'none' : '0 0 15px rgba(59, 130, 246, 0.3)'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.target.style.transform = 'translateY(-2px)';
-                                e.target.style.boxShadow = '0 5px 20px rgba(59, 130, 246, 0.5)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.target.style.transform = 'translateY(0)';
-                                e.target.style.boxShadow = '0 0 15px rgba(59, 130, 246, 0.3)';
                             }}
                         >
-                            <Play size={14} /> Run
+                            <Play size={14} /> RUN
                         </button>
                         <button
                             onClick={() => executeAction('submit')}
                             disabled={!details || loading}
+                            className="neo-btn"
                             style={{
-                                background: (!details || loading) ? '#374151' : 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-                                color: (!details || loading) ? '#9ca3af' : '#fff',
-                                cursor: (!details || loading) ? 'not-allowed' : 'pointer',
-                                border: '1px solid rgba(34, 197, 94, 0.5)',
+                                background: (!details || loading) ? 'var(--bg-main)' : '#22c55e',
+                                color: (!details || loading) ? 'var(--text-muted)' : 'white',
                                 padding: '8px 16px',
-                                borderRadius: '6px',
                                 fontSize: '13px',
-                                fontWeight: 600,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                transition: 'all 0.2s',
-                                boxShadow: (!details || loading) ? 'none' : '0 0 15px rgba(34, 197, 94, 0.3)'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.target.style.transform = 'translateY(-2px)';
-                                e.target.style.boxShadow = '0 5px 20px rgba(34, 197, 94, 0.5)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.target.style.transform = 'translateY(0)';
-                                e.target.style.boxShadow = '0 0 15px rgba(34, 197, 94, 0.3)';
                             }}
                         >
-                            <Send size={14} /> Submit
+                            <Send size={14} /> SUBMIT
                         </button>
                         {/* AI Star Button */}
                         <button
@@ -793,7 +733,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                                 boxShadow: aiOpen
                                     ? '0 0 20px rgba(167,139,250,0.5)'
                                     : '0 0 10px rgba(167,139,250,0.2)',
-                                animation: !aiOpen ? 'ai-pulse 2s infinite' : 'none'
+                                animation: !aiOpen ? (theme === 'dark' ? 'ai-pulse-dark 2s infinite' : 'ai-pulse-light 2s infinite') : 'none'
                             }}
                             onMouseEnter={(e) => {
                                 e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
@@ -899,7 +839,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                 <div style={{ flex: 1, overflow: 'hidden', display: 'flex', position: 'relative' }}>
                     {/* Editor */}
                     <div style={{ flex: 1, overflow: 'hidden', paddingBottom: '40px' }}>
-                        <CodeEditor code={code} onChange={handleCodeChange} language={language} />
+                        <CodeEditor code={code} onChange={handleCodeChange} language={language} theme={theme} />
                     </div>
 
 
@@ -915,237 +855,242 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess }) => {
                     setCustomInput={setCustomInput}
                     showInputSection={showInputSection}
                     setShowInputSection={setShowInputSection}
+                    theme={theme}
                 />
             </div>
 
 
             {/* Backdrop Overlay when Expanded */}
-            {aiOpen && isAiExpanded && (
-                <div
-                    onClick={() => setIsAiExpanded(false)}
-                    style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: 'rgba(0,0,0,0.6)',
-                        backdropFilter: 'blur(4px)',
-                        zIndex: 90,
-                        transition: 'opacity 0.3s ease',
-                        opacity: 1
-                    }}
-                />
-            )}
+            {
+                aiOpen && isAiExpanded && (
+                    <div
+                        onClick={() => setIsAiExpanded(false)}
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: 'rgba(0,0,0,0.6)',
+                            backdropFilter: 'blur(4px)',
+                            zIndex: 90,
+                            transition: 'opacity 0.3s ease',
+                            opacity: 1
+                        }}
+                    />
+                )
+            }
 
             {/* AI Panel - Moved to Root to prevent clipping */}
-            {aiOpen && (
-                <div style={{
-                    position: 'absolute',
-                    top: isAiExpanded ? '10%' : 0,
-                    right: isAiExpanded ? 'auto' : 0,
-                    left: isAiExpanded ? '50%' : 'auto',
-                    bottom: isAiExpanded ? '10%' : 0,
-                    transform: isAiExpanded ? 'translateX(-50%)' : 'none',
-                    width: isAiExpanded ? '70%' : '400px',
-                    maxWidth: isAiExpanded ? '1000px' : '90%',
-                    height: isAiExpanded ? '80vh' : 'auto',
-                    zIndex: 100,
-                    background: 'rgba(15, 15, 24, 0.95)',
-                    backdropFilter: 'blur(20px)',
-                    border: isAiExpanded ? '1px solid rgba(167,139,250,0.3)' : 'none',
-                    borderLeft: isAiExpanded ? '1px solid rgba(167,139,250,0.3)' : '1px solid rgba(167,139,250,0.2)',
-                    borderRadius: isAiExpanded ? '24px' : '0',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    animation: isAiExpanded ? 'floatIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)' : 'slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
-                    transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                    boxShadow: isAiExpanded ? '0 25px 50px rgba(0,0,0,0.5), 0 0 40px rgba(124,58,237,0.15)' : '-10px 0 40px rgba(0,0,0,0.6)'
-                }}>
-                    <style>{`
+            {
+                aiOpen && (
+                    <div style={{
+                        position: 'absolute',
+                        top: isAiExpanded ? '10%' : 0,
+                        right: isAiExpanded ? 'auto' : 0,
+                        left: isAiExpanded ? '50%' : 'auto',
+                        bottom: isAiExpanded ? '10%' : 0,
+                        transform: isAiExpanded ? 'translateX(-50%)' : 'none',
+                        width: isAiExpanded ? '70%' : '400px',
+                        maxWidth: isAiExpanded ? '1000px' : '90%',
+                        height: isAiExpanded ? '80vh' : 'auto',
+                        zIndex: 100,
+                        background: 'rgba(15, 15, 24, 0.95)',
+                        backdropFilter: 'blur(20px)',
+                        border: isAiExpanded ? '1px solid rgba(167,139,250,0.3)' : 'none',
+                        borderLeft: isAiExpanded ? '1px solid rgba(167,139,250,0.3)' : '1px solid rgba(167,139,250,0.2)',
+                        borderRadius: isAiExpanded ? '24px' : '0',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        animation: isAiExpanded ? 'floatIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)' : 'slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+                        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                        boxShadow: isAiExpanded ? '0 25px 50px rgba(0,0,0,0.5), 0 0 40px rgba(124,58,237,0.15)' : '-10px 0 40px rgba(0,0,0,0.6)'
+                    }}>
+                        <style>{`
                         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
                         @keyframes floatIn { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
                     `}</style>
 
-                    {/* Header (Same as before) */}
-                    <div style={{
-                        padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        background: 'linear-gradient(180deg, rgba(167,139,250,0.08) 0%, transparent 100%)'
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Sparkles size={16} color="#a78bfa" />
-                            <span style={{ color: '#e5e7eb', fontWeight: 700, fontSize: '14px' }}>SmartCoder AI</span>
-                            <div style={{ padding: '2px 8px', borderRadius: '12px', background: credits > 0 ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)', border: `1px solid ${credits > 0 ? '#22c55e' : '#ef4444'}`, fontSize: '11px', fontWeight: 600, color: credits > 0 ? '#4ade80' : '#f87171', marginLeft: '8px' }}>
-                                {credits} Credits
+                        {/* Header (Same as before) */}
+                        <div style={{
+                            padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            background: 'linear-gradient(180deg, rgba(167,139,250,0.08) 0%, transparent 100%)'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <Sparkles size={16} color="#a78bfa" />
+                                <span style={{ color: '#e5e7eb', fontWeight: 700, fontSize: '14px' }}>SmartCoder AI</span>
+                                <div style={{ padding: '2px 8px', borderRadius: '12px', background: credits > 0 ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)', border: `1px solid ${credits > 0 ? '#22c55e' : '#ef4444'}`, fontSize: '11px', fontWeight: 600, color: credits > 0 ? '#4ade80' : '#f87171', marginLeft: '8px' }}>
+                                    {credits} Credits
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <div style={{
+                                    display: 'flex', alignItems: 'center', background: 'linear-gradient(135deg, rgba(167,139,250,0.2) 0%, rgba(124,58,237,0.2) 100%)',
+                                    borderRadius: '8px', padding: '2px 8px', border: '1px solid rgba(167,139,250,0.4)',
+                                    boxShadow: '0 0 10px rgba(167,139,250,0.1)', transition: 'all 0.3s'
+                                }}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                                    </svg>
+                                    <select
+                                        value={explainLanguage}
+                                        onChange={(e) => setExplainLanguage(e.target.value)}
+                                        style={{
+                                            background: 'transparent',
+                                            color: '#f3f4f6',
+                                            border: 'none',
+                                            padding: '4px 0',
+                                            fontSize: '12px',
+                                            fontWeight: 600,
+                                            outline: 'none',
+                                            cursor: 'pointer',
+                                            appearance: 'none',
+                                            paddingRight: '12px'
+                                        }}
+                                    >
+                                        <option value="english" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>English</option>
+                                        <option value="hinglish" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Hinglish</option>
+                                        <option value="hindi" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Hindi</option>
+                                        <option value="bhojpuri" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Bhojpuri</option>
+                                        <option value="marathi" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Marathi</option>
+                                        <option value="bengali" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Bengali</option>
+                                        <option value="tamil" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Tamil</option>
+                                        <option value="telugu" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Telugu</option>
+                                        <option value="gujarati" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Gujarati</option>
+                                        <option value="kannada" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Kannada</option>
+                                    </select>
+                                </div>
+                                <button
+                                    onClick={() => setIsAiExpanded(!isAiExpanded)}
+                                    style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer', marginRight: '8px' }}
+                                    title={isAiExpanded ? "Collapse" : "Expand"}
+                                >
+                                    {isAiExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+                                </button>
+                                <button onClick={() => setAiOpen(false)} style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer' }}><X size={16} /></button>
                             </div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{
-                                display: 'flex', alignItems: 'center', background: 'linear-gradient(135deg, rgba(167,139,250,0.2) 0%, rgba(124,58,237,0.2) 100%)',
-                                borderRadius: '8px', padding: '2px 8px', border: '1px solid rgba(167,139,250,0.4)',
-                                boxShadow: '0 0 10px rgba(167,139,250,0.1)', transition: 'all 0.3s'
-                            }}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="2" y1="12" x2="22" y2="12"></line>
-                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                                </svg>
-                                <select
-                                    value={explainLanguage}
-                                    onChange={(e) => setExplainLanguage(e.target.value)}
+
+                        {/* Quick Actions Restored */}
+                        <div style={{ padding: '16px 20px', display: 'flex', gap: '10px', flexWrap: 'wrap', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                            {[
+                                { label: 'Solve', icon: <Code2 size={12} />, msg: 'Solve this problem completely with the most optimal approach. Give me the full code.', color: '#22c55e' },
+                                { label: 'Hint', icon: <Lightbulb size={12} />, msg: 'Give me a hint for this problem. Explain the logic or approach, but DO NOT write the full code solution. Let me try to implement it.', color: '#f59e0b' },
+                                { label: 'Debug', icon: <Bug size={12} />, msg: 'My code has issues. Find the bugs and explain what is wrong. DO NOT give me the full corrected code, just help me fix it myself.', color: '#ef4444' },
+                                { label: 'Optimize', icon: <Rocket size={12} />, msg: 'Optimize my current solution for better time and space complexity.', color: '#3b82f6' },
+                                { label: 'Complexity', icon: <Timer size={12} />, msg: 'Analyze the Time and Space Complexity of my code. Provide the Big O notation for both and explain the reasoning briefly.', color: '#d946ef' },
+                            ].map(action => (
+                                <button
+                                    key={action.label}
+                                    onClick={() => handleAIAssist(action.msg)}
+                                    disabled={aiLoading}
                                     style={{
-                                        background: 'transparent',
-                                        color: '#f3f4f6',
-                                        border: 'none',
-                                        padding: '4px 0',
-                                        fontSize: '12px',
-                                        fontWeight: 600,
-                                        outline: 'none',
-                                        cursor: 'pointer',
-                                        appearance: 'none',
-                                        paddingRight: '12px'
+                                        background: `${action.color}15`,
+                                        border: `1px solid ${action.color}40`,
+                                        color: action.color,
+                                        padding: '5px 10px',
+                                        borderRadius: '6px',
+                                        fontSize: '11px',
+                                        fontWeight: 700,
+                                        cursor: aiLoading ? 'not-allowed' : 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        transition: 'all 0.2s',
+                                        opacity: aiLoading ? 0.5 : 1
                                     }}
                                 >
-                                    <option value="english" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>English</option>
-                                    <option value="hinglish" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Hinglish</option>
-                                    <option value="hindi" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Hindi</option>
-                                    <option value="bhojpuri" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Bhojpuri</option>
-                                    <option value="marathi" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Marathi</option>
-                                    <option value="bengali" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Bengali</option>
-                                    <option value="tamil" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Tamil</option>
-                                    <option value="telugu" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Telugu</option>
-                                    <option value="gujarati" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Gujarati</option>
-                                    <option value="kannada" style={{ background: '#1e1e2d', color: '#e5e7eb' }}>Kannada</option>
-                                </select>
-                            </div>
-                            <button
-                                onClick={() => setIsAiExpanded(!isAiExpanded)}
-                                style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer', marginRight: '8px' }}
-                                title={isAiExpanded ? "Collapse" : "Expand"}
-                            >
-                                {isAiExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-                            </button>
-                            <button onClick={() => setAiOpen(false)} style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer' }}><X size={16} /></button>
+                                    {action.icon}
+                                    {action.label}
+                                </button>
+                            ))}
                         </div>
-                    </div>
 
-                    {/* Quick Actions Restored */}
-                    <div style={{ padding: '16px 20px', display: 'flex', gap: '10px', flexWrap: 'wrap', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                        {[
-                            { label: 'Solve', icon: <Code2 size={12} />, msg: 'Solve this problem completely with the most optimal approach. Give me the full code.', color: '#22c55e' },
-                            { label: 'Hint', icon: <Lightbulb size={12} />, msg: 'Give me a hint for this problem. Explain the logic or approach, but DO NOT write the full code solution. Let me try to implement it.', color: '#f59e0b' },
-                            { label: 'Debug', icon: <Bug size={12} />, msg: 'My code has issues. Find the bugs and explain what is wrong. DO NOT give me the full corrected code, just help me fix it myself.', color: '#ef4444' },
-                            { label: 'Optimize', icon: <Rocket size={12} />, msg: 'Optimize my current solution for better time and space complexity.', color: '#3b82f6' },
-                            { label: 'Complexity', icon: <Timer size={12} />, msg: 'Analyze the Time and Space Complexity of my code. Provide the Big O notation for both and explain the reasoning briefly.', color: '#d946ef' },
-                        ].map(action => (
-                            <button
-                                key={action.label}
-                                onClick={() => handleAIAssist(action.msg)}
-                                disabled={aiLoading}
-                                style={{
-                                    background: `${action.color}15`,
-                                    border: `1px solid ${action.color}40`,
-                                    color: action.color,
-                                    padding: '5px 10px',
-                                    borderRadius: '6px',
-                                    fontSize: '11px',
-                                    fontWeight: 700,
-                                    cursor: aiLoading ? 'not-allowed' : 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '4px',
-                                    transition: 'all 0.2s',
-                                    opacity: aiLoading ? 0.5 : 1
-                                }}
-                            >
-                                {action.icon}
-                                {action.label}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Chat History Area */}
-                    <div ref={aiResponseRef} style={{
-                        flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px'
-                    }}>
-                        {aiChatHistory.map((msg, idx) => (
-                            <div key={idx} style={{
-                                alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                                maxWidth: '88%',
-                                background: msg.role === 'user' ? 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)' : 'rgba(30, 30, 40, 0.7)',
-                                border: msg.role === 'user' ? 'none' : '1px solid rgba(255,255,255,0.05)',
-                                color: '#f3f4f6',
-                                padding: '14px 18px',
-                                borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                                boxShadow: msg.role === 'user' ? '0 8px 20px rgba(99,102,241,0.25)' : '0 4px 15px rgba(0,0,0,0.2)',
-                                fontSize: '14px', lineHeight: '1.7',
-                                position: 'relative'
-                            }}>
-                                {/* Chat Bubble Tail (Optional touch of realism) */}
-                                <div style={{
-                                    position: 'absolute',
-                                    bottom: 0,
-                                    [msg.role === 'user' ? 'right' : 'left']: '-6px',
-                                    width: '12px', height: '16px',
-                                    background: msg.role === 'user' ? '#4f46e5' : 'rgba(30, 30, 40, 0.9)',
-                                    clipPath: msg.role === 'user' ? 'polygon(0 0, 0% 100%, 100% 100%)' : 'polygon(100% 0, 0 100%, 100% 100%)',
-                                    borderBottom: msg.role === 'user' ? 'none' : '1px solid rgba(255,255,255,0.05)'
-                                }}></div>
-                                {msg.role === 'user' ? (
-                                    <div>{msg.content}</div>
-                                ) : (
-                                    // verifying availability of actionType
-                                    // If executeAction is defined as: const executeAction = async (actionType) => { ... }
-                                    // Then actionType is available in the scope.
-                                    // However, the lint error says it is not defined.
-                                    // Let me re-read the full file or at least the beginning of the component to see where I added the state. *latest* assistant message to apply animation
-                                    (msg.isNew && idx === aiChatHistory.length - 1) ? (
-                                        <TypewriterEffect text={msg.content} onComplete={() => {
-                                            // Mark as not new after animation
-                                            const updated = [...aiChatHistory];
-                                            updated[idx].isNew = false;
-                                        }} />
+                        {/* Chat History Area */}
+                        <div ref={aiResponseRef} style={{
+                            flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px'
+                        }}>
+                            {aiChatHistory.map((msg, idx) => (
+                                <div key={idx} style={{
+                                    alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                                    maxWidth: '88%',
+                                    background: msg.role === 'user' ? 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)' : 'rgba(30, 30, 40, 0.7)',
+                                    border: msg.role === 'user' ? 'none' : '1px solid rgba(255,255,255,0.05)',
+                                    color: '#f3f4f6',
+                                    padding: '14px 18px',
+                                    borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                                    boxShadow: msg.role === 'user' ? '0 8px 20px rgba(99,102,241,0.25)' : '0 4px 15px rgba(0,0,0,0.2)',
+                                    fontSize: '14px', lineHeight: '1.7',
+                                    position: 'relative'
+                                }}>
+                                    {/* Chat Bubble Tail (Optional touch of realism) */}
+                                    <div style={{
+                                        position: 'absolute',
+                                        bottom: 0,
+                                        [msg.role === 'user' ? 'right' : 'left']: '-6px',
+                                        width: '12px', height: '16px',
+                                        background: msg.role === 'user' ? '#4f46e5' : 'rgba(30, 30, 40, 0.9)',
+                                        clipPath: msg.role === 'user' ? 'polygon(0 0, 0% 100%, 100% 100%)' : 'polygon(100% 0, 0 100%, 100% 100%)',
+                                        borderBottom: msg.role === 'user' ? 'none' : '1px solid rgba(255,255,255,0.05)'
+                                    }}></div>
+                                    {msg.role === 'user' ? (
+                                        <div>{msg.content}</div>
                                     ) : (
-                                        <div className="ai-response-content">
-                                            <Markdown components={{ pre: ({ children }) => <>{children}</>, code: CodeBlock }}>
-                                                {msg.content}
-                                            </Markdown>
-                                        </div>
-                                    )
-                                )}
-                            </div>
-                        ))}
+                                        // verifying availability of actionType
+                                        // If executeAction is defined as: const executeAction = async (actionType) => { ... }
+                                        // Then actionType is available in the scope.
+                                        // However, the lint error says it is not defined.
+                                        // Let me re-read the full file or at least the beginning of the component to see where I added the state. *latest* assistant message to apply animation
+                                        (msg.isNew && idx === aiChatHistory.length - 1) ? (
+                                            <TypewriterEffect text={msg.content} onComplete={() => {
+                                                // Mark as not new after animation
+                                                const updated = [...aiChatHistory];
+                                                updated[idx].isNew = false;
+                                            }} />
+                                        ) : (
+                                            <div className="ai-response-content">
+                                                <Markdown components={{ pre: ({ children }) => <>{children}</>, code: CodeBlock }}>
+                                                    {msg.content}
+                                                </Markdown>
+                                            </div>
+                                        )
+                                    )}
+                                </div>
+                            ))}
 
-                        {aiLoading && (
-                            <div style={{ alignSelf: 'flex-start', background: 'rgba(30, 30, 40, 0.7)', padding: '14px 20px', borderRadius: '18px 18px 18px 4px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <Loader2 size={18} color="#a78bfa" style={{ animation: 'spin 1s linear infinite' }} />
-                                <span style={{ fontSize: '13px', color: '#a1a1aa', fontWeight: 500 }}>Thinking...</span>
-                            </div>
-                        )}
-                    </div>
+                            {aiLoading && (
+                                <div style={{ alignSelf: 'flex-start', background: 'rgba(30, 30, 40, 0.7)', padding: '14px 20px', borderRadius: '18px 18px 18px 4px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <Loader2 size={18} color="#a78bfa" style={{ animation: 'spin 1s linear infinite' }} />
+                                    <span style={{ fontSize: '13px', color: '#a1a1aa', fontWeight: 500 }}>Thinking...</span>
+                                </div>
+                            )}
+                        </div>
 
-                    {/* Input Area */}
-                    <div style={{ padding: '16px 20px', background: 'rgba(0,0,0,0.2)', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                        <div style={{ flex: 1, position: 'relative' }}>
-                            <input
-                                type="text"
-                                value={aiMessage}
-                                onChange={(e) => setAiMessage(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && !aiLoading && handleAIAssist()}
-                                placeholder="Message SmartCoder..."
-                                disabled={aiLoading}
-                                style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '14px 45px 14px 18px', borderRadius: '14px', outline: 'none', fontSize: '14px', transition: 'all 0.2s', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)' }}
-                                onFocus={(e) => { e.target.style.borderColor = 'rgba(124,58,237,0.5)'; e.target.style.background = 'rgba(255,255,255,0.08)'; }}
-                                onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.background = 'rgba(255,255,255,0.05)'; }}
-                            />
-                            <button onClick={() => handleAIAssist()} disabled={aiLoading || !aiMessage.trim()} style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: (aiLoading || !aiMessage.trim()) ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)', color: '#fff', border: 'none', width: '32px', height: '32px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: (aiLoading || !aiMessage.trim()) ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}>
-                                <Send size={14} style={{ marginLeft: '2px' }} />
-                            </button>
+                        {/* Input Area */}
+                        <div style={{ padding: '16px 20px', background: 'rgba(0,0,0,0.2)', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <div style={{ flex: 1, position: 'relative' }}>
+                                <input
+                                    type="text"
+                                    value={aiMessage}
+                                    onChange={(e) => setAiMessage(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && !aiLoading && handleAIAssist()}
+                                    placeholder="Message SmartCoder..."
+                                    disabled={aiLoading}
+                                    style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '14px 45px 14px 18px', borderRadius: '14px', outline: 'none', fontSize: '14px', transition: 'all 0.2s', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)' }}
+                                    onFocus={(e) => { e.target.style.borderColor = 'rgba(124,58,237,0.5)'; e.target.style.background = 'rgba(255,255,255,0.08)'; }}
+                                    onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.background = 'rgba(255,255,255,0.05)'; }}
+                                />
+                                <button onClick={() => handleAIAssist()} disabled={aiLoading || !aiMessage.trim()} style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: (aiLoading || !aiMessage.trim()) ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)', color: '#fff', border: 'none', width: '32px', height: '32px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: (aiLoading || !aiMessage.trim()) ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}>
+                                    <Send size={14} style={{ marginLeft: '2px' }} />
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Modals */}
             <SubmissionSuccess

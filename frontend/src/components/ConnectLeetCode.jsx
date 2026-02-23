@@ -27,20 +27,19 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            background: 'linear-gradient(135deg, #0a0a0f 0%, #0e0e14 100%)',
-            color: 'white',
+            background: 'var(--bg-main)',
+            color: 'var(--text-main)',
             textAlign: 'center',
             padding: '40px 20px',
             overflowY: 'auto',
             zIndex: 1
         }}>
-            <div className="main-card" style={{
-                background: 'rgba(24, 24, 27, 0.6)', // Glassmorphism
-                backdropFilter: 'blur(12px)',
+            <div className="neo-card" style={{
+                background: 'var(--bg-card)',
                 padding: '40px',
-                borderRadius: '24px',
-                boxShadow: '0 20px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '0',
+                boxShadow: 'var(--shadow-main)',
+                border: 'var(--border-main)',
                 maxWidth: '800px',
                 width: '100%',
                 position: 'relative',
@@ -57,8 +56,8 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                     <ShieldAlert size={56} color="#eab308" />
                 </div>
 
-                <h1 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '8px', position: 'relative', zIndex: 1 }}>How to Participate</h1>
-                <p style={{ color: '#a1a1aa', marginBottom: '25px', lineHeight: '1.5', fontSize: '14px', position: 'relative', zIndex: 1 }}>
+                <h1 style={{ fontSize: '24px', fontWeight: 950, marginBottom: '8px', position: 'relative', zIndex: 1, textTransform: 'uppercase' }}>How to Participate</h1>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '25px', lineHeight: '1.5', fontSize: '14px', position: 'relative', zIndex: 1, fontWeight: 700 }}>
                     Welcome to <b>AlgoDuel</b>. To ensure fair play and real-time verification,
                     we require a secure link to your LeetCode account.
                 </p>
@@ -67,27 +66,23 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', textAlign: 'left', marginBottom: '30px', position: 'relative', zIndex: 1 }}>
 
                     {/* Step 1 */}
-                    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', padding: '16px', borderRadius: '16px' }}>
+                    <div style={{ background: 'var(--bg-main)', border: 'var(--border-main)', padding: '16px', borderRadius: '0' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
                             <div style={{
-                                background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                                background: 'var(--accent)',
                                 width: '28px', height: '28px', borderRadius: '50%',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontWeight: 'bold', fontSize: '13px', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.5)'
+                                fontWeight: 950, fontSize: '13px', border: 'var(--border-main)', color: 'black'
                             }}>1</div>
-                            <div style={{ fontWeight: '700', fontSize: '16px', color: '#fff' }}>Install Extension</div>
+                            <div style={{ fontWeight: 950, fontSize: '16px', color: 'var(--text-main)', textTransform: 'uppercase' }}>Install Extension</div>
                         </div>
 
-                        <a href="/algoduel-sync.zip" download="algoduel-sync.zip" style={{
+                        <a href="/algoduel-sync.zip" download="algoduel-sync.zip" className="neo-btn" style={{
                             textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
-                            background: '#2563eb', padding: '12px', borderRadius: '10px', color: 'white', fontSize: '14px',
-                            fontWeight: '600', marginBottom: '16px', transition: 'transform 0.2s, box-shadow 0.2s',
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-                        }}
-                            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(37, 99, 235, 0.4)'; }}
-                            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'; }}
-                        >
-                            <Download size={18} /> Download Extension (ZIP)
+                            background: 'var(--accent)', padding: '12px', color: 'black', fontSize: '14px',
+                            fontWeight: 950, marginBottom: '16px'
+                        }}>
+                            <Download size={18} /> DOWNLOAD_EXTENSION (ZIP)
                         </a>
 
                         {/* ANIMATED BROWSER MOCKUP */}
@@ -134,31 +129,31 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                     </div>
 
                     {/* Step 2 */}
-                    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', padding: '16px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <div style={{ background: 'var(--bg-main)', border: 'var(--border-main)', padding: '16px', borderRadius: '0', display: 'flex', alignItems: 'center', gap: '15px' }}>
                         <div style={{
-                            background: '#27272a', width: '28px', height: '28px', borderRadius: '50%',
+                            background: 'var(--bg-card)', width: '28px', height: '28px', borderRadius: '50%',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontWeight: 'bold', fontSize: '13px', border: '1px solid #3f3f46', color: '#a1a1aa'
+                            fontWeight: 950, fontSize: '13px', border: 'var(--border-main)', color: 'var(--text-muted)'
                         }}>2</div>
                         <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: '600', fontSize: '15px', marginBottom: '2px' }}>Login to LeetCode</div>
-                            <div style={{ fontSize: '12px', color: '#a1a1aa' }}>Ensure you are logged in on <a href="https://leetcode.com" target="_blank" rel="noreferrer" style={{ color: '#60a5fa', textDecoration: 'underline' }}>leetcode.com</a>.</div>
+                            <div style={{ fontWeight: 950, fontSize: '15px', marginBottom: '2px', color: 'var(--text-main)', textTransform: 'uppercase' }}>Login to LeetCode</div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700 }}>Ensure you are logged in on <a href="https://leetcode.com" target="_blank" rel="noreferrer" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>leetcode.com</a>.</div>
                         </div>
-                        <ExternalLink size={18} color="#60a5fa" />
+                        <ExternalLink size={18} color="var(--accent)" />
                     </div>
 
                     {/* Step 3 */}
-                    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', padding: '16px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <div style={{ background: 'var(--bg-main)', border: 'var(--border-main)', padding: '16px', borderRadius: '0', display: 'flex', alignItems: 'center', gap: '15px' }}>
                         <div style={{
-                            background: '#27272a', width: '28px', height: '28px', borderRadius: '50%',
+                            background: 'var(--bg-card)', width: '28px', height: '28px', borderRadius: '50%',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontWeight: 'bold', fontSize: '13px', border: '1px solid #3f3f46', color: '#a1a1aa'
+                            fontWeight: 950, fontSize: '13px', border: 'var(--border-main)', color: 'var(--text-muted)'
                         }}>3</div>
                         <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: '600', fontSize: '15px', marginBottom: '2px' }}>Hit "Sync"</div>
-                            <div style={{ fontSize: '12px', color: '#a1a1aa' }}>Click the extension icon & press <b>Sync</b>.</div>
+                            <div style={{ fontWeight: 950, fontSize: '15px', marginBottom: '2px', color: 'var(--text-main)', textTransform: 'uppercase' }}>Hit "Sync"</div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700 }}>Click the extension icon & press <b>Sync</b>.</div>
                         </div>
-                        <RefreshCw size={18} color="#22c55e" />
+                        <RefreshCw size={18} color="var(--accent-green)" />
                     </div>
 
                     {/* VIDEO TUTORIAL */}
@@ -169,18 +164,19 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                         </div>
 
                         <div style={{
-                            background: 'rgba(59, 130, 246, 0.05)',
-                            border: '1px solid rgba(59, 130, 246, 0.1)',
+                            background: 'var(--bg-main)',
+                            border: 'var(--border-main)',
                             padding: '12px 16px',
-                            borderRadius: '12px',
+                            borderRadius: '0',
                             fontSize: '13px',
-                            color: '#93c5fd',
+                            color: 'var(--text-main)',
                             marginBottom: '20px',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '10px'
+                            gap: '10px',
+                            boxShadow: 'var(--shadow-main)'
                         }}>
-                            <Download size={16} /> <b>Pro Tip:</b> Follow the video tutorial below if you encounter any issues.
+                            <Download size={16} /> <b style={{ fontWeight: 950 }}>PRO_TIP:</b> Follow the video tutorial below if you encounter any issues.
                         </div>
 
                         <div className="video-container" style={{
@@ -261,12 +257,13 @@ const ConnectLeetCode = ({ onCheckConnection }) => {
                 </div>
 
                 <div style={{
-                    padding: '12px', background: 'rgba(34, 197, 94, 0.1)',
-                    border: '1px solid rgba(34, 197, 94, 0.2)', borderRadius: '12px',
-                    display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center'
+                    padding: '12px', background: 'var(--bg-main)',
+                    border: 'var(--border-main)', borderRadius: '0',
+                    display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center',
+                    boxShadow: 'var(--shadow-main)'
                 }}>
-                    <div className="loader" style={{ width: '18px', height: '18px', border: '2px solid #22c55e', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-                    <span style={{ color: '#4ade80', fontSize: '13px', fontWeight: '600' }}>Waiting for sync... (Auto-refresh)</span>
+                    <div className="loader" style={{ width: '18px', height: '18px', border: '2px solid var(--accent-green)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                    <span style={{ color: 'var(--accent-green)', fontSize: '13px', fontWeight: 950, textTransform: 'uppercase' }}>Waiting for sync... (Auto-refresh)</span>
                 </div>
 
                 <style>{`

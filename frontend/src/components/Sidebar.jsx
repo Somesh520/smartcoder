@@ -1,10 +1,10 @@
 import { getCurrentUser, logout, BASE_URL } from '../api';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Code2, Swords, TrendingUp, BookOpen, History, LogOut, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Book, Shield, Star, User, Zap } from 'lucide-react';
+import { Code2, Swords, TrendingUp, BookOpen, History, LogOut, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Book, Shield, Star, User, Zap, Sun, Moon } from 'lucide-react';
 import ReviewModal from './ReviewModal';
 
-const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
+const Sidebar = ({ onShowProblemList, onGoDetail, user, theme, toggleTheme }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const currentView = location.pathname.includes('/competition') ? 'competition' :
@@ -37,7 +37,6 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
     const NavItem = ({ icon: Icon, label, active, onClick, danger = false }) => (
         <button
             onClick={onClick}
-            className={active ? "" : ""}
             style={{
                 width: '100%',
                 display: 'flex',
@@ -45,11 +44,11 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                 gap: collapsed ? '0' : '12px',
                 justifyContent: collapsed ? 'center' : 'flex-start',
                 padding: '14px 16px',
-                background: active ? 'var(--neo-yellow)' : 'transparent',
-                border: active ? '2px solid #000' : '2px solid transparent',
-                boxShadow: active ? '4px 4px 0px #000' : 'none',
+                background: active ? 'var(--accent)' : 'transparent',
+                border: active ? 'var(--border-main)' : '2px solid transparent',
+                boxShadow: active ? 'var(--shadow-main)' : 'none',
                 cursor: isInBattle ? 'not-allowed' : 'pointer',
-                color: '#000',
+                color: active ? '#000' : 'var(--text-main)',
                 fontSize: '14px',
                 fontWeight: 800,
                 textTransform: 'uppercase',
@@ -59,7 +58,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
             }}
             title={collapsed ? label : ''}
         >
-            <Icon size={20} color={danger ? '#ef4444' : '#000'} strokeWidth={active ? 3 : 2} />
+            <Icon size={20} color={danger ? '#ef4444' : (active ? '#000' : 'currentColor')} strokeWidth={active ? 3 : 2} />
             {!collapsed && <span>{label}</span>}
         </button>
     );
@@ -69,8 +68,8 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
             <aside style={{
                 width: collapsed ? '80px' : '260px',
                 height: '100vh',
-                background: '#fff',
-                borderRight: 'var(--neo-border)',
+                background: 'var(--sidebar-bg)',
+                borderRight: 'var(--border-main)',
                 display: 'flex',
                 flexDirection: 'column',
                 padding: '24px 16px',
@@ -94,15 +93,15 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                     >
                         <div style={{
                             width: '40px', height: '40px',
-                            background: 'var(--neo-yellow)', border: 'var(--neo-border)',
+                            background: 'var(--accent)', border: 'var(--border-main)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             flexShrink: 0,
-                            boxShadow: '4px 4px 0px #000',
+                            boxShadow: theme === 'light' ? '4px 4px 0px #000' : 'none',
                         }}>
                             <Code2 size={24} color="black" strokeWidth={3} />
                         </div>
                         {!collapsed && (
-                            <span style={{ fontSize: '24px', fontWeight: 950, color: 'black', letterSpacing: '-1.5px', textTransform: 'uppercase' }}>
+                            <span style={{ fontSize: '24px', fontWeight: 950, color: 'var(--text-main)', letterSpacing: '-1.5px', textTransform: 'uppercase' }}>
                                 ALGODUEL
                             </span>
                         )}
@@ -110,11 +109,11 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                 </div>
 
                 {/* NAVIGATION */}
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }} className="custom-scroll">
                     <div style={{
-                        fontSize: '12px', fontWeight: 900, color: '#000',
+                        fontSize: '12px', fontWeight: 900, color: 'var(--text-muted)',
                         marginBottom: '16px', paddingLeft: '8px', textTransform: 'uppercase', letterSpacing: '1px',
-                        display: collapsed ? 'none' : 'block', opacity: 0.5
+                        display: collapsed ? 'none' : 'block'
                     }}>
                         MENU_BLOCK
                     </div>
@@ -156,6 +155,8 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                         onClick={() => handleNav(() => navigate('/app/docs'))}
                     />
 
+                    <div style={{ height: '1px', background: 'var(--border-main)', margin: '16px 8px', opacity: 0.2 }} />
+
                     <NavItem
                         icon={Star}
                         label="Rate"
@@ -174,28 +175,44 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                     )}
                 </div>
 
-                {/* USER PROFILE / LOGOUT */}
-                <div style={{ paddingTop: '24px', borderTop: 'var(--neo-border)' }}>
+                {/* THEME TOGGLE & USER PROFILE */}
+                <div style={{ paddingTop: '16px', borderTop: 'var(--border-main)' }}>
+                    {/* Theme Toggle Button */}
+                    <button
+                        onClick={toggleTheme}
+                        className="neo-btn"
+                        style={{
+                            width: '100%',
+                            marginBottom: '16px',
+                            justifyContent: collapsed ? 'center' : 'flex-start',
+                            background: theme === 'light' ? 'var(--accent)' : 'var(--bg-card)',
+                            boxShadow: theme === 'light' ? 'var(--shadow-main)' : 'none',
+                        }}
+                    >
+                        {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+                        {!collapsed && <span>{theme === 'light' ? 'DARK_MODE' : 'LIGHT_MODE'}</span>}
+                    </button>
+
                     {user?.loggedIn ? (
                         <div className="neo-card" style={{
                             display: 'flex', alignItems: 'center', gap: '12px',
-                            padding: '12px', background: '#fff'
+                            padding: '12px', background: 'var(--bg-card)'
                         }}>
                             <img
                                 src={user.photos}
                                 alt={user.displayName}
-                                style={{ width: '36px', height: '36px', border: '2px solid #000' }}
+                                style={{ width: '36px', height: '36px', border: '2px solid var(--text-main)' }}
                             />
                             {!collapsed && (
                                 <div style={{ flex: 1, overflow: 'hidden' }}>
-                                    <div style={{ fontSize: '13px', fontWeight: 900, color: 'black', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textTransform: 'uppercase' }}>
+                                    <div style={{ fontSize: '12px', fontWeight: 900, color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textTransform: 'uppercase' }}>
                                         {user.displayName}
                                     </div>
                                     <button
                                         onClick={logout}
                                         style={{
                                             background: 'transparent', border: 'none',
-                                            padding: 0, color: '#ef4444', fontSize: '11px',
+                                            padding: 0, color: '#ef4444', fontSize: '10px',
                                             cursor: 'pointer', fontWeight: 800, marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px', textTransform: 'uppercase'
                                         }}
                                     >
@@ -220,11 +237,11 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                     onClick={() => setCollapsed(!collapsed)}
                     style={{
                         position: 'absolute', top: '50%', right: '-16px',
-                        width: '32px', height: '32px', background: 'var(--neo-yellow)',
-                        border: 'var(--neo-border)',
+                        width: '32px', height: '32px', background: 'var(--accent)',
+                        border: 'var(--border-main)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         color: '#000', cursor: 'pointer', zIndex: 60,
-                        boxShadow: '2px 2px 0px #000',
+                        boxShadow: theme === 'light' ? '2px 2px 0px #000' : 'none',
                     }}
                 >
                     {collapsed ? <ChevronRight size={18} strokeWidth={3} /> : <ChevronLeft size={18} strokeWidth={3} />}
@@ -235,7 +252,8 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
             {showLoginModal && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-                    background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(4px)',
+                    background: theme === 'light' ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.8)',
+                    backdropFilter: 'blur(4px)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
                 }} onClick={() => setShowLoginModal(false)}>
 
@@ -244,19 +262,19 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                         width: '420px',
                         textAlign: 'center',
                         position: 'relative',
-                        background: '#fff'
+                        background: 'var(--bg-card)'
                     }} onClick={e => e.stopPropagation()}>
 
                         <div style={{ marginBottom: '32px' }}>
                             <div style={{
-                                width: '64px', height: '64px', background: 'var(--neo-yellow)',
-                                border: 'var(--neo-border)', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                boxShadow: '4px 4px 0px #000'
+                                width: '64px', height: '64px', background: 'var(--accent)',
+                                border: 'var(--border-main)', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                boxShadow: theme === 'light' ? '4px 4px 0px #000' : 'none'
                             }}>
                                 <Swords size={32} color="#000" strokeWidth={3} />
                             </div>
-                            <h2 style={{ margin: '0 0 12px 0', fontSize: '28px', fontWeight: 950, textTransform: 'uppercase' }}>AUTH_REQUIRED</h2>
-                            <p style={{ margin: 0, color: '#444', fontWeight: '700', lineHeight: '1.5' }}>
+                            <h2 style={{ margin: '0 0 12px 0', fontSize: '28px', fontWeight: 950, textTransform: 'uppercase', color: 'var(--text-main)' }}>AUTH_REQUIRED</h2>
+                            <p style={{ margin: 0, color: 'var(--text-muted)', fontWeight: '700', lineHeight: '1.5' }}>
                                 YOU MUST SIGN IN TO ENTER THE ARENA, VIEW PROBLEMS, OR CHECK HISTORY.
                             </p>
                         </div>
@@ -275,7 +293,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                                 marginTop: '20px',
                                 background: 'transparent',
                                 border: 'none',
-                                color: '#666',
+                                color: 'var(--text-muted)',
                                 cursor: 'pointer',
                                 fontSize: '14px',
                                 fontWeight: '800',
