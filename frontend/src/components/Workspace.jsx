@@ -187,7 +187,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }
     }, [aiOpen]);
 
     // Resizable Layout State
-    const [leftWidth, setLeftWidth] = useState(40); // Initial 40% width for problem description
+    const [leftWidth, setLeftWidth] = useState(50); // Initial 50% width for a balanced layout
 
     // Resize Handler
     const startResizing = (mouseDownEvent) => {
@@ -625,6 +625,20 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }
                         
                         .problem-content tr:nth-child(even) {
                             background: var(--bg-main);
+                        }
+
+                        /* Example block semantic labels */
+                        .problem-content p strong {
+                            display: inline-block;
+                            margin-top: 8px;
+                            color: var(--accent);
+                            text-transform: uppercase;
+                            font-size: 13px;
+                            letter-spacing: 1px;
+                        }
+
+                        .problem-content p:has(strong) {
+                            margin-bottom: 20px;
                         }
                     `}</style>
                     {details ? (
