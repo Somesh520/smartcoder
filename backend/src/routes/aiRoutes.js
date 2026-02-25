@@ -216,4 +216,74 @@ ${code || '// No code written yet'}
     }
 });
 
+router.post('/complexity', verifyToken, async (req, res) => {
+    try {
+        const { code, language, problemTitle } = req.body;
+        const user = req.user;
+
+        if (user.credits <= 0 && !user.isPremium) {
+            return res.status(402).json({ error: "Insufficient credits." });
+        }
+
+        const systemPrompt = `You are a Time Complexity Analyzer. 
+Analyze the given code for Time and Space complexity.
+Return a JSON object with:
+1. "timeComplexity": String (e.g., "O(n log n)")
+2. "spaceComplexity": String (e.g., "O(n)")
+3. "complexityData": Array of 10-15 points for a chart visualization showing growth. Each point should be { n: number, ops: number }. The "ops" should be a relative value representing the number of operations for that "n" based on the time complexity. For example, if it's O(n^2), ops should be n*n.
+4. "explanation": A very short (1 sentence) explanation of why.
+
+Problem: ${problemTitle}
+Language: ${language}
+Code:
+\`\`\`${language}
+${code}
+\`\`\`
+
+ONLY return the JSON object. No extra text.`;
+
+        const messages = [{ role: "system", content: systemPrompt }];
+        let answer = null;
+
+        if (groq) {
+            try {
+                const completion = await groq.chat.completions.create({
+                    messages: messages,
+                    model: 'llama-3.1-8b-instant',
+                    temperature: 0,
+                    response_format: { type: "json_object" }
+                });
+                answer = completion.choices[0]?.message?.content;
+            } catch (err) {
+                console.warn("[AI] Groq Complexity Failed:", err.message);
+            }
+        }
+
+        if (!answer && GEMINI_API_KEY) {
+            const payload = { contents: [{ parts: [{ text: systemPrompt + "\nOutput valid JSON." }] }] };
+            const response = await fetch(getGeminiUrl('gemini-2.0-flash-lite'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (response.ok) {
+                const data = await response.json();
+                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                answer = text?.replace(/```json|```/g, '').trim();
+            }
+        }
+
+        if (answer) {
+            const result = JSON.parse(answer);
+            return res.json(result);
+        } else {
+            return res.status(500).json({ error: "Could not generate analysis." });
+        }
+
+    } catch (error) {
+        console.error("Complexity Error:", error);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
 export default router;

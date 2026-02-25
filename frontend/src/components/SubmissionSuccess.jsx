@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { CheckCircle2, Trophy, Zap, X } from 'lucide-react';
+import { CheckCircle2, Trophy, Zap, X, Sparkles } from 'lucide-react';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 const SubmissionSuccess = ({ isOpen, onClose, stats }) => {
     useEffect(() => {
@@ -140,8 +141,52 @@ const SubmissionSuccess = ({ isOpen, onClose, stats }) => {
                             >
                                 CONTINUE_CODING
                             </button>
-
                         </div>
+
+                        {/* Complexity Analysis Section */}
+                        {stats.complexity && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.5 }}
+                                style={{
+                                    marginTop: '32px',
+                                    padding: '24px',
+                                    background: 'rgba(255,255,255,0.03)',
+                                    border: '1px solid rgba(255,255,255,0.05)',
+                                    textAlign: 'left'
+                                }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                                    <Sparkles size={18} color="var(--accent)" />
+                                    <h3 style={{ fontSize: '14px', fontWeight: 950, color: 'var(--text-main)', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                        COMPLEXITY_ANALYSIS
+                                    </h3>
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+                                    <div>
+                                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 900, textTransform: 'uppercase', marginBottom: '4px' }}>Time</div>
+                                        <div style={{ fontSize: '18px', fontWeight: 950, color: 'var(--accent)' }}>{stats.complexity.timeComplexity}</div>
+                                    </div>
+                                    <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
+                                    <div>
+                                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 900, textTransform: 'uppercase', marginBottom: '4px' }}>Space</div>
+                                        <div style={{ fontSize: '18px', fontWeight: 950, color: 'var(--text-main)' }}>{stats.complexity.spaceComplexity}</div>
+                                    </div>
+                                </div>
+
+                                {stats.complexity.complexityData && (
+                                    <div style={{ height: '160px', width: '100%', marginTop: '10px' }}>
+                                        <ComplexityChart data={stats.complexity.complexityData} />
+                                    </div>
+                                )}
+
+                                <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '16px 0 0', lineHeight: '1.5', fontWeight: 600 }}>
+                                    {stats.complexity.explanation}
+                                </p>
+                            </motion.div>
+                        )}
                     </motion.div>
                 </div>
             )}
@@ -169,5 +214,45 @@ const StatCard = ({ label, value, icon, color, borderColor }) => (
         <div style={{ fontSize: '20px', fontWeight: 950, color: 'var(--text-main)' }}>{value}</div>
     </motion.div>
 );
+
+const ComplexityChart = ({ data }) => {
+    return (
+        <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                <XAxis
+                    dataKey="n"
+                    hide
+                />
+                <YAxis
+                    hide
+                    domain={['dataMin', 'dataMax']}
+                />
+                <Tooltip
+                    contentStyle={{
+                        background: 'var(--bg-card)',
+                        border: 'var(--border-main)',
+                        borderRadius: '0',
+                        fontSize: '11px',
+                        fontWeight: 900,
+                        color: 'var(--text-main)'
+                    }}
+                    itemStyle={{ color: 'var(--accent)' }}
+                    labelStyle={{ display: 'none' }}
+                    cursor={{ stroke: 'var(--accent)', strokeWidth: 1 }}
+                />
+                <Line
+                    type="monotone"
+                    dataKey="ops"
+                    stroke="var(--accent)"
+                    strokeWidth={3}
+                    dot={false}
+                    animationDuration={1500}
+                    style={{ filter: 'drop-shadow(0 0 8px var(--accent))' }}
+                />
+            </LineChart>
+        </ResponsiveContainer>
+    );
+};
 
 export default SubmissionSuccess;

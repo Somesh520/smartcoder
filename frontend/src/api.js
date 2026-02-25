@@ -262,6 +262,23 @@ export const fetchAIAssist = async ({ code, language, problemTitle, problemDescr
   }
 };
 
+// AI Complexity analysis
+export const fetchComplexity = async ({ code, language, problemTitle }) => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/ai/complexity`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ code, language, problemTitle }),
+      credentials: 'include'
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    console.error("Complexity fetch failed", e);
+    return null;
+  }
+};
+
 // ==========================================
 // REVIEWS API
 // ==========================================

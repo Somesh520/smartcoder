@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { fetchProblemDetails, runCode, submitCode, pollResult, fetchAIAssist, BASE_URL } from '../api';
+import { fetchProblemDetails, runCode, submitCode, pollResult, fetchAIAssist, fetchComplexity, BASE_URL } from '../api';
 import CodeEditor from './CodeEditor';
 import Console from './Console';
 import ModernSpinner from './ModernSpinner';
@@ -381,6 +381,20 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }
                             setShowSuccessModal(true);
                             if (onSubmissionSuccess) {
                                 onSubmissionSuccess(res);
+                            }
+
+                            // AI Complexity Analysis
+                            try {
+                                const complexity = await fetchComplexity({
+                                    code,
+                                    language,
+                                    problemTitle: details.title || problem.title || ''
+                                });
+                                if (complexity) {
+                                    setResult(prev => ({ ...prev, complexity }));
+                                }
+                            } catch (err) {
+                                console.error("Complexity analysis failed", err);
                             }
                         }
 
