@@ -19,11 +19,12 @@ const Documentation = () => {
 
     return (
         <div className="dot-bg" style={{
-            minHeight: '100vh',
             color: 'var(--text-main)',
-            padding: '120px 24px 80px',
+            padding: '30px',
             fontFamily: "'Inter', sans-serif",
-            position: 'relative'
+            position: 'relative',
+            minHeight: '100%',
+            overflowY: 'auto'
         }}>
             <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
                 {/* Header */}

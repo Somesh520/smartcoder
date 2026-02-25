@@ -308,7 +308,6 @@ function MainApp({ initialRoom }) {
     <div className="app-container" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Routes>
         <Route path="/connect" element={<><SEO title="Connect LeetCode - AlgoDuel" /><ConnectLeetCode onCheckConnection={checkLogin} /></>} />
-        <Route path="/docs" element={<><SEO title="Documentation - AlgoDuel" description="Complete technical documentation for AlgoDuel platform" /><Documentation /></>} />
         <Route path="/app/*" element={
           <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
             {!location.pathname.includes('/competition/') && (
@@ -346,6 +345,7 @@ function MainApp({ initialRoom }) {
                     <Route path="stats" element={<LeetCodePage />} />
                     <Route path="learn" element={<LearnPage />} />
                     <Route path="pathpradarshak" element={<PathPradarshakPage />} />
+                    <Route path="docs" element={<Documentation />} />
 
                     <Route path="competition/:roomId" element={
                       <CompetitionRoomWrapper
