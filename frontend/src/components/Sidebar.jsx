@@ -273,20 +273,6 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                     )}
                 </div>
 
-                {/* Collapse Toggle */}
-                <button
-                    onClick={() => setCollapsed(!collapsed)}
-                    style={{
-                        position: 'absolute', top: '50%', right: '-16px',
-                        width: '32px', height: '32px', background: 'var(--accent)',
-                        border: 'var(--border-main)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: '#000', cursor: 'pointer', zIndex: 60,
-                        boxShadow: 'none',
-                    }}
-                >
-                    {collapsed ? <ChevronRight size={18} strokeWidth={3} /> : <ChevronLeft size={18} strokeWidth={3} />}
-                </button>
             </aside>
 
             {/* LOGIN POPUP MODAL */}
