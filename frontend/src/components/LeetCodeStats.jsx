@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Trophy, Flame, CheckCircle2, XCircle, Loader2, Zap, Clock, Code2 } from 'lucide-react';
-import { fetchDailyChallenge, fetchUserSubmissions, fetchUserStats, fetchUserCalendar } from '../api';
+import { fetchDailyChallenge, fetchUserSubmissions, fetchUserStats, fetchUserCalendar, fetchUserContest, fetchUserSkills } from '../api';
 
 const LeetCodeStats = ({ onSelectProblem }) => {
     const [username, setUsername] = useState('');
@@ -10,6 +10,8 @@ const LeetCodeStats = ({ onSelectProblem }) => {
     const [dailyChallenge, setDailyChallenge] = useState(null);
     const [submissions, setSubmissions] = useState([]);
     const [calendarData, setCalendarData] = useState(null);
+    const [contestData, setContestData] = useState(null);
+    const [skillsData, setSkillsData] = useState(null);
 
     // Load persisted username on mount
     useEffect(() => {
@@ -32,11 +34,16 @@ const LeetCodeStats = ({ onSelectProblem }) => {
         setError(null);
 
         try {
-            const [statsData, submissionsData, calData] = await Promise.all([
+            const [statsData, submissionsData, calData, contest, skills] = await Promise.all([
                 fetchUserStats(user),
-                fetchUserSubmissions(user, 5),
-                fetchUserCalendar(user)
+                fetchUserSubmissions(user, 10),
+                fetchUserCalendar(user),
+                fetchUserContest(user),
+                fetchUserSkills(user)
             ]);
+
+            // Guard: If disconnect was called during fetch, don't update state
+            if (!localStorage.getItem('leetcode_username') && !user) return;
 
             if (!statsData) throw new Error("User not found");
 
@@ -56,6 +63,8 @@ const LeetCodeStats = ({ onSelectProblem }) => {
 
             setSubmissions(submissionsData || []);
             if (calData) setCalendarData(calData);
+            if (contest) setContestData(contest);
+            if (skills) setSkillsData(skills);
             localStorage.setItem('leetcode_username', user);
 
         } catch (err) {
@@ -64,6 +73,17 @@ const LeetCodeStats = ({ onSelectProblem }) => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleDisconnect = () => {
+        setStats(null);
+        setSubmissions([]);
+        setCalendarData(null);
+        setContestData(null);
+        setSkillsData(null);
+        setUsername('');
+        setError(null);
+        localStorage.removeItem('leetcode_username');
     };
 
     const handleSubmit = (e) => {
@@ -104,42 +124,39 @@ const LeetCodeStats = ({ onSelectProblem }) => {
     };
 
     return (
-        <div style={{ width: '100%', color: 'var(--text-main)', fontFamily: "'Inter', sans-serif" }} id="leetcode-stats">
-            <div style={{ margin: '0 auto', maxWidth: '1100px', padding: '40px' }}>
+        <div style={{ width: '100%', color: 'var(--text-main)', fontFamily: "'Inter', sans-serif", position: 'relative', overflow: 'hidden', minHeight: '100vh', background: '#050508' }} id="leetcode-stats">
+
+            {/* BACKGROUND DYNAMIC DATA STREAMS */}
+            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, opacity: 0.1 }}>
+                {[12, 35, 58, 72, 90].map((pos, idx) => (
+                    <div key={idx} className="v-stream" style={{ left: `${pos}%`, animationDelay: `${idx * 2}s` }} />
+                ))}
+            </div>
+
+            <div style={{ margin: '0 auto', maxWidth: '1100px', padding: '24px', position: 'relative', zIndex: 1 }}>
 
                 {/* DAILY CHALLENGE BANNER */}
                 {dailyChallenge && (
                     <div style={{
-                        background: 'var(--bg-card)',
-                        border: 'var(--border-main)',
-                        borderRadius: '0',
-                        padding: '24px 32px',
-                        marginBottom: '30px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        boxShadow: 'var(--shadow-main)'
+                        background: 'var(--bg-card)', border: 'var(--border-main)', padding: '20px 28px',
+                        marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-main)'
                     }}>
                         <div style={{
                             position: 'absolute', top: 0, right: 0, width: '200px', height: '200px',
-                            background: 'radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%)',
-                            filter: 'blur(40px)'
+                            background: 'radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%)', filter: 'blur(40px)'
                         }} />
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '20px', zIndex: 1 }}>
                             <div style={{
-                                width: '56px', height: '56px',
-                                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                                borderRadius: '14px',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                width: '56px', height: '56px', background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                                borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 boxShadow: '0 0 20px rgba(99, 102, 241, 0.4)'
                             }}>
                                 <Zap size={28} color="#fff" />
                             </div>
                             <div>
-                                <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
+                                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
                                     DAILY_CHALLENGE • {dailyChallenge.date}
                                 </div>
                                 <div style={{ fontSize: '20px', fontWeight: 950, color: 'var(--text-main)', marginBottom: '4px', textTransform: 'uppercase' }}>
@@ -147,10 +164,9 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                     <span style={{
-                                        padding: '4px 10px', borderRadius: '0', fontSize: '11px', fontWeight: 950,
+                                        padding: '4px 10px', fontSize: '11px', fontWeight: 950,
                                         background: getDifficultyColor(dailyChallenge.difficulty),
-                                        color: 'black', border: 'var(--border-main)',
-                                        textTransform: 'uppercase'
+                                        color: 'black', border: 'var(--border-main)', textTransform: 'uppercase'
                                     }}>
                                         {dailyChallenge.difficulty}
                                     </span>
@@ -162,81 +178,36 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                         </div>
 
                         <button onClick={handleSolveDaily} className="neo-btn" style={{
-                            background: 'var(--accent)',
-                            color: 'black', border: 'var(--border-main)', padding: '14px 28px', borderRadius: '0',
-                            fontWeight: 950, fontSize: '14px', cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', gap: '8px',
-                            zIndex: 1
+                            background: 'var(--accent)', color: 'black', border: 'var(--border-main)', padding: '14px 28px',
+                            fontWeight: 950, fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1
                         }}>
                             <Code2 size={18} /> SOLVE_NOW
                         </button>
                     </div>
                 )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1.7fr 1fr', gap: '20px', alignItems: 'start' }}>
 
-                    {/* LEFT: STATS CARD */}
-                    <div className="neo-card" style={{
-                        background: 'var(--bg-card)', borderRadius: '0', border: 'var(--border-main)',
-                        padding: '30px', position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-main)'
-                    }}>
-                        <div style={{
-                            position: 'absolute', top: '-20%', right: '-10%', width: '200px', height: '200px',
-                            background: 'radial-gradient(circle, rgba(34,211,238,0.1) 0%, transparent 70%)', filter: 'blur(40px)'
-                        }} />
+                    {/* LEFT COLUMN */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', color: 'var(--accent)', fontSize: '11px', fontWeight: 950, letterSpacing: '2px', textTransform: 'uppercase' }}>
-                            <div style={{ width: '20px', height: '3px', background: 'var(--accent)' }} />
-                            LEETCODE_STATS
-                        </div>
+                        {/* STATS CARD */}
+                        {stats ? (
+                            <div className="neo-card" style={{
+                                background: 'var(--bg-card)', border: 'var(--border-main)', padding: '24px',
+                                position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-main)'
+                            }}>
+                                <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: '200px', height: '200px', background: 'radial-gradient(circle, rgba(34,211,238,0.1) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', color: 'var(--accent)', fontSize: '11px', fontWeight: 950, letterSpacing: '2px', textTransform: 'uppercase' }}>
+                                    <div style={{ width: '20px', height: '3px', background: 'var(--accent)' }} />
+                                    LEETCODE_STATS
+                                </div>
 
-                        {!stats ? (
-                            <div>
-                                <h2 style={{ fontSize: '28px', fontWeight: 950, marginBottom: '12px', color: 'var(--text-main)', textTransform: 'uppercase' }}>
-                                    Connect <span style={{ color: 'var(--accent)' }}>Profile</span>
-                                </h2>
-                                <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '24px', fontWeight: 700 }}>
-                                    Enter your LeetCode username to view stats
-                                </p>
-
-                                <form onSubmit={handleSubmit} style={{ position: 'relative' }}>
-                                    <Search style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} size={18} />
-                                    <input
-                                        type="text" placeholder="Enter username..." value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
-                                        style={{
-                                            width: '100%', padding: '14px 14px 14px 44px', boxSizing: 'border-box', background: 'var(--bg-main)',
-                                            border: 'var(--border-main)', borderRadius: '0', color: 'var(--text-main)', fontSize: '14px', outline: 'none', fontWeight: 700
-                                        }}
-                                    />
-                                    <button type="submit" disabled={loading} style={{
-                                        position: 'absolute', right: '6px', top: '6px', bottom: '6px', padding: '0 20px',
-                                        background: loading ? 'var(--bg-card)' : 'var(--accent)', color: 'black',
-                                        border: 'var(--border-main)', borderRadius: '0', fontWeight: 950, cursor: loading ? 'not-allowed' : 'pointer', fontSize: '12px'
-                                    }}>
-                                        {loading ? <Loader2 size={16} className="animate-spin" /> : 'CONNECT'}
-                                    </button>
-                                </form>
-
-                                {error && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ef4444', fontSize: '13px', marginTop: '12px' }}>
-                                        <XCircle size={14} /> {error}
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div>
-                                {/* User Info */}
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
                                     {stats.avatar ? (
                                         <img src={stats.avatar} alt="" style={{ width: '56px', height: '56px', borderRadius: '50%', border: 'var(--border-main)' }} />
                                     ) : (
-                                        <div style={{
-                                            width: '56px', height: '56px', borderRadius: '50%',
-                                            background: 'var(--accent)',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            fontSize: '20px', fontWeight: 950, color: 'black', border: 'var(--border-main)'
-                                        }}>
+                                        <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: 950, color: 'black', border: 'var(--border-main)' }}>
                                             {stats.username?.charAt(0).toUpperCase()}
                                         </div>
                                     )}
@@ -244,31 +215,48 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                                         <div style={{ fontSize: '18px', fontWeight: 950, color: 'var(--text-main)', textTransform: 'uppercase' }}>{stats.realName || stats.username}</div>
                                         <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 700 }}>@{stats.username}</div>
                                     </div>
-                                    <button onClick={() => { setStats(null); setSubmissions([]); localStorage.removeItem('leetcode_username'); }}
-                                        style={{ marginLeft: 'auto', fontSize: '12px', color: 'var(--accent-red)', background: 'transparent', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontWeight: 800 }}>
-                                        Disconnect
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDisconnect();
+                                        }}
+                                        style={{
+                                            marginLeft: 'auto',
+                                            padding: '8px 12px',
+                                            fontSize: '11px',
+                                            color: 'var(--accent-red)',
+                                            background: 'rgba(239, 68, 68, 0.1)',
+                                            border: '1px solid var(--accent-red)',
+                                            cursor: 'pointer',
+                                            fontWeight: 950,
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '1px',
+                                            transition: 'all 0.2s ease'
+                                        }}
+                                        className="disconnect-btn"
+                                    >
+                                        Disconnect_Safe
                                     </button>
                                 </div>
 
-                                {/* Stats Grid */}
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '20px' }}>
-                                    <div style={{ background: 'var(--bg-main)', padding: '16px', borderRadius: '0', border: 'var(--border-main)', boxShadow: 'var(--shadow-main)' }}>
+                                    <div style={{ background: 'var(--bg-main)', padding: '16px', border: 'var(--border-main)' }}>
                                         <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', fontWeight: 950 }}>Ranking</div>
                                         <div style={{ fontSize: '20px', fontWeight: 950, color: 'var(--text-main)' }}>#{parseInt(stats.ranking || 0).toLocaleString()}</div>
                                     </div>
-                                    <div style={{ background: 'var(--bg-main)', padding: '16px', borderRadius: '0', border: 'var(--border-main)', boxShadow: 'var(--shadow-main)' }}>
+                                    <div style={{ background: 'var(--bg-main)', padding: '16px', border: 'var(--border-main)' }}>
                                         <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', fontWeight: 950 }}>Acceptance</div>
                                         <div style={{ fontSize: '20px', fontWeight: 950, color: 'var(--accent-green)' }}>{stats.acceptanceRate}%</div>
                                     </div>
                                 </div>
 
-                                {/* Progress */}
                                 <div style={{ marginBottom: '16px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                                         <span style={{ fontSize: '13px', fontWeight: 950, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Problems Solved</span>
                                         <span style={{ fontSize: '16px', fontWeight: 950, color: 'var(--text-main)' }}>{stats.totalSolved}</span>
                                     </div>
-                                    <div style={{ display: 'flex', height: '12px', borderRadius: '0', overflow: 'hidden', background: 'var(--bg-main)', border: 'var(--border-main)' }}>
+                                    <div style={{ display: 'flex', height: '12px', overflow: 'hidden', background: 'var(--bg-main)', border: 'var(--border-main)' }}>
                                         <div style={{ width: `${(stats.easySolved / Math.max(stats.totalSolved, 1)) * 100}%`, background: 'var(--accent-green)' }} />
                                         <div style={{ width: `${(stats.mediumSolved / Math.max(stats.totalSolved, 1)) * 100}%`, background: 'var(--accent)' }} />
                                         <div style={{ width: `${(stats.hardSolved / Math.max(stats.totalSolved, 1)) * 100}%`, background: 'var(--accent-red)' }} />
@@ -280,250 +268,206 @@ const LeetCodeStats = ({ onSelectProblem }) => {
                                     </div>
                                 </div>
                             </div>
+                        ) : (
+                            <div className="neo-card" style={{ background: 'var(--bg-card)', border: 'var(--border-main)', padding: '40px', textAlign: 'center' }}>
+                                <h2 style={{ fontSize: '28px', fontWeight: 950, marginBottom: '12px', color: 'var(--text-main)', textTransform: 'uppercase' }}>
+                                    Connect <span style={{ color: 'var(--accent)' }}>Profile</span>
+                                </h2>
+                                <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '24px', fontWeight: 700 }}>Enter your LeetCode username to view tactical stats</p>
+                                <form onSubmit={handleSubmit} style={{ position: 'relative', maxWidth: '400px', margin: '0 auto' }}>
+                                    <Search style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} size={18} />
+                                    <input type="text" placeholder="Username..." value={username} onChange={(e) => setUsername(e.target.value)}
+                                        style={{ width: '100%', padding: '14px 14px 14px 44px', background: 'var(--bg-main)', border: 'var(--border-main)', color: 'var(--text-main)', fontSize: '14px', outline: 'none' }} />
+                                    <button type="submit" disabled={loading} style={{ position: 'absolute', right: '6px', top: '6px', bottom: '6px', padding: '0 20px', background: 'var(--accent)', color: 'black', border: 'var(--border-main)', fontWeight: 950, cursor: 'pointer' }}>
+                                        {loading ? <Loader2 size={16} className="animate-spin" /> : 'CONNECT'}
+                                    </button>
+                                </form>
+                            </div>
+                        )}
+
+                        {/* CONTEST RATING ARENA */}
+                        {stats && contestData && !contestData.error && (
+                            <div className="neo-card" style={{
+                                background: 'var(--bg-card)', border: 'var(--border-main)', padding: '24px',
+                                position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-main)'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', color: '#8b5cf6', fontSize: '11px', fontWeight: 950, letterSpacing: '2px', textTransform: 'uppercase' }}>
+                                    <div style={{ width: '20px', height: '3px', background: '#8b5cf6' }} />
+                                    CONTEST_RATING_ARENA
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+                                    <div style={{ fontSize: '48px', fontWeight: 950, color: '#fff', letterSpacing: '-2px' }}>{Math.round(contestData.contestRating || 0)}</div>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 950 }}>ELO_RATING</div>
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginTop: '24px' }}>
+                                    <div>
+                                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 950 }}>GLOBAL_RANK</div>
+                                        <div style={{ fontSize: '16px', color: '#fff', fontWeight: 950 }}>#{contestData.contestGlobalRanking || 'N/A'}</div>
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 950 }}>PERCENTILE</div>
+                                        <div style={{ fontSize: '16px', color: '#fff', fontWeight: 950 }}>{contestData.contestTopPercentage?.toFixed(2)}%</div>
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 950 }}>ATTENDED</div>
+                                        <div style={{ fontSize: '16px', color: '#fff', fontWeight: 950 }}>{contestData.contestAttend || 0}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* SKILL INSIGHTS */}
+                        {stats && skillsData && !skillsData.error && (
+                            <div className="neo-card" style={{ background: 'var(--bg-card)', border: 'var(--border-main)', padding: '24px', position: 'relative', overflow: 'hidden' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: 'var(--accent)', fontSize: '11px', fontWeight: 950, letterSpacing: '2px', textTransform: 'uppercase' }}>
+                                    <div style={{ width: '20px', height: '3px', background: 'var(--accent)' }} />
+                                    SKILL_MATRIX
+                                </div>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                    {[...(skillsData.advanced || []), ...(skillsData.intermediate || [])].slice(0, 12).map((skill, idx) => (
+                                        <div key={idx} style={{ padding: '6px 10px', background: 'var(--bg-main)', border: 'var(--border-main)', fontSize: '10px', fontWeight: 800, color: 'var(--text-main)', display: 'flex', gap: '6px' }}>
+                                            <span style={{ color: 'var(--text-muted)' }}>{skill.tagName}</span>
+                                            <span style={{ color: 'var(--accent)' }}>{skill.problemsSolved}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         )}
                     </div>
 
-                    {/* RIGHT: RECENT SUBMISSIONS */}
-                    <div className="neo-card" style={{
-                        background: 'var(--bg-card)', borderRadius: '0', border: 'var(--border-main)',
-                        padding: '30px', position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-main)'
-                    }}>
-                        <div style={{
-                            position: 'absolute', top: '-20%', left: '-10%', width: '200px', height: '200px',
-                            background: 'radial-gradient(circle, rgba(34,197,94,0.1) 0%, transparent 70%)', filter: 'blur(40px)'
-                        }} />
+                    {/* RIGHT COLUMN */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', color: 'var(--accent-green)', fontSize: '11px', fontWeight: 950, letterSpacing: '2px', textTransform: 'uppercase' }}>
-                            <div style={{ width: '20px', height: '3px', background: 'var(--accent-green)' }} />
-                            RECENT_SUBMISSIONS
-                        </div>
-
-                        {submissions.length > 0 ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                {submissions.map((sub, idx) => {
-                                    const slug = sub.titleSlug || sub.slug;
-                                    const canClick = !!slug;
-
-                                    return (
-                                        <div key={sub.id || idx} style={{
-                                            background: 'var(--bg-main)', padding: '14px 16px', borderRadius: '0', border: 'var(--border-main)',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                            cursor: canClick ? 'pointer' : 'default', transition: 'all 0.2s',
-                                            opacity: canClick ? 1 : 0.7, boxShadow: 'var(--shadow-main)'
-                                        }}
-                                            onClick={() => {
-                                                if (canClick && onSelectProblem) {
-                                                    onSelectProblem({ slug: slug, title: sub.title });
-                                                }
-                                            }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                {sub.status === 'Accepted' ? <CheckCircle2 size={18} color="var(--accent-green)" /> : <XCircle size={18} color="var(--accent-red)" />}
-                                                <div>
-                                                    <div style={{ fontSize: '14px', fontWeight: 950, color: 'var(--text-main)', marginBottom: '2px', textTransform: 'uppercase' }}>{sub.title}</div>
-                                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>{sub.lang} • {sub.runtime} • {sub.memory}</div>
-                                                </div>
+                        {/* RECENT SUBMISSIONS */}
+                        <div className="neo-card" style={{ background: 'var(--bg-card)', border: 'var(--border-main)', padding: '24px', position: 'relative', overflow: 'hidden' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: 'var(--accent-green)', fontSize: '11px', fontWeight: 950, letterSpacing: '2px', textTransform: 'uppercase' }}>
+                                <div style={{ width: '20px', height: '3px', background: 'var(--accent-green)' }} />
+                                RECENT_SUBMISSIONS
+                            </div>
+                            {submissions.length > 0 ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '500px', overflowY: 'auto', paddingRight: '4px' }}>
+                                    {submissions.map((sub, idx) => (
+                                        <div key={idx} style={{ background: 'var(--bg-main)', padding: '12px 16px', border: 'var(--border-main)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+                                            onClick={() => onSelectProblem && onSelectProblem({ slug: sub.titleSlug || sub.slug, title: sub.title })}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                {sub.status === 'Accepted' ? <CheckCircle2 size={16} color="var(--accent-green)" /> : <XCircle size={16} color="var(--accent-red)" />}
+                                                <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-main)' }}>{sub.title}</div>
                                             </div>
-                                            <div style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 800 }}>
-                                                <Clock size={12} /> {formatTimestamp(sub.timestamp)}
-                                            </div>
+                                            <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{formatTimestamp(sub.timestamp)}</div>
                                         </div>
-                                    );
-                                })}
-                            </div>
-                        ) : (
-                            <div style={{ height: '200px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#3f3f46' }}>
-                                <Clock size={40} style={{ marginBottom: '12px', opacity: 0.3 }} />
-                                <div style={{ fontSize: '14px', fontWeight: 600 }}>No recent submissions</div>
-                                <div style={{ fontSize: '12px', color: '#27272a', marginTop: '4px' }}>Connect to see your activity</div>
-                            </div>
-                        )}
+                                    ))}
+                                </div>
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)', fontSize: '12px' }}>NO_SUBMISSIONS_FOUND</div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
-                {/* STREAK & HEATMAP SECTION */}
-                {stats && (
-                    <div style={{ marginTop: '30px' }}>
-                        {/* Streak Cards */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-                            <div style={{
-                                background: 'var(--bg-card)', borderRadius: '0', border: 'var(--border-main)',
-                                padding: '24px', display: 'flex', alignItems: 'center', gap: '16px', position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-main)'
-                            }}>
-                                <div style={{ position: 'absolute', top: '-30%', right: '-10%', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(251,146,60,0.15) 0%, transparent 70%)', filter: 'blur(30px)' }} />
-                                <div style={{
-                                    width: '52px', height: '52px', borderRadius: '0',
-                                    background: 'var(--accent)',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    flexShrink: 0, border: 'var(--border-main)'
-                                }}>
-                                    <Flame size={26} color="black" />
-                                </div>
-                                <div>
-                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px', fontWeight: 950 }}>Current Streak</div>
-                                    <div style={{ fontSize: '32px', fontWeight: 950, color: 'var(--text-main)', lineHeight: 1 }}>
-                                        {calendarData?.streak || 0}
-                                        <span style={{ fontSize: '14px', color: 'var(--accent)', marginLeft: '6px', fontWeight: 950 }}>DAYS</span>
-                                    </div>
-                                </div>
+                {/* HEATMAP SECTION */}
+                {stats && calendarData && !calendarData.error && (
+                    <div className="neo-card" style={{ marginTop: '20px', background: 'var(--bg-card)', border: 'var(--border-main)', padding: '24px', position: 'relative', overflow: 'hidden' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: 'var(--accent-green)', fontSize: '11px', fontWeight: 950, letterSpacing: '2px', textTransform: 'uppercase' }}>
+                            <div style={{ width: '20px', height: '3px', background: 'var(--accent-green)' }} />
+                            ACTIVITY_PULSE
+                        </div>
+                        <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
+                            <div style={{ background: 'var(--bg-main)', padding: '16px', flex: 1, border: 'var(--border-main)' }}>
+                                <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>Streak</div>
+                                <div style={{ fontSize: '24px', fontWeight: 950 }}>{calendarData.streak} DAYS</div>
                             </div>
-                            <div style={{
-                                background: 'var(--bg-card)', borderRadius: '0', border: 'var(--border-main)',
-                                padding: '24px', display: 'flex', alignItems: 'center', gap: '16px', position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-main)'
-                            }}>
-                                <div style={{ position: 'absolute', top: '-30%', right: '-10%', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%)', filter: 'blur(30px)' }} />
-                                <div style={{
-                                    width: '52px', height: '52px', borderRadius: '0',
-                                    background: 'var(--accent-green)',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    flexShrink: 0, border: 'var(--border-main)'
-                                }}>
-                                    <Trophy size={26} color="black" />
-                                </div>
-                                <div>
-                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px', fontWeight: 950 }}>Total Active Days</div>
-                                    <div style={{ fontSize: '32px', fontWeight: 950, color: 'var(--text-main)', lineHeight: 1 }}>
-                                        {calendarData?.totalActiveDays || 0}
-                                        <span style={{ fontSize: '14px', color: 'var(--accent-green)', marginLeft: '6px', fontWeight: 950 }}>DAYS</span>
-                                    </div>
-                                </div>
+                            <div style={{ background: 'var(--bg-main)', padding: '16px', flex: 1, border: 'var(--border-main)' }}>
+                                <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>Active Days</div>
+                                <div style={{ fontSize: '24px', fontWeight: 950 }}>{calendarData.totalActiveDays} DAYS</div>
                             </div>
                         </div>
-
-                        {/* Heatmap */}
-                        <div style={{
-                            background: 'var(--bg-card)', borderRadius: '0', border: 'var(--border-main)',
-                            padding: '28px', position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-main)'
-                        }}>
-                            <div style={{ position: 'absolute', bottom: '-20%', left: '-5%', width: '250px', height: '250px', background: 'radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 70%)', filter: 'blur(50px)' }} />
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-green)', fontSize: '11px', fontWeight: 950, letterSpacing: '2px', textTransform: 'uppercase' }}>
-                                    <div style={{ width: '20px', height: '3px', background: 'var(--accent-green)' }} />
-                                    SUBMISSION_ACTIVITY
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 800 }}>
-                                    LESS
-                                    {[0, 1, 2, 3, 4].map(level => (
-                                        <div key={level} style={{
-                                            width: '12px', height: '12px', borderRadius: '0', border: '1px solid var(--border-subtle)',
-                                            background: level === 0 ? 'var(--bg-main)' : level === 1 ? '#064e3b' : level === 2 ? '#059669' : level === 3 ? '#10b981' : '#34d399'
-                                        }} />
-                                    ))}
-                                    MORE
-                                </div>
-                            </div>
+                        {/* Heatmap Visualization */}
+                        <div style={{ background: 'var(--bg-main)', padding: '20px', border: 'var(--border-main)', overflowX: 'auto' }}>
                             {(() => {
-                                const calendar = calendarData?.submissionCalendar || {};
-                                const now = new Date();
-                                // Use UTC dates to match LeetCode's UTC midnight timestamps
-                                const todayUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-                                const weeks = 52;
-                                const totalDays = weeks * 7;
-                                const msPerDay = 86400000;
+                                const calendarDataRaw = calendarData.submissionCalendar;
+                                if (!calendarDataRaw) return null;
 
-                                // Build day data for last 52 weeks
-                                let startMs = todayUTC - (totalDays - 1) * msPerDay;
-                                // Align to Sunday (0 = Sunday)
-                                const startDay = new Date(startMs).getUTCDay();
-                                startMs -= startDay * msPerDay;
-
-                                const dayData = [];
-                                for (let ms = startMs; ms <= todayUTC; ms += msPerDay) {
-                                    const ts = (ms / 1000).toString();
-                                    dayData.push({
-                                        date: new Date(ms),
-                                        count: parseInt(calendar[ts]) || 0
-                                    });
+                                // Ensure calendar is an object (parse if it's a string)
+                                let calendar = calendarDataRaw;
+                                if (typeof calendar === 'string') {
+                                    try { calendar = JSON.parse(calendar); } catch (e) { calendar = {}; }
                                 }
 
-                                // Find max for color scaling
-                                const maxCount = Math.max(...dayData.map(d => d.count), 1);
+                                const today = new Date();
+                                today.setHours(0, 0, 0, 0);
 
-                                const getColor = (count) => {
-                                    if (count === 0) return 'var(--bg-main)';
-                                    const ratio = count / maxCount;
-                                    if (ratio <= 0.25) return '#064e3b';
-                                    if (ratio <= 0.5) return '#059669';
-                                    if (ratio <= 0.75) return '#10b981';
-                                    return '#34d399';
-                                };
-
-                                // Group into weeks (columns)
-                                const weekColumns = [];
-                                for (let i = 0; i < dayData.length; i += 7) {
-                                    weekColumns.push(dayData.slice(i, i + 7));
+                                const weeks = [];
+                                const startDate = new Date(today);
+                                startDate.setDate(today.getDate() - 364);
+                                // Align to start of the week (Sunday)
+                                while (startDate.getDay() !== 0) {
+                                    startDate.setDate(startDate.getDate() - 1);
                                 }
 
-                                // Month labels
-                                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                                const monthLabels = [];
-                                let lastMonth = -1;
-                                weekColumns.forEach((week, idx) => {
-                                    const firstDay = week[0];
-                                    if (firstDay && firstDay.date.getMonth() !== lastMonth) {
-                                        lastMonth = firstDay.date.getMonth();
-                                        monthLabels.push({ idx, label: months[lastMonth] });
+                                let currentDate = new Date(startDate);
+                                for (let w = 0; w < 53; w++) {
+                                    const weekDays = [];
+                                    for (let d = 0; d < 7; d++) {
+                                        // LeetCode timestamps are UTC midnight.
+                                        // We'll normalize our local date to UTC midnight for comparison.
+                                        const utcDate = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()));
+                                        const ts = Math.floor(utcDate.getTime() / 1000);
+
+                                        const count = calendar[ts] || calendar[String(ts)] || 0;
+                                        weekDays.push({ date: new Date(currentDate), count });
+                                        currentDate.setDate(currentDate.getDate() + 1);
                                     }
-                                });
-
-                                const cellSize = 13;
-                                const cellGap = 3;
+                                    weeks.push(weekDays);
+                                }
 
                                 return (
-                                    <div style={{ overflowX: 'auto', position: 'relative', zIndex: 1 }}>
-                                        {/* Month labels */}
-                                        <div style={{ display: 'flex', marginBottom: '6px', marginLeft: '36px' }}>
-                                            {monthLabels.map((m, i) => (
-                                                <div key={i} style={{
-                                                    position: 'absolute',
-                                                    left: `${36 + m.idx * (cellSize + cellGap)}px`,
-                                                    fontSize: '10px', color: '#52525b', fontWeight: 600
-                                                }}>
-                                                    {m.label}
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <div style={{ display: 'flex', gap: `${cellGap}px`, marginTop: '20px' }}>
-                                            {/* Day labels */}
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: `${cellGap}px`, marginRight: '6px', justifyContent: 'flex-start' }}>
-                                                {['', 'Mon', '', 'Wed', '', 'Fri', ''].map((label, i) => (
-                                                    <div key={i} style={{ height: `${cellSize}px`, fontSize: '10px', color: '#3f3f46', display: 'flex', alignItems: 'center', lineHeight: 1, fontWeight: 600 }}>
-                                                        {label}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                            {/* Grid */}
-                                            {weekColumns.map((week, wIdx) => (
-                                                <div key={wIdx} style={{ display: 'flex', flexDirection: 'column', gap: `${cellGap}px` }}>
-                                                    {week.map((day, dIdx) => (
+                                    <div style={{ display: 'flex', gap: '3px', padding: '10px 0' }}>
+                                        {weeks.map((week, widx) => (
+                                            <div key={widx} style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                                                {week.map((day, didx) => {
+                                                    const isActive = day.count > 0;
+                                                    // High-intensity green for active days
+                                                    const greenColor = '#00ff9f';
+                                                    const opacity = isActive ? 0.4 + Math.min(day.count * 0.2, 0.6) : 0.08;
+
+                                                    return (
                                                         <div
-                                                            key={dIdx}
-                                                            title={`${day.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}: ${day.count} submission${day.count !== 1 ? 's' : ''}`}
+                                                            key={didx}
+                                                            title={`${day.count} submissions on ${day.date.toDateString()}`}
                                                             style={{
-                                                                width: `${cellSize}px`, height: `${cellSize}px`,
-                                                                borderRadius: '0', border: '1px solid var(--border-subtle)',
-                                                                background: getColor(day.count),
-                                                                transition: 'transform 0.1s',
-                                                                cursor: 'default'
+                                                                width: '10px',
+                                                                height: '10px',
+                                                                background: isActive ? greenColor : 'rgba(255,255,255,1)',
+                                                                opacity: opacity,
+                                                                borderRadius: '1px',
+                                                                boxShadow: isActive ? `0 0 8px ${greenColor}44` : 'none',
+                                                                transition: 'all 0.3s ease'
                                                             }}
-                                                            onMouseEnter={e => e.target.style.transform = 'scale(1.3)'}
-                                                            onMouseLeave={e => e.target.style.transform = 'scale(1)'}
                                                         />
-                                                    ))}
-                                                </div>
-                                            ))}
-                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        ))}
                                     </div>
                                 );
                             })()}
                         </div>
                     </div>
                 )}
-
-                <style>{`
-                    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-                    .animate-spin { animation: spin 1s linear infinite; }
-                `}</style>
             </div>
+
+            <style>{`
+                .v-stream {
+                    position: absolute; top: -20%; width: 1px; height: 140%;
+                    background: linear-gradient(to bottom, transparent, rgba(99, 102, 241, 0.4), transparent);
+                    animation: stream 8s linear infinite;
+                }
+                @keyframes stream { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                .animate-spin { animation: spin 1s linear infinite; }
+                .neo-btn:hover { background: #fff !important; color: #000 !important; }
+                .disconnect-btn:hover { background: var(--accent-red) !important; color: #000 !important; }
+            `}</style>
         </div>
     );
 };

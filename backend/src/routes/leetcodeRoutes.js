@@ -173,7 +173,7 @@ router.get('/calendar/:username', async (req, res) => {
         const response = await fetch(`${PIED_API}/user/${username}/calendar`);
 
         if (!response.ok) {
-            return res.status(404).json({ error: "Calendar data not found" });
+            return res.json({ error: "No calendar data found", streak: 0, totalActiveDays: 0 });
         }
 
         const data = await response.json();
@@ -188,6 +188,30 @@ router.get('/calendar/:username', async (req, res) => {
     } catch (error) {
         console.error("Calendar Error:", error);
         res.status(500).json({ error: "Failed to fetch calendar data" });
+    }
+});
+
+router.get('/contest/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+        const response = await fetch(`${PIED_API}/user/${username}/contest`);
+        if (!response.ok) return res.json({ error: "No contest data found" });
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch contest data" });
+    }
+});
+
+router.get('/skills/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+        const response = await fetch(`${PIED_API}/user/${username}/skills`);
+        if (!response.ok) return res.json({ error: "No skills data found" });
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch skills data" });
     }
 });
 

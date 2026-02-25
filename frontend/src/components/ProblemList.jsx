@@ -35,7 +35,6 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                     String(p.id).includes(searchTerm)) && !p.paid
             );
         } else {
-            // Even if no search, exclude paid ones initially if they leaked through
             results = results.filter(p => !p.paid);
         }
 
@@ -46,14 +45,13 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
             );
         }
 
-        // Topic Filter (Keyword based matching since full tags might be missing)
+        // Topic Filter
         if (selectedTopic !== "all") {
             results = results.filter(p => {
                 const title = String(p.title).toLowerCase();
                 const slug = String(p.slug).toLowerCase();
                 const topic = selectedTopic.toLowerCase();
 
-                // Common aliases for keywords
                 if (topic === 'dynamic') return title.includes('dynamic') || slug.includes('dp') || title.includes('subsequences') || title.includes('climbing stairs');
                 if (topic === 'tree') return title.includes('tree') || title.includes('binary search tree') || title.includes('bst');
                 if (topic === 'linked') return title.includes('linked list');
@@ -205,7 +203,6 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                     </div>
 
                     <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                        {/* Difficulty Filter */}
                         <div style={{ minWidth: '150px' }}>
                             <select
                                 value={selectedDifficulty}
@@ -230,7 +227,6 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                             </select>
                         </div>
 
-                        {/* Topic Filter */}
                         <div style={{ minWidth: '180px' }}>
                             <select
                                 value={selectedTopic}
@@ -254,7 +250,6 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                             </select>
                         </div>
 
-                        {/* Clear Button */}
                         {(searchTerm || selectedDifficulty !== "all" || selectedTopic !== "all") && (
                             <button
                                 onClick={() => {
@@ -295,17 +290,16 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                             display: 'grid',
                             gridTemplateColumns: '60px 1fr 140px 80px',
                             padding: '16px 20px',
-                            background: 'var(--text-main)',
-                            color: 'var(--bg-card)',
-                            borderBottom: 'var(--border-main)'
+                            background: 'rgba(255, 255, 255, 0.03)',
+                            borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
                         }}>
-                            <div style={{ color: '#6b7280', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            <div style={{ color: '#9ca3af', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
                                 Status
                             </div>
-                            <div style={{ color: '#6b7280', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            <div style={{ color: '#9ca3af', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
                                 Title
                             </div>
-                            <div style={{ color: '#6b7280', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            <div style={{ color: '#9ca3af', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
                                 Difficulty
                             </div>
                             <div></div>
@@ -417,8 +411,6 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                         })}
                     </div>
                 )}
-
-
             </div>
         </div>
     );

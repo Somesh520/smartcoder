@@ -202,13 +202,29 @@ const Console = ({
             <motion.div key="result" variants={contentVariants} initial="hidden" animate="visible" exit="exit" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                 {/* Status Banner (Only for Submit) */}
                 {!isRunCode && result.status_msg && (
-                    <div style={{
-                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        padding: '12px 20px', marginBottom: '20px',
-                        background: 'var(--bg-main)',
-                        border: 'var(--border-main)',
-                        boxShadow: 'var(--shadow-main)'
-                    }}>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                        style={{
+                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                            padding: '16px 24px', marginBottom: '20px', borderRadius: '12px',
+                            background: isAccepted ? 'rgba(34, 197, 94, 0.08)' : 'rgba(239, 68, 68, 0.08)',
+                            border: isAccepted ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
+                            boxShadow: isAccepted ? '0 10px 30px rgba(34, 197, 94, 0.15), inset 0 0 20px rgba(34, 197, 94, 0.05)' : '0 10px 30px rgba(239, 68, 68, 0.15), inset 0 0 20px rgba(239, 68, 68, 0.05)',
+                            position: 'relative', overflow: 'hidden'
+                        }}>
+                        {/* Shimmer Effect */}
+                        <motion.div
+                            initial={{ x: '-100%' }}
+                            animate={{ x: '200%' }}
+                            transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 3 }}
+                            style={{
+                                position: 'absolute', top: 0, bottom: 0, left: 0, width: '30%',
+                                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)',
+                                transform: 'skewX(-20deg)', pointerEvents: 'none'
+                            }}
+                        />
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             {isAccepted ? <CheckCircle2 size={24} color="#22c55e" /> : <XCircle size={24} color="#ef4444" />}
                             <div>
@@ -236,11 +252,12 @@ const Console = ({
                         )}
                         <style>{`
                             .stat-pill {
-                                background: var(--bg-card); padding: 6px 12px; border: var(--border-main);
+                                background: rgba(0,0,0,0.3); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
                                 font-size: 13px; color: var(--text-main); font-weight: 800;
+                                box-shadow: 0 4px 10px rgba(0,0,0,0.2);
                             }
                         `}</style>
-                    </div>
+                    </motion.div>
                 )}
 
                 {/* Tabs */}

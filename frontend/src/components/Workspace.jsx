@@ -4,6 +4,7 @@ import CodeEditor from './CodeEditor';
 import Console from './Console';
 import ModernSpinner from './ModernSpinner';
 import { ArrowLeft, Play, Send, Trophy, Zap, Sparkles, X, Loader2, Lightbulb, Bug, Rocket, Code2, Maximize2, Minimize2, Timer, User } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import SubmissionSuccess from './SubmissionSuccess';
 
 import Prism from 'prismjs';
@@ -743,32 +744,61 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }
 
                     {/* Action Buttons */}
                     <div style={{ display: 'flex', gap: '10px' }}>
-                        <button
+                        <motion.button
                             onClick={() => executeAction('run')}
                             disabled={!details || loading}
-                            className="neo-btn"
+                            whileHover={(!details || loading) ? {} : { scale: 1.05, boxShadow: '0 0 15px rgba(34, 197, 94, 0.4)' }}
+                            whileTap={(!details || loading) ? {} : { scale: 0.95 }}
                             style={{
                                 background: (!details || loading) ? 'var(--bg-main)' : 'var(--accent)',
                                 color: (!details || loading) ? 'var(--text-muted)' : 'black',
-                                padding: '8px 16px',
+                                padding: '8px 18px',
                                 fontSize: '13px',
+                                fontWeight: 800,
+                                border: (!details || loading) ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid var(--accent)',
+                                borderRadius: '8px',
+                                cursor: (!details || loading) ? 'not-allowed' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                transition: 'background 0.2s, color 0.2s'
                             }}
                         >
-                            <Play size={14} /> RUN
-                        </button>
-                        <button
+                            <Play size={15} color={(!details || loading) ? 'var(--text-muted)' : 'black'} fill={(!details || loading) ? 'transparent' : 'black'} /> RUN
+                        </motion.button>
+
+                        <motion.button
                             onClick={() => executeAction('submit')}
                             disabled={!details || loading}
-                            className="neo-btn"
+                            whileHover={(!details || loading) ? {} : { scale: 1.05, boxShadow: '0 0 25px rgba(34, 197, 94, 0.8)' }}
+                            whileTap={(!details || loading) ? {} : { scale: 0.95 }}
+                            animate={(!details || loading) ? {} : {
+                                boxShadow: ['0 0 10px rgba(34, 197, 94, 0.2)', '0 0 20px rgba(34, 197, 94, 0.6)', '0 0 10px rgba(34, 197, 94, 0.2)']
+                            }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                             style={{
-                                background: (!details || loading) ? 'var(--bg-main)' : '#22c55e',
+                                background: (!details || loading) ? 'var(--bg-main)' : 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
                                 color: (!details || loading) ? 'var(--text-muted)' : 'white',
-                                padding: '8px 16px',
+                                padding: '8px 20px',
                                 fontSize: '13px',
+                                fontWeight: 900,
+                                border: (!details || loading) ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #4ade80',
+                                borderRadius: '8px',
+                                cursor: (!details || loading) ? 'not-allowed' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                textShadow: (!details || loading) ? 'none' : '0 2px 4px rgba(0,0,0,0.3)'
                             }}
                         >
-                            <Send size={14} /> SUBMIT
-                        </button>
+                            <motion.div
+                                animate={(!details || loading) ? {} : { x: [0, 3, 0] }}
+                                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                            >
+                                <Send size={15} color={(!details || loading) ? 'var(--text-muted)' : 'white'} />
+                            </motion.div>
+                            SUBMIT
+                        </motion.button>
                         {/* AI Star Button */}
                         <button
                             onClick={() => setAiOpen(!aiOpen)}
@@ -940,7 +970,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }
                         left: isAiExpanded ? '50%' : 'auto',
                         bottom: isAiExpanded ? '10%' : 0,
                         transform: isAiExpanded ? 'translateX(-50%)' : 'none',
-                        width: isAiExpanded ? '70%' : '420px',
+                        width: isAiExpanded ? '70%' : '480px',
                         maxWidth: isAiExpanded ? '1100px' : '95%',
                         height: isAiExpanded ? '85vh' : 'auto',
                         zIndex: 100,
@@ -948,7 +978,8 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }
                         backdropFilter: 'blur(20px)',
                         border: isAiExpanded ? 'var(--border-main)' : 'none',
                         borderLeft: 'var(--border-main)',
-                        borderRadius: '0',
+                        borderBottom: 'var(--border-main)',
+                        borderRadius: '0 0 0 16px',
                         display: 'flex',
                         flexDirection: 'column',
                         animation: isAiExpanded ? 'floatIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)' : 'slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -962,14 +993,14 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }
 
                         {/* Header (Same as before) */}
                         <div style={{
-                            padding: '16px 20px', borderBottom: 'var(--border-main)',
+                            padding: '12px 18px', borderBottom: 'var(--border-main)',
                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                             background: 'var(--bg-main)'
                         }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <Sparkles size={16} color="var(--accent)" />
-                                <span style={{ color: 'var(--text-main)', fontWeight: 950, fontSize: '14px', textTransform: 'uppercase' }}>SMARTCODER_AI</span>
-                                <div style={{ padding: '2px 8px', borderRadius: '0', background: 'var(--bg-card)', border: 'var(--border-main)', fontSize: '11px', fontWeight: 900, color: credits > 0 ? '#22c55e' : '#ef4444', marginLeft: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
+                                <Sparkles size={16} color="var(--accent)" style={{ flexShrink: 0 }} />
+                                <span style={{ color: 'var(--text-main)', fontWeight: 950, fontSize: '14px', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>SMARTCODER_AI</span>
+                                <div style={{ padding: '2px 6px', borderRadius: '4px', background: 'var(--bg-card)', border: 'var(--border-main)', fontSize: '10px', fontWeight: 900, color: credits > 0 ? '#22c55e' : '#ef4444', marginLeft: '4px', whiteSpace: 'nowrap' }}>
                                     {credits} CREDITS
                                 </div>
                             </div>
@@ -1016,12 +1047,22 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }
                                 </div>
                                 <button
                                     onClick={() => setIsAiExpanded(!isAiExpanded)}
-                                    style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer', marginRight: '8px' }}
+                                    style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', transition: 'color 0.2s' }}
                                     title={isAiExpanded ? "Collapse" : "Expand"}
+                                    onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+                                    onMouseLeave={e => e.currentTarget.style.color = '#9ca3af'}
                                 >
-                                    {isAiExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+                                    {isAiExpanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
                                 </button>
-                                <button onClick={() => setAiOpen(false)} style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer' }}><X size={16} /></button>
+                                <button
+                                    onClick={() => setAiOpen(false)}
+                                    style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', transition: 'all 0.2s' }}
+                                    title="Close SmartCoder AI"
+                                    onMouseEnter={e => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.transform = 'scale(1.15)'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.transform = 'scale(1)'; }}
+                                >
+                                    <X size={22} strokeWidth={3} />
+                                </button>
                             </div>
                         </div>
 

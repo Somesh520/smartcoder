@@ -121,6 +121,9 @@ export const getCurrentUser = async () => {
 export const logout = async () => {
   console.log("[API] Logging out...");
   localStorage.removeItem('auth_token');
+  localStorage.removeItem('leetcode_username');
+  localStorage.removeItem('user_session');
+  localStorage.removeItem('user_csrf');
 
   // Clear cookie manually on client side to be safe
   document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=None; Secure";
@@ -238,6 +241,36 @@ export const fetchUserCalendar = async (username) => {
     return await res.json();
   } catch (e) {
     console.error("Failed to fetch calendar data", e);
+    return null;
+  }
+};
+
+// Fetch user contest history/stats
+export const fetchUserContest = async (username) => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/leetcode/contest/${username}`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    console.error("Failed to fetch contest data", e);
+    return null;
+  }
+};
+
+// Fetch user skills/tags distribution
+export const fetchUserSkills = async (username) => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/leetcode/skills/${username}`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    console.error("Failed to fetch skills data", e);
     return null;
   }
 };

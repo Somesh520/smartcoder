@@ -9,7 +9,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const currentView = location.pathname.includes('/competition') ? 'competition' :
-        location.pathname.includes('/problems') ? 'list' : 'lobby';
+        (location.pathname.includes('/problems') || location.pathname.includes('/workspace')) ? 'list' : 'lobby';
 
     const isInBattle = currentView === 'competition';
     const [collapsed, setCollapsed] = useState(false);
@@ -45,7 +45,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                 gap: collapsed ? '0' : '16px',
                 justifyContent: collapsed ? 'center' : 'flex-start',
                 padding: collapsed ? '12px 0' : '12px 20px',
-                background: active ? 'rgba(34, 197, 110, 0.1)' : 'transparent',
+                background: 'transparent',
                 border: 'none',
                 cursor: isInBattle ? 'not-allowed' : 'pointer',
                 color: active ? 'var(--accent)' : 'rgba(255, 255, 255, 0.7)',
@@ -53,7 +53,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                 fontWeight: active ? 800 : 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
-                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                transition: 'color 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                 marginBottom: '4px',
                 opacity: isInBattle ? 0.5 : 1,
                 position: 'relative',
@@ -62,6 +62,23 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
             title={collapsed ? label : ''}
             className="sidebar-nav-item"
         >
+            {/* Shared Background Highlight */}
+            {active && (
+                <motion.div
+                    layoutId="nav-highlight"
+                    style={{
+                        position: 'absolute',
+                        inset: '2px 8px',
+                        background: active ? 'rgba(34, 197, 110, 0.1)' : 'transparent',
+                        borderRadius: '12px',
+                        zIndex: 0,
+                        border: '1px solid rgba(34, 197, 110, 0.15)',
+                        boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+                    }}
+                    transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                />
+            )}
+
             {/* Active Indicator Bar */}
             {active && !collapsed && (
                 <motion.div
@@ -70,35 +87,38 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                         position: 'absolute',
                         left: 0,
                         width: '4px',
-                        height: '24px',
+                        height: '20px',
                         background: 'var(--accent)',
                         borderRadius: '0 4px 4px 0',
-                        boxShadow: '0 0 12px var(--accent)'
+                        boxShadow: '0 0 15px var(--accent)',
+                        zIndex: 1
                     }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                 />
             )}
 
-            {/* Active Background Pill (Collapsed) */}
-            {active && collapsed && (
-                <motion.div
-                    layoutId="active-pill"
-                    style={{
-                        position: 'absolute',
-                        inset: '6px 8px',
-                        background: 'var(--accent)',
-                        borderRadius: '12px',
-                        zIndex: -1,
-                    }}
+            <motion.div
+                animate={{
+                    scale: active ? 1.15 : 1,
+                    rotate: active ? [0, -5, 5, 0] : 0
+                }}
+                transition={{ duration: 0.3 }}
+                style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+                <Icon
+                    size={collapsed ? 26 : 20}
+                    color={active ? 'var(--accent)' : (danger ? '#ef4444' : 'currentColor')}
+                    strokeWidth={active ? 2.5 : 2}
+                    style={{ transition: 'all 0.2s' }}
                 />
+            </motion.div>
+
+            {!collapsed && (
+                <span style={{ zIndex: 1, position: 'relative' }}>{label}</span>
             )}
 
-            <Icon
-                size={collapsed ? 26 : 20}
-                color={active ? (collapsed ? '#000' : 'var(--accent)') : (danger ? '#ef4444' : 'currentColor')}
-                strokeWidth={active ? 2.5 : 2}
-                style={{ transition: 'all 0.2s' }}
-            />
-            {!collapsed && <span>{label}</span>}
+            {/* Mouse Hover Glow (optional subtle addition) */}
+            <div className="nav-hover-overlay" />
         </button>
     );
 
@@ -174,7 +194,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                     <NavItem
                         icon={Swords}
                         label="Lobby"
-                        active={!location.pathname.includes('/stats') && !location.pathname.includes('/problems') && !location.pathname.includes('/learn') && !location.pathname.includes('/history') && !location.pathname.includes('/docs') && !location.pathname.includes('/admin')}
+                        active={!location.pathname.includes('/stats') && !location.pathname.includes('/problems') && !location.pathname.includes('/workspace') && !location.pathname.includes('/learn') && !location.pathname.includes('/history') && !location.pathname.includes('/docs') && !location.pathname.includes('/admin')}
                         onClick={() => handleNav(onGoDetail)}
                     />
                     <NavItem
@@ -332,7 +352,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                     style={{
                         position: 'absolute',
                         right: '-14px',
-                        top: '48px',
+                        top: '31px', // Vertically aligned with the center of the logo
                         width: '28px',
                         height: '28px',
                         background: '#1a1a1a',
@@ -434,6 +454,38 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                     alert("Thanks for your review! It's now live on the landing page.");
                 }}
             />
+            <style>{`
+                .sidebar-nav-item:hover {
+                    color: #fff !important;
+                }
+                .sidebar-nav-item:hover svg {
+                    transform: translateX(4px);
+                    color: var(--accent) !important;
+                }
+                .sidebar-nav-item.collapsed:hover svg {
+                    transform: scale(1.1);
+                }
+                .nav-hover-overlay {
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(90deg, rgba(34, 197, 94, 0.05) 0%, transparent 100%);
+                    opacity: 0;
+                    transition: opacity 0.3s;
+                }
+                .sidebar-nav-item:hover .nav-hover-overlay {
+                    opacity: 1;
+                }
+                .custom-scroll::-webkit-scrollbar {
+                    width: 4px;
+                }
+                .custom-scroll::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                .custom-scroll::-webkit-scrollbar-thumb {
+                    background: rgba(255, 255, 255, 0.05);
+                    border-radius: 10px;
+                }
+            `}</style>
         </>
     );
 };
