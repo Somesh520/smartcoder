@@ -377,13 +377,16 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }
                         setResult(res);
 
                         // Previous comment cleanup
-                        if (type === 'submit' && res.status_msg === 'Accepted') {
-                            setShowSuccessModal(true);
-                            if (onSubmissionSuccess) {
-                                onSubmissionSuccess(res);
+                        // Handle "Accepted" for both RUN and SUBMIT
+                        if (res.status_msg === 'Accepted') {
+                            if (type === 'submit') {
+                                setShowSuccessModal(true);
+                                if (onSubmissionSuccess) {
+                                    onSubmissionSuccess(res);
+                                }
                             }
 
-                            // AI Complexity Analysis
+                            // AI Complexity Analysis (Trigger for both Run & Submit)
                             try {
                                 const complexity = await fetchComplexity({
                                     code,
@@ -397,7 +400,6 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }
                                 console.error("Complexity analysis failed", err);
                             }
                         }
-
                     }
                 } catch (e) {
                     clearInterval(interval);
@@ -1151,7 +1153,8 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }
                 onClose={() => setShowSuccessModal(false)}
                 stats={{
                     runtime: result?.status_runtime,
-                    memory: result?.status_memory
+                    memory: result?.status_memory,
+                    complexity: result?.complexity
                 }}
             />
 

@@ -219,9 +219,19 @@ const Console = ({
                             </div>
                         </div>
                         {isAccepted && (
-                            <div style={{ display: 'flex', gap: '16px' }}>
+                            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                                 <div className="stat-pill">⏱️ {result.status_runtime || 'N/A'}</div>
                                 <div className="stat-pill">💾 {result.status_memory || 'N/A'}</div>
+                                {result.complexity && (
+                                    <>
+                                        <div className="stat-pill" style={{ color: 'var(--accent)', borderColor: 'var(--accent)' }}>
+                                            ⌛ {result.complexity.timeComplexity}
+                                        </div>
+                                        <div className="stat-pill" style={{ color: 'var(--text-main)', borderColor: 'var(--text-main)' }}>
+                                            📦 {result.complexity.spaceComplexity}
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         )}
                         <style>{`
