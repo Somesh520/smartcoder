@@ -2,6 +2,7 @@ import { getCurrentUser, logout, BASE_URL } from '../api';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Code2, Swords, TrendingUp, BookOpen, History, LogOut, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Book, Shield, Star, User, Zap, Sun, Moon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ReviewModal from './ReviewModal';
 
 const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
@@ -41,25 +42,62 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                 width: '100%',
                 display: 'flex',
                 alignItems: 'center',
-                gap: collapsed ? '0' : '12px',
+                gap: collapsed ? '0' : '16px',
                 justifyContent: collapsed ? 'center' : 'flex-start',
-                padding: collapsed ? '12px 0' : '14px 16px',
-                background: active ? 'var(--accent)' : 'transparent',
-                border: active ? 'var(--border-main)' : '2px solid transparent',
-                boxShadow: active ? 'var(--shadow-main)' : 'none',
+                padding: collapsed ? '12px 0' : '12px 20px',
+                background: active ? 'rgba(34, 197, 110, 0.1)' : 'transparent',
+                border: 'none',
                 cursor: isInBattle ? 'not-allowed' : 'pointer',
-                color: active ? '#000' : 'var(--text-main)',
-                fontSize: '14px',
-                fontWeight: 800,
+                color: active ? 'var(--accent)' : 'rgba(255, 255, 255, 0.7)',
+                fontSize: '13px',
+                fontWeight: active ? 800 : 600,
                 textTransform: 'uppercase',
-                transition: 'all 0.1s',
-                marginBottom: '8px',
+                letterSpacing: '0.5px',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                marginBottom: '4px',
                 opacity: isInBattle ? 0.5 : 1,
-                borderRadius: collapsed ? '12px' : '0'
+                position: 'relative',
+                overflow: 'hidden'
             }}
             title={collapsed ? label : ''}
+            className="sidebar-nav-item"
         >
-            <Icon size={collapsed ? 28 : 24} color={danger ? '#ef4444' : (active ? '#000' : 'currentColor')} strokeWidth={active ? 3 : 2} />
+            {/* Active Indicator Bar */}
+            {active && !collapsed && (
+                <motion.div
+                    layoutId="active-bar"
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        width: '4px',
+                        height: '24px',
+                        background: 'var(--accent)',
+                        borderRadius: '0 4px 4px 0',
+                        boxShadow: '0 0 12px var(--accent)'
+                    }}
+                />
+            )}
+
+            {/* Active Background Pill (Collapsed) */}
+            {active && collapsed && (
+                <motion.div
+                    layoutId="active-pill"
+                    style={{
+                        position: 'absolute',
+                        inset: '6px 8px',
+                        background: 'var(--accent)',
+                        borderRadius: '12px',
+                        zIndex: -1,
+                    }}
+                />
+            )}
+
+            <Icon
+                size={collapsed ? 26 : 20}
+                color={active ? (collapsed ? '#000' : 'var(--accent)') : (danger ? '#ef4444' : 'currentColor')}
+                strokeWidth={active ? 2.5 : 2}
+                style={{ transition: 'all 0.2s' }}
+            />
             {!collapsed && <span>{label}</span>}
         </button>
     );
@@ -69,74 +107,69 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
             <aside style={{
                 width: collapsed ? '80px' : '260px',
                 height: '100vh',
-                background: 'var(--sidebar-bg)',
-                borderRight: 'var(--border-main)',
+                background: '#0a0a0a',
+                borderRight: '1px solid rgba(255, 255, 255, 0.05)',
                 display: 'flex',
                 flexDirection: 'column',
-                padding: '24px 16px',
-                transition: 'width 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                padding: '24px 0',
+                transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 position: 'relative',
                 flexShrink: 0,
                 zIndex: 50,
-                overflow: 'visible'
             }}>
-                {/* BRAND & TOGGLE */}
+                {/* BRAND SECTION */}
                 <div style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    marginBottom: '48px', position: 'relative'
+                    padding: collapsed ? '0' : '0 24px',
+                    marginBottom: '40px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: collapsed ? 'center' : 'flex-start',
                 }}>
                     <div
                         style={{
-                            display: 'flex', alignItems: 'center', gap: '12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '14px',
                             cursor: 'pointer'
                         }}
                         onClick={() => !isInBattle && handleNav(onGoDetail)}
                     >
                         <div style={{
-                            width: collapsed ? '44px' : '48px', height: collapsed ? '44px' : '48px',
-                            background: 'var(--accent)', border: 'var(--border-main)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            width: '42px',
+                            height: '42px',
+                            background: 'var(--accent)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: '12px',
                             flexShrink: 0,
-                            borderRadius: '10px'
+                            boxShadow: '0 4px 20px rgba(34, 197, 94, 0.2)'
                         }}>
-                            <Code2 size={collapsed ? 28 : 32} color="black" strokeWidth={3} />
+                            <Code2 size={26} color="black" strokeWidth={3} />
                         </div>
                         {!collapsed && (
-                            <span style={{ fontSize: '24px', fontWeight: 950, color: 'var(--text-main)', letterSpacing: '-1.5px', textTransform: 'uppercase' }}>
-                                ALGODUEL
-                            </span>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span style={{ fontSize: '20px', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1 }}>
+                                    ALGO<span style={{ color: 'var(--accent)' }}>DUEL</span>
+                                </span>
+                                <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.3)', fontWeight: 800, marginTop: '2px', letterSpacing: '1px' }}>
+                                    BETA v1.2.0
+                                </span>
+                            </div>
                         )}
                     </div>
-
-                    {/* Collapse Toggle */}
-                    <button
-                        onClick={() => setCollapsed(!collapsed)}
-                        style={{
-                            position: 'absolute',
-                            bottom: '-28px',
-                            right: collapsed ? '-12px' : '-24px',
-                            width: '28px', height: '28px', background: 'var(--accent)',
-                            border: 'var(--border-main)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            color: '#000', cursor: 'pointer', zIndex: 60,
-                            borderRadius: '8px',
-                            boxShadow: 'var(--shadow-main)',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        {collapsed ? <ChevronRight size={16} strokeWidth={3} /> : <ChevronLeft size={16} strokeWidth={3} />}
-                    </button>
                 </div>
 
                 {/* NAVIGATION */}
-                <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }} className="custom-scroll">
-                    <div style={{
-                        fontSize: '12px', fontWeight: 900, color: 'var(--text-muted)',
-                        marginBottom: '16px', paddingLeft: '8px', textTransform: 'uppercase', letterSpacing: '1px',
-                        display: collapsed ? 'none' : 'block'
-                    }}>
-                        MENU_BLOCK
-                    </div>
+                <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '0 12px' }} className="custom-scroll">
+                    {!collapsed && (
+                        <div style={{
+                            fontSize: '11px', fontWeight: 800, color: 'rgba(255, 255, 255, 0.2)',
+                            marginBottom: '12px', paddingLeft: '8px', textTransform: 'uppercase', letterSpacing: '1.5px'
+                        }}>
+                            Main Menu
+                        </div>
+                    )}
 
                     <NavItem
                         icon={Swords}
@@ -175,11 +208,20 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                         onClick={() => handleNav(() => navigate('/app/docs'))}
                     />
 
-                    <div style={{ height: '1px', background: 'var(--border-main)', margin: '16px 8px', opacity: 0.2 }} />
+                    <div style={{ height: '1px', background: 'rgba(255, 255, 255, 0.05)', margin: '16px 8px' }} />
+
+                    {!collapsed && (
+                        <div style={{
+                            fontSize: '11px', fontWeight: 800, color: 'rgba(255, 255, 255, 0.2)',
+                            marginBottom: '12px', paddingLeft: '8px', textTransform: 'uppercase', letterSpacing: '1.5px'
+                        }}>
+                            Support
+                        </div>
+                    )}
 
                     <NavItem
                         icon={Star}
-                        label="Rate"
+                        label="Rate Platform"
                         active={false}
                         onClick={() => setIsReviewModalOpen(true)}
                     />
@@ -187,7 +229,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                     {user?.loggedIn && user.email === 'someshtiwari532@gmail.com' && (
                         <NavItem
                             icon={Shield}
-                            label="Admin"
+                            label="Admin Hub"
                             active={location.pathname.includes('/admin')}
                             onClick={() => handleNav(() => navigate('/app/admin'))}
                             danger
@@ -195,141 +237,192 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                     )}
                 </div>
 
-                {/* THEME TOGGLE & USER PROFILE */}
-                <div style={{
-                    paddingTop: '16px',
-                    borderTop: 'var(--border-main)',
-                    display: 'flex',
-                    justifyContent: 'center'
-                }}>
-                    {user?.loggedIn ? (
-                        <div className="neo-card" style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '12px',
-                            padding: collapsed ? '8px' : '12px',
-                            background: 'var(--bg-card)',
-                            width: '100%',
-                            justifyContent: collapsed ? 'center' : 'flex-start',
-                            borderRadius: collapsed ? '12px' : '0'
-                        }}>
-                            {user.photos ? (
-                                <img
-                                    src={user.photos}
-                                    alt={user.displayName}
-                                    style={{
-                                        width: '44px',
-                                        height: '44px',
-                                        border: 'var(--border-main)',
-                                        boxShadow: 'var(--shadow-main)',
-                                        borderRadius: '8px',
-                                        objectFit: 'cover'
-                                    }}
-                                />
-                            ) : (
-                                <div style={{
-                                    width: '44px',
-                                    height: '44px',
+                {/* USER PROFILE SECTION */}
+                <div style={{ padding: '0 12px', marginTop: '16px' }}>
+                    <div style={{
+                        padding: '12px',
+                        background: 'rgba(255, 255, 255, 0.03)',
+                        borderRadius: '16px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        border: '1px solid rgba(255, 255, 255, 0.03)',
+                        justifyContent: collapsed ? 'center' : 'flex-start'
+                    }}>
+                        {user?.loggedIn ? (
+                            <>
+                                {user.photos ? (
+                                    <img
+                                        src={user.photos}
+                                        alt={user.displayName}
+                                        style={{
+                                            width: '38px',
+                                            height: '38px',
+                                            borderRadius: '10px',
+                                            objectFit: 'cover',
+                                            border: '1px solid rgba(255, 255, 255, 0.1)'
+                                        }}
+                                    />
+                                ) : (
+                                    <div style={{
+                                        width: '38px',
+                                        height: '38px',
+                                        background: 'var(--accent)',
+                                        color: '#000',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '16px',
+                                        fontWeight: 900,
+                                        borderRadius: '10px'
+                                    }}>
+                                        {String(user.displayName?.[0] || 'U').toUpperCase()}
+                                    </div>
+                                )}
+                                {!collapsed && (
+                                    <div style={{ flex: 1, overflow: 'hidden' }}>
+                                        <div style={{ fontSize: '12px', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                            {user.displayName}
+                                        </div>
+                                        <button
+                                            onClick={logout}
+                                            style={{
+                                                background: 'transparent',
+                                                border: 'none',
+                                                padding: 0,
+                                                color: 'rgba(255, 255, 255, 0.4)',
+                                                fontSize: '10px',
+                                                cursor: 'pointer',
+                                                fontWeight: 800,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '4px',
+                                                marginTop: '2px'
+                                            }}
+                                        >
+                                            Sign Out <LogOut size={10} />
+                                        </button>
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <button
+                                onClick={handleLogin}
+                                style={{
+                                    width: '100%',
                                     background: 'var(--accent)',
                                     color: '#000',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '20px',
-                                    fontWeight: 950,
-                                    border: 'var(--border-main)',
-                                    borderRadius: '8px',
-                                    boxShadow: 'var(--shadow-main)'
-                                }}>
-                                    {String(user.displayName?.[0] || user.email?.[0] || 'U').toUpperCase()}
-                                </div>
-                            )}
-                            {!collapsed && (
-                                <div style={{ flex: 1, overflow: 'hidden' }}>
-                                    <div style={{ fontSize: '12px', fontWeight: 900, color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textTransform: 'uppercase' }}>
-                                        {user.displayName}
-                                    </div>
-                                    <button
-                                        onClick={logout}
-                                        style={{
-                                            background: 'transparent', border: 'none',
-                                            padding: 0, color: '#ef4444', fontSize: '10px',
-                                            cursor: 'pointer', fontWeight: 800, marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px', textTransform: 'uppercase'
-                                        }}
-                                    >
-                                        [ LOGOUT ]
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <button
-                            onClick={handleLogin}
-                            className="neo-btn"
-                            style={{ width: '100%', justifyContent: 'center' }}
-                        >
-                            {!collapsed ? 'LOGIN' : <Code2 size={20} />}
-                        </button>
-                    )}
+                                    border: 'none',
+                                    padding: collapsed ? '10px 0' : '10px',
+                                    borderRadius: '10px',
+                                    fontSize: '12px',
+                                    fontWeight: 900,
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                {collapsed ? <User size={18} /> : 'LOGIN'}
+                            </button>
+                        )}
+                    </div>
                 </div>
 
+                {/* SIDEBAR TOGGLE (STANDARD POSITION) */}
+                <button
+                    onClick={() => setCollapsed(!collapsed)}
+                    style={{
+                        position: 'absolute',
+                        right: '-14px',
+                        top: '48px',
+                        width: '28px',
+                        height: '28px',
+                        background: '#1a1a1a',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        color: 'rgba(255, 255, 255, 0.6)',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        zIndex: 100,
+                        transition: 'all 0.2s',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'var(--accent)';
+                        e.currentTarget.style.color = '#000';
+                        e.currentTarget.style.borderColor = 'var(--accent)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.background = '#1a1a1a';
+                        e.currentTarget.style.color = 'rgba(255, 255, 255, 0.6)';
+                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                    }}
+                >
+                    {collapsed ? <ChevronRight size={16} strokeWidth={3} /> : <ChevronLeft size={16} strokeWidth={3} />}
+                </button>
             </aside>
 
             {/* LOGIN POPUP MODAL */}
             {showLoginModal && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-                    background: 'rgba(0,0,0,0.8)',
-                    backdropFilter: 'blur(4px)',
+                    background: 'rgba(0,0,0,0.85)',
+                    backdropFilter: 'blur(8px)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
                 }} onClick={() => setShowLoginModal(false)}>
 
-                    <div className="neo-card" style={{
-                        padding: '48px',
-                        width: '420px',
-                        textAlign: 'center',
-                        position: 'relative',
-                        background: 'var(--bg-card)'
-                    }} onClick={e => e.stopPropagation()}>
-
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        style={{
+                            padding: '48px',
+                            width: '420px',
+                            textAlign: 'center',
+                            background: '#121212',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            borderRadius: '32px',
+                            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+                        }}
+                        onClick={e => e.stopPropagation()}
+                    >
                         <div style={{ marginBottom: '32px' }}>
                             <div style={{
                                 width: '64px', height: '64px', background: 'var(--accent)',
-                                border: 'var(--border-main)', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                boxShadow: 'none'
+                                borderRadius: '20px', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                boxShadow: '0 8px 30px rgba(34, 197, 94, 0.3)'
                             }}>
-                                <Swords size={32} color="#000" strokeWidth={3} />
+                                <Swords size={32} color="#000" strokeWidth={2.5} />
                             </div>
-                            <h2 style={{ margin: '0 0 12px 0', fontSize: '28px', fontWeight: 950, textTransform: 'uppercase', color: 'var(--text-main)' }}>AUTH_REQUIRED</h2>
-                            <p style={{ margin: 0, color: 'var(--text-muted)', fontWeight: '700', lineHeight: '1.5' }}>
-                                YOU MUST SIGN IN TO ENTER THE ARENA, VIEW PROBLEMS, OR CHECK HISTORY.
+                            <h2 style={{ margin: '0 0 12px 0', fontSize: '24px', fontWeight: 900, color: '#fff' }}>Access Required</h2>
+                            <p style={{ margin: 0, color: 'rgba(255, 255, 255, 0.5)', fontWeight: 600, fontSize: '15px', lineHeight: '1.6' }}>
+                                Sign in with Google to join the arena, view problem archives, and track your global performance.
                             </p>
                         </div>
 
                         <button
                             onClick={handleLogin}
-                            className="neo-btn"
-                            style={{ width: '100%', padding: '16px', fontSize: '18px', justifyContent: 'center' }}
+                            style={{
+                                width: '100%', padding: '16px', fontSize: '16px', fontWeight: 800,
+                                background: 'var(--accent)', color: '#000', border: 'none',
+                                borderRadius: '16px', cursor: 'pointer', transition: 'transform 0.2s'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                         >
-                            LOGIN WITH GOOGLE
+                            Continue with Google
                         </button>
 
                         <button
                             onClick={() => setShowLoginModal(false)}
                             style={{
-                                marginTop: '20px',
-                                background: 'transparent',
-                                border: 'none',
-                                color: 'var(--text-muted)',
-                                cursor: 'pointer',
-                                fontSize: '14px',
-                                fontWeight: '800',
-                                textDecoration: 'underline'
+                                marginTop: '20px', background: 'transparent', border: 'none',
+                                color: 'rgba(255, 255, 255, 0.3)', cursor: 'pointer', fontSize: '14px',
+                                fontWeight: 700
                             }}
                         >
-                            CANCEL
+                            Dismiss
                         </button>
-                    </div>
+                    </motion.div>
                 </div>
             )}
 
