@@ -43,7 +43,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                 alignItems: 'center',
                 gap: collapsed ? '0' : '12px',
                 justifyContent: collapsed ? 'center' : 'flex-start',
-                padding: '14px 16px',
+                padding: collapsed ? '12px 0' : '14px 16px',
                 background: active ? 'var(--accent)' : 'transparent',
                 border: active ? 'var(--border-main)' : '2px solid transparent',
                 boxShadow: active ? 'var(--shadow-main)' : 'none',
@@ -54,11 +54,12 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                 textTransform: 'uppercase',
                 transition: 'all 0.1s',
                 marginBottom: '8px',
-                opacity: isInBattle ? 0.5 : 1
+                opacity: isInBattle ? 0.5 : 1,
+                borderRadius: collapsed ? '12px' : '0'
             }}
             title={collapsed ? label : ''}
         >
-            <Icon size={24} color={danger ? '#ef4444' : (active ? '#000' : 'currentColor')} strokeWidth={active ? 3 : 2} />
+            <Icon size={collapsed ? 28 : 24} color={danger ? '#ef4444' : (active ? '#000' : 'currentColor')} strokeWidth={active ? 3 : 2} />
             {!collapsed && <span>{label}</span>}
         </button>
     );
@@ -81,8 +82,8 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
             }}>
                 {/* BRAND & TOGGLE */}
                 <div style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    marginBottom: '48px', paddingLeft: collapsed ? '4px' : '8px'
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    marginBottom: '48px', position: 'relative'
                 }}>
                     <div
                         style={{
@@ -92,13 +93,13 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                         onClick={() => !isInBattle && handleNav(onGoDetail)}
                     >
                         <div style={{
-                            width: '48px', height: '48px',
+                            width: collapsed ? '44px' : '48px', height: collapsed ? '44px' : '48px',
                             background: 'var(--accent)', border: 'var(--border-main)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             flexShrink: 0,
-                            boxShadow: 'none',
+                            borderRadius: '10px'
                         }}>
-                            <Code2 size={32} color="black" strokeWidth={3} />
+                            <Code2 size={collapsed ? 28 : 32} color="black" strokeWidth={3} />
                         </div>
                         {!collapsed && (
                             <span style={{ fontSize: '24px', fontWeight: 950, color: 'var(--text-main)', letterSpacing: '-1.5px', textTransform: 'uppercase' }}>
@@ -106,6 +107,25 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                             </span>
                         )}
                     </div>
+
+                    {/* Collapse Toggle */}
+                    <button
+                        onClick={() => setCollapsed(!collapsed)}
+                        style={{
+                            position: 'absolute',
+                            bottom: '-28px',
+                            right: collapsed ? '-12px' : '-24px',
+                            width: '28px', height: '28px', background: 'var(--accent)',
+                            border: 'var(--border-main)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: '#000', cursor: 'pointer', zIndex: 60,
+                            borderRadius: '8px',
+                            boxShadow: 'var(--shadow-main)',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        {collapsed ? <ChevronRight size={16} strokeWidth={3} /> : <ChevronLeft size={16} strokeWidth={3} />}
+                    </button>
                 </div>
 
                 {/* NAVIGATION */}
@@ -176,18 +196,54 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                 </div>
 
                 {/* THEME TOGGLE & USER PROFILE */}
-                <div style={{ paddingTop: '16px', borderTop: 'var(--border-main)' }}>
-
+                <div style={{
+                    paddingTop: '16px',
+                    borderTop: 'var(--border-main)',
+                    display: 'flex',
+                    justifyContent: 'center'
+                }}>
                     {user?.loggedIn ? (
                         <div className="neo-card" style={{
-                            display: 'flex', alignItems: 'center', gap: '12px',
-                            padding: '12px', background: 'var(--bg-card)'
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            padding: collapsed ? '8px' : '12px',
+                            background: 'var(--bg-card)',
+                            width: '100%',
+                            justifyContent: collapsed ? 'center' : 'flex-start',
+                            borderRadius: collapsed ? '12px' : '0'
                         }}>
-                            <img
-                                src={user.photos}
-                                alt={user.displayName}
-                                style={{ width: '44px', height: '44px', border: 'var(--border-main)', boxShadow: 'var(--shadow-main)' }}
-                            />
+                            {user.photos ? (
+                                <img
+                                    src={user.photos}
+                                    alt={user.displayName}
+                                    style={{
+                                        width: '44px',
+                                        height: '44px',
+                                        border: 'var(--border-main)',
+                                        boxShadow: 'var(--shadow-main)',
+                                        borderRadius: '8px',
+                                        objectFit: 'cover'
+                                    }}
+                                />
+                            ) : (
+                                <div style={{
+                                    width: '44px',
+                                    height: '44px',
+                                    background: 'var(--accent)',
+                                    color: '#000',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '20px',
+                                    fontWeight: 950,
+                                    border: 'var(--border-main)',
+                                    borderRadius: '8px',
+                                    boxShadow: 'var(--shadow-main)'
+                                }}>
+                                    {String(user.displayName?.[0] || user.email?.[0] || 'U').toUpperCase()}
+                                </div>
+                            )}
                             {!collapsed && (
                                 <div style={{ flex: 1, overflow: 'hidden' }}>
                                     <div style={{ fontSize: '12px', fontWeight: 900, color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textTransform: 'uppercase' }}>
