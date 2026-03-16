@@ -27,6 +27,7 @@ import redisClient from './src/config/redis.js';
 import connectDB from './src/config/db.js';
 import passport from './src/config/passport.js';
 import reviewRoutes from './src/routes/reviewRoutes.js';
+import testerRoutes from './src/routes/testerRoutes.js';
 
 // ...
 
@@ -90,6 +91,7 @@ app.use('/api/leetcode', leetcodeRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/tester', testerRoutes);
 
 app.use('/auth', authRoutes);
 app.use('/', problemRoutes);

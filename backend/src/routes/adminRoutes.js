@@ -6,6 +6,7 @@ import { RoomManager } from '../services/roomManager.js';
 import User from '../models/User.js';
 import Match from '../models/Match.js';
 import PaymentRequest from '../models/PaymentRequest.js';
+import Tester from '../models/Tester.js';
 
 const router = express.Router();
 
@@ -102,6 +103,22 @@ router.get('/all-users', verifyToken, async (req, res) => {
         });
     } catch (e) {
         res.status(500).json({ message: "Failed to fetch users" });
+    }
+});
+
+// Get All Testers
+router.get('/testers', verifyToken, async (req, res) => {
+    try {
+        const testers = await Tester.find({})
+            .sort({ createdAt: -1 })
+            .limit(500);
+
+        res.json({
+            count: testers.length,
+            testers: testers
+        });
+    } catch (e) {
+        res.status(500).json({ message: "Failed to fetch testers" });
     }
 });
 

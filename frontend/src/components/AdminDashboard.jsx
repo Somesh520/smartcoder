@@ -13,6 +13,8 @@ const AdminDashboard = ({ onBack }) => {
     const [activeTab, setActiveTab] = useState('overview');
     const [onlineUsers, setOnlineUsers] = useState([]);
     const [onlineCount, setOnlineCount] = useState(0);
+    const [testers, setTesters] = useState([]);
+    const [testerCount, setTesterCount] = useState(0);
 
     const [allUsers, setAllUsers] = useState([]);
     const [allUsersCount, setAllUsersCount] = useState(0);
@@ -23,6 +25,7 @@ const AdminDashboard = ({ onBack }) => {
         if (activeTab === 'users') fetchOnlineUsers();
         if (activeTab === 'all_users') fetchAllUsers();
         if (activeTab === 'activity') fetchMatches();
+        if (activeTab === 'testers') fetchTesters();
     }, [activeTab]);
 
     const fetchStats = async () => {
@@ -88,6 +91,19 @@ const AdminDashboard = ({ onBack }) => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const fetchTesters = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch(`${BASE_URL}/api/admin/testers`, { headers: getAuthHeaders() });
+            if (res.ok) {
+                const data = await res.json();
+                setTesters(data.testers);
+                setTesterCount(data.count);
+            }
+        } catch (e) { console.error(e); }
+        finally { setLoading(false); }
     };
 
     const handleAction = async (requestId, type) => {
@@ -173,7 +189,7 @@ const AdminDashboard = ({ onBack }) => {
 
             {/* Tabs */}
             <div style={{ display: 'flex', gap: '32px', marginBottom: '32px', borderBottom: 'var(--border-main)' }}>
-                {['overview', 'requests', 'users', 'all_users', 'activity'].map(tab => (
+                {['overview', 'requests', 'users', 'all_users', 'activity', 'testers'].map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
@@ -325,6 +341,35 @@ const AdminDashboard = ({ onBack }) => {
                         </div>
                     ))}
                     {matches.length === 0 && <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)', border: 'var(--border-main)', borderRadius: '0', background: 'var(--bg-card)', fontWeight: 700 }}>No recent activity.</div>}
+                </div>
+            )}
+
+            {activeTab === 'testers' && (
+                <div className="neo-card" style={{ background: 'var(--bg-card)', borderRadius: '0', border: 'var(--border-main)', overflow: 'hidden', boxShadow: 'var(--shadow-main)' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead style={{ background: 'var(--bg-main)', borderBottom: 'var(--border-main)' }}>
+                            <tr style={{ color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase', fontWeight: 950 }}>
+                                <th style={{ padding: '16px', textAlign: 'left' }}>Tester Name</th>
+                                <th style={{ padding: '16px', textAlign: 'left' }}>Email Address</th>
+                                <th style={{ padding: '16px', textAlign: 'right' }}>Registration Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {testers.length === 0 ? (
+                                <tr>
+                                    <td colSpan="3" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)', fontWeight: 700 }}>No testers registered yet.</td>
+                                </tr>
+                            ) : (
+                                testers.map(tester => (
+                                    <tr key={tester._id} style={{ borderBottom: 'var(--border-main)' }}>
+                                        <td style={{ padding: '16px', fontWeight: 950, textTransform: 'uppercase' }}>{tester.username}</td>
+                                        <td style={{ padding: '16px', color: 'var(--text-muted)', fontWeight: 700 }}>{tester.email}</td>
+                                        <td style={{ padding: '16px', textAlign: 'right', color: 'var(--text-muted)', fontSize: '12px', fontWeight: 700 }}>{new Date(tester.createdAt).toLocaleString()}</td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             )}
 
