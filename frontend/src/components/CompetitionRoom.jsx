@@ -219,12 +219,18 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
             showToast(`Called Ignored by ${username} `, 'error');
         };
 
+        const handleCustomToast = (e) => {
+            const { message, type } = e.detail;
+            showToast(message, type);
+        };
+
         socket.on('playerLeft', handlePlayerLeft);
         socket.on('chatMessage', handleChat);
         socket.on('voiceSignal', handleSignal);
         socket.on('incomingCall', handleIncomingCall);
         socket.on('voiceStatus', handleVoiceStatus);
         socket.on('callRejected', handleCallRejected);
+        window.addEventListener('showToast', handleCustomToast);
 
         return () => {
             socket.off('playerLeft', handlePlayerLeft);
@@ -233,6 +239,7 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
             socket.off('incomingCall', handleIncomingCall);
             socket.off('voiceStatus', handleVoiceStatus);
             socket.off('callRejected', handleCallRejected);
+            window.removeEventListener('showToast', handleCustomToast);
         };
     }, [socket, username, roomId, isMicOn]);
 
@@ -1122,6 +1129,8 @@ const CompetitionRoom = ({ socket, roomId, username, roomState, onBack }) => {
                             problem={problem}
                             roomId={roomId}
                             onBack={() => setShowLeaveConfirm(true)}
+                            isCompetition={true}
+                            showToast={showToast}
                             onSubmissionSuccess={(res) => {
                                 socket.emit('submitUpdate', {
                                     roomId,

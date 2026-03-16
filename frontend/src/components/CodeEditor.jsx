@@ -19,7 +19,7 @@ const LANGUAGE_MAP = {
     'php': 'php'
 };
 
-const CodeEditor = ({ code, onChange, language, theme }) => {
+const CodeEditor = ({ code, onChange, language, theme, isCompetition = false, showToast }) => {
     const editorRef = useRef(null);
 
     const monacoLang = LANGUAGE_MAP[language] || 'cpp';
@@ -93,7 +93,7 @@ const CodeEditor = ({ code, onChange, language, theme }) => {
             }
         });
 
-        monaco.editor.setTheme(theme === 'dark' ? 'leetcode-dark' : 'leetcode-light');
+        monaco.editor.setTheme(theme === 'light' ? 'leetcode-light' : 'leetcode-dark');
 
         editor.addAction({
             id: 'format-code',
@@ -103,6 +103,23 @@ const CodeEditor = ({ code, onChange, language, theme }) => {
             ],
             run: (ed) => {
                 ed.getAction('editor.action.formatDocument')?.run();
+            }
+        });
+
+        // Anti-Cheating Key Intercepts
+        editor.onKeyDown((e) => {
+            const isCopyPasteCut =
+                (e.ctrlKey || e.metaKey) &&
+                (e.keyCode === monaco.KeyCode.KeyC || e.keyCode === monaco.KeyCode.KeyV || e.keyCode === monaco.KeyCode.KeyX);
+            if (isCopyPasteCut) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (isCompetition && showToast) {
+                    showToast("Copy/Paste is disabled in competition mode.", 'error');
+                } else if (isCompetition && !showToast) {
+                    // Fallback if prop didn't wire correctly
+                    alert("Copy/Paste is disabled in competition mode.");
+                }
             }
         });
 
@@ -156,8 +173,8 @@ const CodeEditor = ({ code, onChange, language, theme }) => {
                     },
                     matchBrackets: 'always',
                     autoIndent: 'full',
-                    formatOnPaste: true,
-                    formatOnType: true,
+                    formatOnPaste: false,
+                    formatOnType: false,
                     suggestOnTriggerCharacters: true,
                     quickSuggestions: {
                         other: true,
@@ -207,8 +224,24 @@ const CodeEditor = ({ code, onChange, language, theme }) => {
                         addExtraSpaceOnTop: false,
                         autoFindInSelection: 'never',
                         seedSearchStringFromSelection: 'selection'
-                    }
+                    },
+                    // Anti-Cheating Settings
+                    contextmenu: false, // Disable right click
+                    hover: { enabled: false }, // Optional: prevent hovering to see definitions
+                    lightbulb: { enabled: false } // Disable quick fixes
                 }}
+            />
+            {/* Overlay to prevent native copy/paste events if Monaco settings are bypassed */}
+            <div
+                style={{
+                    position: 'absolute',
+                    top: 0, left: 0, width: '100%', height: '100%',
+                    pointerEvents: 'none', // Allow clicks to pass through to editor
+                    zIndex: 10
+                }}
+                onCopy={(e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('showToast', { detail: { message: "Copying code is disabled in competition mode.", type: 'error' } })); }}
+                onPaste={(e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('showToast', { detail: { message: "Pasting code is disabled in competition mode.", type: 'error' } })); }}
+                onCut={(e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('showToast', { detail: { message: "Cutting code is disabled in competition mode.", type: 'error' } })); }}
             />
         </div>
     );

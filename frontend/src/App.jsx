@@ -594,6 +594,38 @@ function App() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', 'dark');
+
+    // Anti-Cheating: Disable Inspect Element and Context Menu Globally
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+    };
+
+    const handleKeyDown = (e) => {
+      // Prevent F12
+      if (e.keyCode === 123) {
+        e.preventDefault();
+      }
+      // Prevent Ctrl+Shift+I (Windows) / Cmd+Option+I (Mac)
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 73) {
+        e.preventDefault();
+      }
+      // Prevent Ctrl+Shift+J (Windows) / Cmd+Option+J (Mac)
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 74) {
+        e.preventDefault();
+      }
+      // Prevent Ctrl+U (Windows) / Cmd+Option+U (Mac) - View Source
+      if ((e.ctrlKey || e.metaKey) && e.keyCode === 85) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   return (

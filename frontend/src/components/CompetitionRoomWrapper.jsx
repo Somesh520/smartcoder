@@ -57,20 +57,19 @@ const CompetitionRoomWrapper = ({ socket, roomId, username, roomState, onBack, s
         return () => {
             socket.off('connect', joinLogic);
             socket.off('sessionKilled', joinLogic);
-
-            // Explicitly leave the room when unmounting (e.g. Browser Back Button)
-            if (socket.connected && urlRoomId) {
-                console.log("🛑 Leaving room via cleanup:", urlRoomId);
-                socket.emit('leaveRoom', { roomId: urlRoomId });
-            }
-            // Clear session to prevent sticky re-joins only if we are truly leaving context
-            // actually, let's keep session until explicit logout or error, 
-            // but here we want to ensure server knows we left.
         };
     }, [urlRoomId]); // Minimized dependencies to prevent re-runs
 
     const activeRoomId = urlRoomId || roomId;
     const activeUsername = username || sessionStorage.getItem('active_username') || `Guest_${Math.floor(Math.random() * 1000)}`;
+
+    const handleBack = () => {
+        if (socket.connected && activeRoomId) {
+            console.log("🛑 Leaving room via manual back:", activeRoomId);
+            socket.emit('leaveRoom', { roomId: activeRoomId });
+        }
+        if (onBack) onBack();
+    };
 
     if (!activeRoomId || !username) {
         return <LoadingScreen text="ENTERING ARENA..." />;
@@ -82,7 +81,7 @@ const CompetitionRoomWrapper = ({ socket, roomId, username, roomState, onBack, s
             roomId={activeRoomId}
             username={activeUsername}
             roomState={roomState}
-            onBack={onBack}
+            onBack={handleBack}
         />
     );
 };

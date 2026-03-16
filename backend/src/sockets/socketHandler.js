@@ -40,7 +40,7 @@ export const socketHandler = (io) => {
             console.log(`[JoinRoom] Request for ${roomId} by ${username}. SpecificProblem: "${specificProblem}"`);
             roomId = String(roomId);
 
-            // 1. Require Registration
+
             if (!userId) {
                 socket.emit('error', "Authentication required to join matches.");
                 return;
@@ -352,10 +352,9 @@ export const socketHandler = (io) => {
                     if (room.status === 'active') {
 
                         disconnectTimeouts[socket.id] = setTimeout(() => {
-
                             handleLeave(socket.id, rId, io);
                             delete disconnectTimeouts[socket.id];
-                        }, 2000);
+                        }, 5000); // Increased grace period to 5 seconds for page reloads
                     } else {
                         handleLeave(socket.id, rId, io);
                     }

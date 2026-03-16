@@ -19,10 +19,10 @@ import Markdown from 'react-markdown';
 import TopUpModal from './TopUpModal';
 
 const DEFAULT_TEMPLATES = {
-    'cpp': 'class Solution {\\npublic:\\n    // Write C++ code here\\n};',
-    'java': 'class Solution {\\n    public void solve() {\\n        // Write Java code here\\n    }\\n}',
-    'python': 'class Solution(object):\\n    def solve(self):\\n        # Write Python code here\\n        pass',
-    'javascript': 'var solve = function() {\\n    // Write JS code here\\n};'
+    'cpp': 'class Solution {\npublic:\n    // Write C++ code here\n};',
+    'java': 'class Solution {\n    public void solve() {\n        // Write Java code here\n    }\n}',
+    'python': 'class Solution(object):\n    def solve(self):\n        # Write Python code here\n        pass',
+    'javascript': 'var solve = function() {\n    // Write JS code here\n};'
 };
 
 // Markdown to HTML converter with copy buttons on code blocks and protection against formatting collisions
@@ -83,7 +83,7 @@ const CodeBlock = ({ node, inline, className, children, ...props }) => {
     return <code className={className} {...props}>{children}</code>;
 };
 
-const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }) => {
+const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, isCompetition = false, showToast }) => {
     const [details, setDetails] = useState(null);
     const [code, setCode] = useState("");
     const [language, setLanguage] = useState("cpp");
@@ -237,7 +237,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }
                     const defaultLang = hasCpp ? 'cpp' : snippets[0].langSlug;
                     setLanguage(defaultLang);
                     const snip = snippets.find(s => s.langSlug === defaultLang);
-                    setCode(snip ? snip.code : DEFAULT_TEMPLATES[defaultLang] || "");
+                    setCode(snip ? snip.code.replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\"/g, '"') : DEFAULT_TEMPLATES[defaultLang] || "");
                 } else {
                     setCode(DEFAULT_TEMPLATES['cpp']);
                 }
@@ -263,7 +263,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }
         const newLang = e.target.value;
         setLanguage(newLang);
         const snip = availableSnippets.find(s => s.langSlug === newLang);
-        const resetCode = snip ? snip.code : DEFAULT_TEMPLATES[newLang] || "";
+        const resetCode = snip ? snip.code.replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\"/g, '"') : DEFAULT_TEMPLATES[newLang] || "";
         setCode(resetCode);
 
         if (roomId) {
@@ -799,36 +799,38 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }
                             </motion.div>
                             SUBMIT
                         </motion.button>
-                        {/* AI Star Button */}
-                        <button
-                            onClick={() => setAiOpen(!aiOpen)}
-                            className="neo-btn"
-                            style={{
-                                background: aiOpen ? 'var(--accent)' : 'var(--bg-card)',
-                                color: aiOpen ? '#000' : 'var(--text-main)',
-                                padding: '8px 16px',
-                                fontSize: '13px',
-                                border: 'var(--border-main)',
-                                boxShadow: aiOpen ? '0 0 20px rgba(167,139,250,0.4)' : 'var(--shadow-main)',
-                                position: 'relative',
-                                overflow: 'visible'
-                            }}
-                        >
-                            <Sparkles size={14} style={{ color: aiOpen ? '#000' : '#a78bfa' }} />
-                            AI
-                            {!aiOpen && (
-                                <span style={{
-                                    position: 'absolute',
-                                    top: '-4px',
-                                    right: '-4px',
-                                    width: '8px',
-                                    height: '8px',
-                                    background: '#a78bfa',
-                                    borderRadius: '50%',
-                                    boxShadow: '0 0 10px #a78bfa'
-                                }}></span>
-                            )}
-                        </button>
+                        {/* AI Star Button - Disabled in Competition Mode */}
+                        {!isCompetition && (
+                            <button
+                                onClick={() => setAiOpen(!aiOpen)}
+                                className="neo-btn"
+                                style={{
+                                    background: aiOpen ? 'var(--accent)' : 'var(--bg-card)',
+                                    color: aiOpen ? '#000' : 'var(--text-main)',
+                                    padding: '8px 16px',
+                                    fontSize: '13px',
+                                    border: 'var(--border-main)',
+                                    boxShadow: aiOpen ? '0 0 20px rgba(167,139,250,0.4)' : 'var(--shadow-main)',
+                                    position: 'relative',
+                                    overflow: 'visible'
+                                }}
+                            >
+                                <Sparkles size={14} style={{ color: aiOpen ? '#000' : '#a78bfa' }} />
+                                AI
+                                {!aiOpen && (
+                                    <span style={{
+                                        position: 'absolute',
+                                        top: '-4px',
+                                        right: '-4px',
+                                        width: '8px',
+                                        height: '8px',
+                                        background: '#a78bfa',
+                                        borderRadius: '50%',
+                                        boxShadow: '0 0 10px #a78bfa'
+                                    }}></span>
+                                )}
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -918,7 +920,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user }
                 <div style={{ flex: 1, overflow: 'hidden', display: 'flex', position: 'relative' }}>
                     {/* Editor */}
                     <div style={{ flex: 1, overflow: 'hidden', paddingBottom: '40px' }}>
-                        <CodeEditor code={code} onChange={handleCodeChange} language={language} theme={theme} />
+                        <CodeEditor code={code} onChange={handleCodeChange} language={language} theme={theme} isCompetition={isCompetition} showToast={showToast} />
                     </div>
 
 
