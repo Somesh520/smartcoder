@@ -27,7 +27,7 @@ const Github = ({ user }) => {
                 const userRes = await fetchGithubUser();
 
                 if (userRes?.error === "not_connected" || userRes?.error === "Token not found") {
-                    window.location.href = `${BASE_URL}/auth/github`;
+                    window.location.href = `https://smartcoder-black.vercel.app/auth/github`;
                     return;
                 }
 
