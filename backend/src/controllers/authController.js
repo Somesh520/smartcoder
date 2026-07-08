@@ -128,8 +128,8 @@ export const githubcallback = async (req, res) => {
         const token = response.data.access_token
         res.cookie("github_token", token, {
             httpOnly: false,
-            secure: true,
-            sameSite: 'None',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
 

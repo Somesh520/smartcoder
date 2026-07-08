@@ -9,7 +9,7 @@ const Github = ({ user }) => {
     const [repos, setRepos] = useState([]);
     const [error, setError] = useState(null);
     const [savingRepo, setSavingRepo] = useState(false);
-    
+
     // Use the value from the user prop, default to empty string if undefined
     const [currentDsaRepo, setCurrentDsaRepo] = useState(user?.githubDsaRepo || "");
 
@@ -25,16 +25,15 @@ const Github = ({ user }) => {
             setLoading(true);
             try {
                 const userRes = await fetchGithubUser();
-                
-                if (userRes?.error === "not_connected") {
-                    setError("not_connected");
-                    setLoading(false);
+
+                if (userRes?.error === "not_connected" || userRes?.error === "Token not found") {
+                    window.location.href = `${BASE_URL}/auth/github`;
                     return;
                 }
 
                 if (userRes?.data) {
                     setProfile(userRes.data);
-                    
+
                     const repoRes = await fetchGithubRepos();
                     if (repoRes?.data) {
                         // Sort repos by stars descending
@@ -100,9 +99,9 @@ const Github = ({ user }) => {
 
     if (error === "not_connected") {
         return (
-            <div style={{ 
-                display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', 
-                height: '100%', padding: '40px', background: '#0a0a0a' 
+            <div style={{
+                display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
+                height: '100%', padding: '40px', background: '#0a0a0a'
             }}>
                 <div style={{
                     background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -113,7 +112,7 @@ const Github = ({ user }) => {
                     <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '16px', lineHeight: '1.6', marginBottom: '32px' }}>
                         Link your GitHub account to AlgoDuel to showcase your repositories and track your open-source contributions directly on your profile.
                     </p>
-                    <button 
+                    <button
                         onClick={handleConnect}
                         style={{
                             background: 'white', color: 'black', border: 'none', padding: '16px 32px',
@@ -132,10 +131,10 @@ const Github = ({ user }) => {
     return (
         <div style={{ padding: '40px', background: '#0a0a0a', minHeight: '100vh', color: 'white', overflowY: 'auto' }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                
+
                 {/* Profile Header */}
                 {profile && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                         style={{
                             background: 'linear-gradient(145deg, rgba(34,197,94,0.1) 0%, rgba(0,0,0,0.5) 100%)',
@@ -144,17 +143,17 @@ const Github = ({ user }) => {
                             marginBottom: '40px', flexWrap: 'wrap'
                         }}
                     >
-                        <img 
-                            src={profile.avatar_url} 
-                            alt={profile.login} 
-                            style={{ width: '120px', height: '120px', borderRadius: '50%', border: '4px solid rgba(34,197,94,0.3)', objectFit: 'cover' }} 
+                        <img
+                            src={profile.avatar_url}
+                            alt={profile.login}
+                            style={{ width: '120px', height: '120px', borderRadius: '50%', border: '4px solid rgba(34,197,94,0.3)', objectFit: 'cover' }}
                         />
                         <div style={{ flex: 1, minWidth: '250px' }}>
                             <h1 style={{ fontSize: '36px', fontWeight: 900, margin: '0 0 8px 0' }}>{profile.name || profile.login}</h1>
                             <p style={{ fontSize: '18px', color: 'var(--accent)', margin: '0 0 16px 0', fontWeight: 600 }}>@{profile.login}</p>
-                            
+
                             {profile.bio && <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', marginBottom: '16px', maxWidth: '600px', lineHeight: '1.5' }}>{profile.bio}</p>}
-                            
+
                             <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>
                                     <Users size={16} /> <strong style={{ color: 'white' }}>{profile.followers}</strong> followers · <strong style={{ color: 'white' }}>{profile.following}</strong> following
@@ -169,7 +168,7 @@ const Github = ({ user }) => {
                                 </div>
                             </div>
                         </div>
-                        <a 
+                        <a
                             href={profile.html_url} target="_blank" rel="noreferrer"
                             style={{
                                 padding: '12px 24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
@@ -189,10 +188,10 @@ const Github = ({ user }) => {
                     <h2 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <Terminal size={24} color="var(--accent)" /> Top Repositories
                     </h2>
-                    
+
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
                         {repos.map((repo, idx) => (
-                            <motion.a 
+                            <motion.a
                                 href={repo.html_url} target="_blank" rel="noreferrer"
                                 key={repo.id}
                                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
@@ -216,7 +215,7 @@ const Github = ({ user }) => {
                                 <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', lineHeight: '1.5', flex: 1, margin: '0 0 20px 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                                     {repo.description || "No description provided."}
                                 </p>
-                                
+
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '13px', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
                                     {repo.language && (
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -234,7 +233,7 @@ const Github = ({ user }) => {
 
                                 {/* Set as DSA Repo Button overlay */}
                                 <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
-                                    <button 
+                                    <button
                                         onClick={(e) => handleSetDsaRepo(e, repo.name)}
                                         disabled={savingRepo}
                                         style={{
@@ -270,7 +269,7 @@ const Github = ({ user }) => {
                                         )}
                                     </button>
                                     {currentDsaRepo === repo.name && (
-                                        <button 
+                                        <button
                                             onClick={handleRemoveDsaRepo}
                                             disabled={savingRepo}
                                             style={{
