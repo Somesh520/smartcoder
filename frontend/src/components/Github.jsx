@@ -27,7 +27,13 @@ const Github = ({ user }) => {
                 const userRes = await fetchGithubUser();
 
                 if (userRes?.error === "not_connected" || userRes?.error === "Token not found") {
-                    window.location.href = `https://smartcoder-black.vercel.app/auth/github`;
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('just_authorized') === 'true') {
+                        setError("cookie_blocked");
+                        setLoading(false);
+                        return;
+                    }
+                    window.location.href = `${BASE_URL}/auth/github`;
                     return;
                 }
 
@@ -93,6 +99,39 @@ const Github = ({ user }) => {
                 <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
                     <GithubIcon size={40} color="var(--accent)" />
                 </motion.div>
+            </div>
+        );
+    }
+
+    if (error === "cookie_blocked") {
+        return (
+            <div style={{
+                display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
+                height: '100%', padding: '40px', background: '#0a0a0a'
+            }}>
+                <div style={{
+                    background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(239, 68, 68, 0.2)',
+                    borderRadius: '24px', padding: '60px', textAlign: 'center', maxWidth: '500px'
+                }}>
+                    <GithubIcon size={64} color="#ef4444" style={{ margin: '0 auto 24px', opacity: 0.8 }} />
+                    <h1 style={{ color: 'white', fontSize: '28px', fontWeight: 800, marginBottom: '16px' }}>Cookie Blocked</h1>
+                    <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', lineHeight: '1.6', marginBottom: '32px' }}>
+                        Your browser is blocking the GitHub authorization cookies. This is usually caused by strict privacy settings, Brave Shields, or blocking third-party cookies.
+                        <br /><br />
+                        Please allow cookies for this site or disable shields, then try again!
+                    </p>
+                    <button
+                        onClick={handleConnect}
+                        style={{
+                            background: '#ef4444', color: 'white', border: 'none', padding: '16px 32px',
+                            borderRadius: '12px', fontSize: '16px', fontWeight: 700, cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: '12px', margin: '0 auto',
+                            boxShadow: '0 4px 15px rgba(239,68,68,0.2)'
+                        }}
+                    >
+                        Retry Authorization
+                    </button>
+                </div>
             </div>
         );
     }

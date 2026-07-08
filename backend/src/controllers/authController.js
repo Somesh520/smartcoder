@@ -133,7 +133,7 @@ export const githubcallback = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
-        res.redirect(`${process.env.GITHUB_CALLBACK_URL}`);
+        res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/app/github?just_authorized=true`);
 
 
 
