@@ -1,3 +1,4 @@
+import LeetCode from 'leetcode-query';
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
@@ -37,6 +38,15 @@ const userSchema = new mongoose.Schema({
     isPremium: {
         type: Boolean,
         default: false
+    },
+    githubUsername: {
+        type: String
+    },
+    githubDsaRepo: {
+        type: String
+    },
+    leetcodeUsername: {
+        type: String
     }
 });
 

@@ -1,25 +1,6 @@
 import axios from 'axios';
 import { getHeaders } from '../utils/headers.js';
-import redisClient from '../config/redis.js';
-
 export const fetchProblems = async () => {
-    const cacheKey = 'leetcode:problems:all:v3'; // New cache key to invalidate old data
-
-    // 1. Try Cache (Safe)
-    try {
-        if (redisClient.isOpen) {
-            const cached = await redisClient.get(cacheKey);
-            if (cached) {
-                const parsed = JSON.parse(cached);
-                console.log(`[Cache] Serving ${parsed.length} problems`);
-                return parsed;
-            }
-        }
-    } catch (cacheErr) {
-        console.warn("Redis Cache Warning:", cacheErr.message);
-        // Continue to API...
-    }
-
     // 2. Try Primary: LeetCode's Official API (Returns ALL ~3800 problems)
     try {
         console.log("Fetching ALL problems from LeetCode Official API...");
@@ -41,12 +22,7 @@ export const fetchProblems = async () => {
 
         console.log(`[API] LeetCode Official Fetch Complete. Count: ${problemsArray.length}`);
 
-        // Cache result for 6 hours (problems don't change often)
-        try {
-            if (redisClient.isOpen) {
-                await redisClient.set(cacheKey, JSON.stringify(problemsArray), { EX: 21600 });
-            }
-        } catch (e) { }
+
 
         return problemsArray;
 
@@ -77,18 +53,6 @@ export const fetchProblems = async () => {
 };
 
 export const fetchProblemDetails = async (id) => {
-    const cacheKey = `leetcode:problem:${id}`;
-
-    try {
-        const cached = await redisClient.get(cacheKey);
-        if (cached) {
-
-            return JSON.parse(cached);
-        }
-    } catch (e) {
-        console.error("Redis Get Error:", e);
-    }
-
     // 1. Fetch Problem Slug using ID (If input is numeric ID)
     let titleSlug = id;
 
@@ -173,19 +137,9 @@ export const fetchProblemDetails = async (id) => {
             if (retryData.data && retryData.data.question) {
                 console.log(`[API] Retry successful for sanitized slug: "${sanitizedSlug}"`);
                 // Update cache with the correct slug data
-                try {
-                    await redisClient.set(cacheKey, JSON.stringify(retryData), { EX: 86400 });
-                } catch (e) { }
                 return retryData;
             }
         }
-    }
-
-    // Cache for 24 hours
-    try {
-        await redisClient.set(cacheKey, JSON.stringify(data), { EX: 86400 });
-    } catch (e) {
-        console.error("Redis Set Error:", e);
     }
 
     return data;

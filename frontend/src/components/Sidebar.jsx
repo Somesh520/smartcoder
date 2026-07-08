@@ -1,7 +1,7 @@
 import { getCurrentUser, logout, BASE_URL } from '../api';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Code2, Swords, TrendingUp, BookOpen, History, LogOut, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Book, Shield, Star, User, Zap, Sun, Moon, Map } from 'lucide-react';
+import { Code2, Swords, TrendingUp, BookOpen, History, LogOut, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Book, Shield, Star, User, Zap, Sun, Moon, Map, Github } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReviewModal from './ReviewModal';
 
@@ -226,6 +226,12 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                         label="Pathpadrak"
                         active={location.pathname.includes('/pathpardask')}
                         onClick={() => handleNav(() => navigate('/app/pathpardask'))}
+                    />
+                    <NavItem
+                        icon={Github}
+                        label="GitHub"
+                        active={location.pathname.includes('/github')}
+                        onClick={() => handleNav(() => navigate('/app/github'))}
                     />
 
                     <div style={{ height: '1px', background: 'rgba(255, 255, 255, 0.05)', margin: '16px 8px' }} />

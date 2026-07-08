@@ -340,3 +340,88 @@ export const fetchReviews = async () => {
     return [];
   }
 };
+
+// ==========================================
+// GITHUB API
+// ==========================================
+
+export const fetchGithubUser = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/github/user`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
+    if (!res.ok) {
+      if (res.status === 400) return { error: "not_connected" };
+      throw new Error("Failed to fetch GitHub user");
+    }
+    return await res.json();
+  } catch (e) {
+    console.error("Github API Error:", e);
+    return { error: "failed" };
+  }
+};
+
+export const fetchGithubRepos = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/github/repo`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error("Failed to fetch GitHub repos");
+    return await res.json();
+  } catch (e) {
+    console.error("Github API Error:", e);
+    return null;
+  }
+};
+
+export const saveGithubDsaRepo = async (githubUsername, githubDsaRepo) => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/github/save-dsa-repo`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ githubUsername, githubDsaRepo }),
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error("Failed to save DSA repo");
+    return await res.json();
+  } catch (e) {
+    console.error("Github API Error:", e);
+    return null;
+  }
+};
+
+export const removeGithubDsaRepo = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/github/remove`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error("Failed to remove DSA repo");
+    return await res.json();
+  } catch (e) {
+    console.error("Github API Error:", e);
+    return null;
+  }
+};
+
+export const commitCodeToGithub = async ({ owner, repo, path, code, message, question_detail }) => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/github/commit`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ owner, repo, path, code, message, question_detail }),
+      credentials: 'include'
+    });
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || "Failed to commit to GitHub");
+    }
+    return await res.json();
+  } catch (e) {
+    console.error("Github API Error:", e);
+    return { success: false, error: e.message };
+  }
+};

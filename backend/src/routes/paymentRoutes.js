@@ -1,33 +1,14 @@
 import express from 'express';
 import { verifyToken } from '../middleware/authMiddleware.js';
-import PaymentRequest from '../models/PaymentRequest.js';
-import User from '../models/User.js';
+import { 
+    requestTopup, 
+    getPendingRequests, 
+    approveRequest, 
+    rejectRequest, 
+    getHistory 
+} from '../controllers/paymentController.js';
 
 const router = express.Router();
-
-// Request Top-up
-router.post('/request-topup', verifyToken, async (req, res) => {
-    try {
-        const { transactionId, amount, credits } = req.body;
-        if (!transactionId || !amount || !credits) {
-            return res.status(400).json({ error: "All fields are required" });
-        }
-
-        const newRequest = new PaymentRequest({
-            userId: req.user._id,
-            transactionId,
-            amount,
-            credits
-        });
-
-        await newRequest.save();
-
-        res.status(201).json({ message: "Request submitted successfully" });
-    } catch (error) {
-        console.error("Payment Request Error:", error); // Updated error message
-        res.status(500).json({ error: "Server Error" });
-    }
-});
 
 // Admin Middleware (Simple Email Check)
 const verifyAdmin = async (req, res, next) => {
@@ -53,74 +34,10 @@ const verifyAdmin = async (req, res, next) => {
     }
 };
 
-// GET Pending Requests (Admin)
-router.get('/admin/pending', verifyToken, verifyAdmin, async (req, res) => {
-    try {
-        const requests = await PaymentRequest.find({ status: 'pending' })
-            .populate('userId', 'displayName email')
-            .sort({ createdAt: -1 });
-        res.json(requests);
-    } catch (e) {
-        res.status(500).json({ error: "Fetch Failed" });
-    }
-});
-
-// Approve Request (Admin)
-router.post('/admin/approve', verifyToken, verifyAdmin, async (req, res) => {
-    try {
-        const { requestId } = req.body;
-        const request = await PaymentRequest.findById(requestId);
-
-        if (!request) return res.status(404).json({ error: "Request not found" });
-        if (request.status !== 'pending') return res.status(400).json({ error: "Request already processed" });
-
-        // Update Request Status
-        request.status = 'approved';
-        await request.save();
-
-        // Add Credits to User
-        const user = await User.findById(request.userId);
-        if (user) {
-            user.credits += request.credits;
-            await user.save();
-        }
-
-        res.json({ message: "Approved & Credits Added", newCredits: user ? user.credits : 0 });
-
-    } catch (e) {
-        console.error("Approval Error:", e);
-        res.status(500).json({ error: "Approval Failed", details: e.message });
-    }
-});
-
-// Reject Request (Admin)
-router.post('/admin/reject', verifyToken, verifyAdmin, async (req, res) => {
-    try {
-        const { requestId } = req.body;
-        const request = await PaymentRequest.findById(requestId);
-
-        if (!request) return res.status(404).json({ error: "Request not found" });
-        if (request.status !== 'pending') return res.status(400).json({ error: "Request already processed" });
-
-        request.status = 'rejected';
-        await request.save();
-
-        res.json({ message: "Request Rejected" });
-
-    } catch (e) {
-        res.status(500).json({ error: "Rejection Failed" });
-    }
-});
-
-// Check Status
-router.get('/history', verifyToken, async (req, res) => {
-    try {
-        const requests = await PaymentRequest.find({ userId: req.user._id }).sort({ createdAt: -1 });
-        res.json(requests);
-    } catch (error) {
-        console.error("Payment History Error:", error);
-        res.status(500).json({ error: "Server Error" });
-    }
-});
+router.post('/request-topup', verifyToken, requestTopup);
+router.get('/admin/pending', verifyToken, verifyAdmin, getPendingRequests);
+router.post('/admin/approve', verifyToken, verifyAdmin, approveRequest);
+router.post('/admin/reject', verifyToken, verifyAdmin, rejectRequest);
+router.get('/history', verifyToken, getHistory);
 
 export default router;

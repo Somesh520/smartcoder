@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { fetchProblemDetails, runCode, submitCode, pollResult, fetchAIAssist, fetchComplexity, BASE_URL } from '../api';
+import { fetchProblemDetails, runCode, submitCode, pollResult, fetchAIAssist, fetchComplexity, commitCodeToGithub, BASE_URL } from '../api';
 import CodeEditor from './CodeEditor';
 import Console from './Console';
 import ModernSpinner from './ModernSpinner';
-import { ArrowLeft, Play, Send, Trophy, Zap, Sparkles, X, Loader2, Lightbulb, Bug, Rocket, Code2, Maximize2, Minimize2, Timer, User } from 'lucide-react';
+import { ArrowLeft, Play, Send, Trophy, Zap, Sparkles, X, Loader2, Lightbulb, Bug, Rocket, Code2, Maximize2, Minimize2, Timer, User, Github as GithubIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SubmissionSuccess from './SubmissionSuccess';
 
@@ -91,6 +91,13 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
     const [consoleOpen, setConsoleOpen] = useState(false);
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    const [autoSyncGithub, setAutoSyncGithubState] = useState(false);
+    const autoSyncGithubRef = useRef(false);
+    const setAutoSyncGithub = (val) => {
+        autoSyncGithubRef.current = val;
+        setAutoSyncGithubState(val);
+    };
 
     // AI Assistant State
     const [aiOpen, setAiOpen] = useState(false);
@@ -385,6 +392,34 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
                                 if (onSubmissionSuccess) {
                                     onSubmissionSuccess(res);
                                 }
+
+                                // Auto Sync to GitHub
+                                if (autoSyncGithubRef.current && user?.githubUsername && user?.githubDsaRepo) {
+                                    const extMap = { 'cpp': 'cpp', 'java': 'java', 'python': 'py', 'javascript': 'js', 'c': 'c' };
+                                    const ext = extMap[language] || 'txt';
+                                    const slug = details?.titleSlug || problem.slug;
+                                    const filename = `${slug}.${ext}`;
+                                    const path = `problems/${slug}/${filename}`;
+                                    const message = `Add solution for ${details?.title || problem.title}`;
+                                    const question_detail = details ? details : problem;
+
+                                    commitCodeToGithub({
+                                        owner: user.githubUsername,
+                                        repo: user.githubDsaRepo,
+                                        path,
+                                        code,
+                                        message,
+                                        question_detail
+                                    }).then(commitRes => {
+                                        if (commitRes.success) {
+                                            showToast?.("Auto-saved to GitHub!", "success");
+                                        } else {
+                                            showToast?.(commitRes.error || "Failed to auto-save to GitHub", "error");
+                                        }
+                                    }).catch(err => {
+                                        showToast?.("Failed to auto-save to GitHub", "error");
+                                    });
+                                }
                             }
 
                             // AI Complexity Analysis (Trigger for both Run & Submit)
@@ -413,6 +448,42 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
             setLoading(false);
             setResult({ run_success: false, compile_error: e.message });
         }
+    };
+
+    const [isCommitting, setIsCommitting] = useState(false);
+    const handleCommitToGithub = async () => {
+        if (!user || !user.githubUsername || !user.githubDsaRepo) {
+            showToast?.("Please set a DSA repository in GitHub settings first.", "error");
+            return;
+        }
+
+        setIsCommitting(true);
+        try {
+            const extMap = { 'cpp': 'cpp', 'java': 'java', 'python': 'py', 'javascript': 'js', 'c': 'c' };
+            const ext = extMap[language] || 'txt';
+            const slug = details?.titleSlug || problem.slug;
+            const filename = `${slug}.${ext}`;
+            const path = `problems/${slug}/${filename}`;
+            const message = `Add solution for ${details?.title || problem.title}`;
+            const question_detail = details ? details : problem;
+            console.log(question_detail);
+            const res = await commitCodeToGithub({
+                owner: user.githubUsername,
+                repo: user.githubDsaRepo,
+                path,
+                code,
+                message,
+                question_detail
+            });
+            if (res.success) {
+                showToast?.("Successfully saved to GitHub!", "success");
+            } else {
+                showToast?.(res.error || "Failed to commit to GitHub", "error");
+            }
+        } catch (e) {
+            showToast?.("Failed to commit to GitHub", "error");
+        }
+        setIsCommitting(false);
     };
 
     return (
@@ -489,7 +560,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
                         fontWeight: 950,
                         fontSize: '16px',
                         textTransform: 'uppercase'
-                    }}>{problem.title}</span>
+                    }}>{details?.title || problem.title}</span>
                 </div>
 
                 {/* Problem Content */}
@@ -799,6 +870,50 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
                             </motion.div>
                             SUBMIT
                         </motion.button>
+
+                        {/* Save to GitHub Button */}
+                        {user?.githubUsername && user?.githubDsaRepo && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <motion.button
+                                    onClick={handleCommitToGithub}
+                                    disabled={isCommitting || !details || loading}
+                                    whileHover={(isCommitting || !details || loading) ? {} : { scale: 1.05 }}
+                                    whileTap={(isCommitting || !details || loading) ? {} : { scale: 0.95 }}
+                                    style={{
+                                        background: (isCommitting || !details || loading) ? 'var(--bg-main)' : 'rgba(255, 255, 255, 0.1)',
+                                        color: (isCommitting || !details || loading) ? 'var(--text-muted)' : 'white',
+                                        padding: '8px 16px',
+                                        fontSize: '13px',
+                                        fontWeight: 800,
+                                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                                        borderRadius: '8px',
+                                        cursor: (isCommitting || !details || loading) ? 'not-allowed' : 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        transition: 'background 0.2s'
+                                    }}
+                                >
+                                    {isCommitting ? (
+                                        <Loader2 size={15} className="spin" />
+                                    ) : (
+                                        <GithubIcon size={15} />
+                                    )}
+                                    SAVE
+                                </motion.button>
+
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '11px', color: 'var(--text-muted)' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={autoSyncGithub}
+                                        onChange={(e) => setAutoSyncGithub(e.target.checked)}
+                                        style={{ accentColor: '#22c55e', cursor: 'pointer' }}
+                                    />
+                                    Auto-Sync
+                                </label>
+                            </div>
+                        )}
+
                         {/* AI Star Button - Disabled in Competition Mode */}
                         {!isCompetition && (
                             <button

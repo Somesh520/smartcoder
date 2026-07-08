@@ -14,7 +14,7 @@ import Documentation from './components/Documentation';
 import AdminDashboard from './components/AdminDashboard';
 import PathPradarshakPage from './components/PathPradarshakPage';
 import PathPardaskPage from './components/PathPardaskPage';
-
+import Github from './components/Github';
 import LearnPage from './components/LearnPage';
 import PrivacyPolicyPage from './components/PrivacyPolicyPage';
 import TermsPage from './components/TermsPage';
@@ -347,6 +347,7 @@ function MainApp({ initialRoom }) {
                     <Route path="learn" element={<LearnPage />} />
                     <Route path="pathpradarshak" element={<PathPradarshakPage />} />
                     <Route path="pathpardask" element={<PathPardaskPage user={userInfo} />} />
+                    <Route path="github" element={<><SEO title="GitHub Integration - AlgoDuel" /><Github user={userInfo} /></>} />
                     <Route path="docs" element={<Documentation />} />
 
                     <Route path="competition/:roomId" element={
@@ -517,11 +518,15 @@ const WorkspaceWrapper = ({ currentProblem, onBack, userInfo }) => {
   // Priority: 1) selectedProblem from state, 2) currentProblem if matches, 3) stub from URL
   let problem;
   if (location.state?.selectedProblem) {
-    problem = location.state.selectedProblem;
+    problem = {
+      ...location.state.selectedProblem,
+      title: location.state.selectedProblem.title || location.state.selectedProblem.questionTitle || "Problem"
+    };
   } else if (currentProblem && (currentProblem.id == problemId || currentProblem.slug == problemId)) {
     problem = currentProblem;
   } else {
-    problem = { id: problemId, slug: problemId, title: "Loading Problem..." };
+    const generatedTitle = problemId ? problemId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : "Loading Problem...";
+    problem = { id: problemId, slug: problemId, title: generatedTitle };
   }
 
   const customHandleBack = () => {
