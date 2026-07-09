@@ -47,6 +47,9 @@ const userSchema = new mongoose.Schema({
     },
     leetcodeUsername: {
         type: String
+    },
+    githubAccessToken: {
+        type: String
     }
 });
 

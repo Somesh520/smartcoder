@@ -2,6 +2,7 @@ import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import Match from '../models/Match.js';
 import axios from 'axios';
+import User from '../models/User.js';
 
 // Trigger Google Auth
 export const googleAuth = (req, res, next) => {
@@ -91,9 +92,20 @@ export const getHistory = async (req, res) => {
 
 export const github = (req, res) => {
     try {
+        const { token } = req.query;
+        let state = '';
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                state = decoded.id; // Store userId in state
+            } catch (e) {
+                console.error("Invalid token passed to github auth redirect:", e.message);
+            }
+        }
         const url =
             `https://github.com/login/oauth/authorize` +
             `?client_id=${process.env.GITHUB_CLIENT_ID}` +
+            `&state=${state}` +
             `&scope=read:user user:email repo`;
         res.redirect(url);
     } catch (error) {
@@ -102,9 +114,8 @@ export const github = (req, res) => {
     }
 }
 export const githubcallback = async (req, res) => {
-    const { code } = req.query;
-    console.log(code);
-
+    const { code, state } = req.query;
+    console.log("GitHub OAuth Code:", code, "State (userId):", state);
 
     try {
         if (!code) return res.status(400).json({ message: "Code not found" })
@@ -114,7 +125,6 @@ export const githubcallback = async (req, res) => {
                 client_id: process.env.GITHUB_CLIENT_ID,
                 client_secret: process.env.GITHUB_SECRET,
                 code,
-
             },
             {
                 headers: {
@@ -125,17 +135,30 @@ export const githubcallback = async (req, res) => {
 
         if (response.status !== 200) return res.status(400).json({ message: "Failed to fetch github auth" });
 
-        const token = response.data.access_token
+        const token = response.data.access_token;
+        
+        // Save token to DB if state is a valid userId
+        if (state) {
+            const user = await User.findById(state);
+            if (user) {
+                user.githubAccessToken = token;
+                await user.save();
+                console.log(`Saved GitHub Access Token to user ${user.displayName}`);
+            } else {
+                console.warn(`User with ID ${state} not found during GitHub OAuth callback`);
+            }
+        } else {
+            console.warn("No user state found in GitHub OAuth callback");
+        }
+
         res.cookie("github_token", token, {
             httpOnly: false,
             secure: process.env.NODE_ENV === 'production',
             sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
             maxAge: 7 * 24 * 60 * 60 * 1000
-        })
+        });
 
         res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/app/github?just_authorized=true`);
-
-
 
     } catch (error) {
         console.error(error);

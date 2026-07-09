@@ -1,7 +1,7 @@
 import axios from 'axios'
 import User from '../models/User.js'
 export const githubuser = async (req, res) => {
-    const token = req.cookies.github_token;
+    const token = req.user?.githubAccessToken || req.cookies.github_token;
     try {
 
         if (!token) {
@@ -26,7 +26,7 @@ export const githubuser = async (req, res) => {
 
 }
 export const githubrepo = async (req, res) => {
-    const token = req.cookies.github_token;
+    const token = req.user?.githubAccessToken || req.cookies.github_token;
     try {
 
         if (!token) {
@@ -102,7 +102,7 @@ export const commitToGithub = async (req, res) => {
         console.log
         const { owner, repo, path, code, message, question_detail } = req.body;
 
-        const token = req.cookies.github_token;
+        const token = req.user?.githubAccessToken || req.cookies.github_token;
 
         let sha;
 

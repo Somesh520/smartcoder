@@ -4,10 +4,12 @@ import { verifyToken } from '../middleware/authMiddleware.js'
 
 const router = express.Router()
 
+router.use(verifyToken);
+
 router.get('/user', githubuser);
 router.get('/repo', githubrepo);
-router.post('/save-dsa-repo', verifyToken, saveDsaRepo);
-router.post('/remove', verifyToken, removedsarepo);
-router.post('/commit', verifyToken, commitToGithub);
+router.post('/save-dsa-repo', saveDsaRepo);
+router.post('/remove', removedsarepo);
+router.post('/commit', commitToGithub);
 
 export default router;

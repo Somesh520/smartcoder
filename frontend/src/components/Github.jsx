@@ -33,7 +33,8 @@ const Github = ({ user }) => {
                         setLoading(false);
                         return;
                     }
-                    window.location.href = `${BASE_URL}/auth/github`;
+                    const token = localStorage.getItem('auth_token') || '';
+                    window.location.href = `${BASE_URL}/auth/github?token=${token}`;
                     return;
                 }
 
@@ -61,7 +62,8 @@ const Github = ({ user }) => {
 
     const handleConnect = () => {
         // Redirect to backend auth endpoint
-        window.location.href = `${BASE_URL}/auth/github`;
+        const token = localStorage.getItem('auth_token') || '';
+        window.location.href = `${BASE_URL}/auth/github?token=${token}`;
     };
 
     const handleSetDsaRepo = async (e, repoName) => {
