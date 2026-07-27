@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import { corsOptions } from './config/cors.js';
 import passport from './config/passport.js';
 import { limiter } from './middleware/rateLimiter.js';
+import morgan from 'morgan';
 
 // Route imports
 import problemRoutes from './routes/problemRoutes.js';
@@ -31,6 +32,7 @@ app.use(compression());
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
+app.use(morgan("combined"));
 
 // Rate Limiter (Global)
 app.use(limiter);

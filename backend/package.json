@@ -28,6 +28,7 @@
     "langchain": "^1.2.13",
     "leetcode-query": "^2.0.1",
     "mongoose": "^9.1.2",
+    "morgan": "^1.11.0",
     "node": "^20.19.6",
     "nodemon": "^3.1.11",
     "passport": "^0.7.0",
