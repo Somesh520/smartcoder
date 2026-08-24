@@ -489,322 +489,276 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
     return (
         <div className="workspace" style={{
             display: 'flex',
-            height: 'calc(100vh - 50px)',
+            flexDirection: 'column',
+            height: '100vh',
             width: '100%',
-            background: 'var(--bg-main)',
+            background: '#1a1a1a',
             position: 'relative',
             overflow: 'hidden'
         }}>
-            {/* Ambient Glow Effects */}
+            {/* ===== TOP NAVIGATION BAR (LeetCode Style) ===== */}
             <div style={{
-                position: 'absolute',
-                top: '20%',
-                left: '10%',
-                width: '300px',
-                height: '300px',
-                background: 'radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%)',
-                filter: 'blur(60px)',
-                pointerEvents: 'none'
-            }}></div>
-            <div style={{
-                position: 'absolute',
-                bottom: '20%',
-                right: '10%',
-                width: '300px',
-                height: '300px',
-                background: 'radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
-                filter: 'blur(60px)',
-                pointerEvents: 'none'
-            }}></div>
-
-            {/* LEFT PANEL - Problem Description */}
-            <div className="neo-card" style={{
-                width: `${leftWidth}%`,
-                minWidth: '20%',
-                maxWidth: '65%',
-                flex: 'none',
-                display: 'flex',
-                flexDirection: 'column',
+                height: '48px',
+                minHeight: '48px',
                 background: 'var(--bg-card)',
-                overflow: 'hidden',
-                borderRadius: '0'
+                borderBottom: 'var(--border-main)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '0 16px',
+                zIndex: 60
             }}>
-                {/* Problem Header */}
-                <div style={{
-                    padding: '20px 24px',
-                    borderBottom: 'var(--border-main)',
-                    background: 'var(--bg-main)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px'
-                }}>
+                {/* Left: Back + Problem Info */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <button
                         onClick={onBack}
-                        className="neo-btn"
                         style={{
-                            padding: '8px 16px',
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'var(--text-muted)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
                             fontSize: '13px',
+                            fontWeight: 600,
+                            padding: '6px 10px',
+                            borderRadius: '6px',
+                            transition: 'all 0.2s'
                         }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
-                        <ArrowLeft size={14} />
-                        BACK
+                        <ArrowLeft size={16} />
+                        Problem List
                     </button>
-                    <Trophy size={18} color="#fbbf24" />
-                    <span style={{
-                        color: '#22c55e',
-                        fontWeight: 700,
-                        fontSize: '14px'
-                    }}>#{problem.id}</span>
-                    <span style={{
-                        color: 'var(--text-main)',
-                        fontWeight: 950,
-                        fontSize: '16px',
-                        textTransform: 'uppercase'
-                    }}>{details?.title || problem.title}</span>
+
+                    <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)' }} />
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Trophy size={16} color="#fbbf24" />
+                        <span style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '13px' }}>#{problem.id}</span>
+                        <span style={{ color: 'var(--text-main)', fontWeight: 700, fontSize: '14px' }}>
+                            {details?.title || problem.title}
+                        </span>
+                    </div>
                 </div>
 
-                {/* Problem Content */}
-                <div style={{
-                    padding: '24px',
-                    overflowY: 'auto',
-                    flex: 1,
-                    fontSize: '15px',
-                    lineHeight: '1.7',
-                    color: 'var(--text-main)',
-                    background: 'var(--bg-card)'
-                }}>
-                    <style>{`
-                        /* Problem Description Styling */
-                        .problem-content p {
-                            margin: 0 0 16px 0;
-                            color: var(--text-main);
-                            line-height: 1.7;
-                            font-weight: 600;
-                        }
-                        
-                        .problem-content strong {
-                            color: var(--text-main);
-                            font-weight: 950;
-                        }
-                        
-                        .problem-content em {
-                            color: var(--accent);
-                            font-style: italic;
-                            font-weight: 800;
-                        }
-                        
-                        .problem-content code {
-                            background: var(--bg-main);
-                            color: var(--accent);
-                            padding: 2px 8px;
-                            border: var(--border-main);
-                            border-radius: 0;
-                            font-family: 'JetBrains Mono', monospace;
-                            font-size: 14px;
-                            font-weight: 800;
-                        }
-                        
-                        .problem-content pre {
-                            background: var(--bg-main);
-                            border: var(--border-main);
-                            padding: 20px;
-                            border-radius: 0;
-                            overflow-x: auto;
-                            margin: 20px 0;
-                            box-shadow: var(--shadow-main);
-                            position: relative;
-                        }
+                {/* Center: Run + Submit */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <motion.button
+                        onClick={() => executeAction('run')}
+                        disabled={!details || loading}
+                        whileHover={(!details || loading) ? {} : { scale: 1.03 }}
+                        whileTap={(!details || loading) ? {} : { scale: 0.97 }}
+                        style={{
+                            background: (!details || loading) ? 'rgba(255,255,255,0.06)' : 'transparent',
+                            color: (!details || loading) ? 'var(--text-muted)' : 'var(--accent)',
+                            padding: '6px 16px',
+                            fontSize: '13px',
+                            fontWeight: 700,
+                            border: (!details || loading) ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(44,187,93,0.3)',
+                            borderRadius: '6px',
+                            cursor: (!details || loading) ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        <Play size={14} color={(!details || loading) ? 'var(--text-muted)' : 'var(--accent)'} fill={(!details || loading) ? 'transparent' : 'var(--accent)'} />
+                        Run
+                    </motion.button>
 
-                        .problem-content pre::before {
-                            content: 'EXAMPLE';
-                            position: absolute;
-                            top: 0;
-                            right: 0;
-                            background: var(--text-main);
-                            color: var(--bg-card);
-                            padding: 2px 8px;
-                            font-size: 10px;
-                            font-weight: 900;
-                        }
-                        
-                        .problem-content pre code {
-                            background: none;
-                            border: none;
-                            padding: 0;
-                            color: var(--text-main);
-                            font-size: 13px;
-                            font-weight: 700;
-                            line-height: 1.5;
-                        }
-                        
-                        .problem-content ul, .problem-content ol {
-                            margin: 16px 0;
-                            padding-left: 24px;
-                            color: var(--text-main);
-                        }
-                        
-                        .problem-content li {
-                            margin: 8px 0;
-                            color: var(--text-main);
-                            font-weight: 600;
-                        }
-                        
-                        .problem-content h1, .problem-content h2, .problem-content h3 {
-                            color: var(--text-main);
-                            font-weight: 950;
-                            margin: 32px 0 16px 0;
-                            line-height: 1.2;
-                            text-transform: uppercase;
-                        }
-                        
-                        .problem-content h1 {
-                            font-size: 24px;
-                            border-bottom: var(--border-main);
-                            padding-bottom: 8px;
-                        }
-                        
-                        .problem-content h2 {
-                            font-size: 20px;
-                            color: var(--accent);
-                        }
-                        
-                        .problem-content h3 {
-                            font-size: 18px;
-                        }
-                        
-                        .problem-content img {
-                            max-width: 100%;
-                            border: var(--border-main);
-                            margin: 20px 0;
-                            box-shadow: var(--shadow-main);
-                        }
-                        
-                        .problem-content blockquote {
-                            border-left: 4px solid var(--accent);
-                            background: var(--bg-main);
-                            padding: 16px 20px;
-                            margin: 20px 0;
-                            color: var(--text-main);
-                            font-weight: 700;
-                        }
-                        
-                        .problem-content table {
-                            width: 100%;
-                            border-collapse: collapse;
-                            margin: 20px 0;
-                            border: var(--border-main);
-                        }
-                        
-                        .problem-content th {
-                            background: var(--accent);
-                            color: #000;
-                            padding: 12px;
-                            text-align: left;
-                            font-weight: 950;
-                            border: var(--border-main);
-                        }
-                        
-                        .problem-content td {
-                            padding: 12px;
-                            border: var(--border-main);
-                            color: var(--text-main);
-                            font-weight: 600;
-                        }
-                        
-                        .problem-content tr:nth-child(even) {
-                            background: var(--bg-main);
-                        }
+                    <motion.button
+                        onClick={() => executeAction('submit')}
+                        disabled={!details || loading}
+                        whileHover={(!details || loading) ? {} : { scale: 1.03 }}
+                        whileTap={(!details || loading) ? {} : { scale: 0.97 }}
+                        style={{
+                            background: (!details || loading) ? 'rgba(255,255,255,0.06)' : 'var(--accent)',
+                            color: (!details || loading) ? 'var(--text-muted)' : '#000',
+                            padding: '6px 20px',
+                            fontSize: '13px',
+                            fontWeight: 700,
+                            border: (!details || loading) ? '1px solid rgba(255,255,255,0.08)' : '1px solid var(--accent)',
+                            borderRadius: '6px',
+                            cursor: (!details || loading) ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        <Send size={14} color={(!details || loading) ? 'var(--text-muted)' : '#000'} />
+                        Submit
+                    </motion.button>
+                </div>
 
-                        /* Example block semantic labels */
-                        .problem-content p strong {
-                            display: inline-block;
-                            margin-top: 8px;
-                            color: var(--accent);
-                            text-transform: uppercase;
-                            font-size: 13px;
-                            letter-spacing: 1px;
-                        }
-
-                        .problem-content p:has(strong) {
-                            margin-bottom: 20px;
-                        }
-                    `}</style>
-                    {details ? (
-                        <div className="problem-content" dangerouslySetInnerHTML={{
-                            __html: (details.content || details.questionHtml || "").replace(/src="\//g, 'src="https://leetcode.com/')
-                        }} />
-                    ) : (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
-                            <ModernSpinner size={40} text="Loading details..." />
-                        </div>
+                {/* Right: Save + AI */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    {user?.githubUsername && user?.githubDsaRepo && (
+                        <>
+                            <motion.button
+                                onClick={handleCommitToGithub}
+                                disabled={isCommitting || !details || loading}
+                                whileHover={(isCommitting || !details || loading) ? {} : { scale: 1.03 }}
+                                whileTap={(isCommitting || !details || loading) ? {} : { scale: 0.97 }}
+                                style={{
+                                    background: 'rgba(255,255,255,0.06)',
+                                    color: (isCommitting || !details || loading) ? 'var(--text-muted)' : 'var(--text-main)',
+                                    padding: '6px 14px',
+                                    fontSize: '13px',
+                                    fontWeight: 700,
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    borderRadius: '6px',
+                                    cursor: (isCommitting || !details || loading) ? 'not-allowed' : 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                {isCommitting ? <Loader2 size={14} className="spin" /> : <GithubIcon size={14} />}
+                                Save
+                            </motion.button>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '11px', color: 'var(--text-muted)' }}>
+                                <input type="checkbox" checked={autoSyncGithub} onChange={(e) => setAutoSyncGithub(e.target.checked)} style={{ accentColor: '#22c55e', cursor: 'pointer', width: '14px', height: '14px' }} />
+                                Auto
+                            </label>
+                            <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)' }} />
+                        </>
+                    )}
+                    {!isCompetition && (
+                        <button
+                            onClick={() => setAiOpen(!aiOpen)}
+                            style={{
+                                background: aiOpen ? 'var(--accent)' : 'rgba(255,255,255,0.06)',
+                                color: aiOpen ? '#000' : 'var(--text-main)',
+                                padding: '6px 14px',
+                                fontSize: '13px',
+                                fontWeight: 700,
+                                border: aiOpen ? '1px solid var(--accent)' : '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                position: 'relative',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            <Sparkles size={14} />
+                            AI
+                            {!aiOpen && (
+                                <span style={{ position: 'absolute', top: '-3px', right: '-3px', width: '7px', height: '7px', background: 'var(--accent)', borderRadius: '50%', boxShadow: '0 0 8px var(--accent)' }}></span>
+                            )}
+                        </button>
                     )}
                 </div>
             </div>
 
-            {/* DRAGGABLE RESIZER */}
-            <div
-                onMouseDown={startResizing}
-                style={{
-                    width: '6px',
-                    margin: '0 2px',
-                    cursor: 'col-resize',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 50
-                }}
-                className="resizer-handle"
-            >
-                <style>{`.resizer-handle:hover > div { background: #3b82f6; }`}</style>
-                <div style={{
-                    width: '2px',
-                    height: '100%',
-                    background: 'var(--text-main)',
-                    opacity: 0.2,
-                    borderRadius: '2px'
-                }}></div>
-            </div>
+            {/* ===== MAIN CONTENT AREA ===== */}
+            <div style={{ flex: 1, display: 'flex', overflow: 'hidden', padding: '6px', gap: '6px' }}>
 
-            {/* RIGHT PANEL - Code Editor */}
-            <div style={{
-                flex: 1,
-                minWidth: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                background: 'var(--bg-main)',
-                position: 'relative',
-                overflow: 'hidden'
-            }}>
-                {/* Editor Toolbar */}
-                <div className="editor-toolbar" style={{
-                    height: '50px',
-                    borderBottom: 'var(--border-main)',
+                {/* LEFT PANEL - Problem Description */}
+                <div style={{
+                    width: `${leftWidth}%`,
+                    minWidth: '20%',
+                    maxWidth: '65%',
+                    flex: 'none',
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '0 15px',
+                    flexDirection: 'column',
                     background: 'var(--bg-card)',
-                    overflowX: 'auto',
-                    scrollbarWidth: 'none'
+                    overflow: 'hidden',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(255,255,255,0.06)'
                 }}>
-                    <style>{`.editor-toolbar::-webkit-scrollbar { display: none; }`}</style>
-                    {/* Language Selector */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <Zap size={16} color="#3b82f6" />
-                        <span style={{ fontSize: '12px', color: '#9ca3af', fontWeight: 600 }}>Language:</span>
+                    <div style={{
+                        padding: '24px',
+                        overflowY: 'auto',
+                        flex: 1,
+                        fontSize: '15px',
+                        lineHeight: '1.7',
+                        color: 'var(--text-main)',
+                        background: 'var(--bg-card)'
+                    }}>
+                        <style>{`
+                            .problem-content p { margin: 0 0 16px 0; color: var(--text-main); line-height: 1.7; font-weight: 600; }
+                            .problem-content strong { color: var(--text-main); font-weight: 950; }
+                            .problem-content em { color: var(--accent); font-style: italic; font-weight: 800; }
+                            .problem-content code { color: var(--accent); padding: 2px 8px; border: var(--border-main); border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800; background: var(--bg-main); }
+                            .problem-content pre { background: var(--bg-main); border: var(--border-main); padding: 20px; border-radius: 8px; overflow-x: auto; margin: 20px 0; box-shadow: var(--shadow-main); position: relative; }
+                            .problem-content pre::before { content: 'EXAMPLE'; position: absolute; top: 0; right: 0; background: var(--text-main); color: var(--bg-card); padding: 2px 8px; font-size: 10px; font-weight: 900; border-radius: 0 8px 0 6px; }
+                            .problem-content pre code { background: none; border: none; padding: 0; color: var(--text-main); font-size: 13px; font-weight: 700; line-height: 1.5; }
+                            .problem-content ul, .problem-content ol { margin: 16px 0; padding-left: 24px; color: var(--text-main); }
+                            .problem-content li { margin: 8px 0; color: var(--text-main); font-weight: 600; }
+                            .problem-content h1, .problem-content h2, .problem-content h3 { color: var(--text-main); font-weight: 950; margin: 32px 0 16px 0; line-height: 1.2; text-transform: uppercase; }
+                            .problem-content h1 { font-size: 24px; border-bottom: var(--border-main); padding-bottom: 8px; }
+                            .problem-content h2 { font-size: 20px; color: var(--accent); }
+                            .problem-content h3 { font-size: 18px; }
+                            .problem-content img { max-width: 100%; border: var(--border-main); margin: 20px 0; box-shadow: var(--shadow-main); border-radius: 8px; }
+                            .problem-content blockquote { border-left: 4px solid var(--accent); background: var(--bg-main); padding: 16px 20px; margin: 20px 0; color: var(--text-main); font-weight: 700; border-radius: 0 8px 8px 0; }
+                            .problem-content table { width: 100%; border-collapse: collapse; margin: 20px 0; border: var(--border-main); border-radius: 8px; overflow: hidden; }
+                            .problem-content th { background: var(--accent); color: #000; padding: 12px; text-align: left; font-weight: 950; border: var(--border-main); }
+                            .problem-content td { padding: 12px; border: var(--border-main); color: var(--text-main); font-weight: 600; }
+                            .problem-content tr:nth-child(even) { background: var(--bg-main); }
+                            .problem-content p strong { display: inline-block; margin-top: 8px; color: var(--accent); text-transform: uppercase; font-size: 13px; letter-spacing: 1px; }
+                            .problem-content p:has(strong) { margin-bottom: 20px; }
+                        `}</style>
+                        {details ? (
+                            <div className="problem-content" dangerouslySetInnerHTML={{
+                                __html: (details.content || details.questionHtml || "").replace(/src="\//g, 'src="https://leetcode.com/')
+                            }} />
+                        ) : (
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
+                                <ModernSpinner size={40} text="Loading details..." />
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* DRAGGABLE RESIZER */}
+                <div onMouseDown={startResizing} style={{ width: '10px', cursor: 'col-resize', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, flexShrink: 0 }} className="resizer-handle">
+                    <style>{`.resizer-handle:hover > div { background: var(--accent); }`}</style>
+                    <div style={{ width: '3px', height: '40px', background: 'rgba(255, 255, 255, 0.12)', borderRadius: '3px', transition: 'background 0.2s' }}></div>
+                </div>
+
+                {/* RIGHT PANEL - Code Editor */}
+                <div style={{
+                    flex: 1,
+                    minWidth: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    background: 'var(--bg-card)',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(255,255,255,0.06)'
+                }}>
+                    {/* Language Selector Bar */}
+                    <div style={{
+                        height: '38px',
+                        borderBottom: '1px solid rgba(255,255,255,0.06)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '0 14px',
+                        gap: '10px',
+                        background: 'var(--bg-card)'
+                    }}>
+                        <Zap size={14} color="var(--accent)" />
                         <select
                             value={language}
                             onChange={handleLanguageChange}
                             style={{
-                                background: 'var(--bg-main)',
+                                background: 'transparent',
                                 color: 'var(--text-main)',
-                                border: 'var(--border-main)',
+                                border: 'none',
                                 fontSize: '13px',
                                 cursor: 'pointer',
                                 outline: 'none',
-                                padding: '6px 12px',
-                                borderRadius: '0',
-                                fontWeight: 900,
+                                fontWeight: 700,
+                                padding: '4px 0'
                             }}
                         >
                             {availableSnippets.length > 0 ? (
@@ -813,147 +767,11 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
                         </select>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        <motion.button
-                            onClick={() => executeAction('run')}
-                            disabled={!details || loading}
-                            whileHover={(!details || loading) ? {} : { scale: 1.05, boxShadow: '0 0 15px rgba(34, 197, 94, 0.4)' }}
-                            whileTap={(!details || loading) ? {} : { scale: 0.95 }}
-                            style={{
-                                background: (!details || loading) ? 'var(--bg-main)' : 'var(--accent)',
-                                color: (!details || loading) ? 'var(--text-muted)' : 'black',
-                                padding: '8px 18px',
-                                fontSize: '13px',
-                                fontWeight: 800,
-                                border: (!details || loading) ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid var(--accent)',
-                                borderRadius: '8px',
-                                cursor: (!details || loading) ? 'not-allowed' : 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                transition: 'background 0.2s, color 0.2s'
-                            }}
-                        >
-                            <Play size={15} color={(!details || loading) ? 'var(--text-muted)' : 'black'} fill={(!details || loading) ? 'transparent' : 'black'} /> RUN
-                        </motion.button>
-
-                        <motion.button
-                            onClick={() => executeAction('submit')}
-                            disabled={!details || loading}
-                            whileHover={(!details || loading) ? {} : { scale: 1.05, boxShadow: '0 0 25px rgba(34, 197, 94, 0.8)' }}
-                            whileTap={(!details || loading) ? {} : { scale: 0.95 }}
-                            animate={(!details || loading) ? {} : {
-                                boxShadow: ['0 0 10px rgba(34, 197, 94, 0.2)', '0 0 20px rgba(34, 197, 94, 0.6)', '0 0 10px rgba(34, 197, 94, 0.2)']
-                            }}
-                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                            style={{
-                                background: (!details || loading) ? 'var(--bg-main)' : 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-                                color: (!details || loading) ? 'var(--text-muted)' : 'white',
-                                padding: '8px 20px',
-                                fontSize: '13px',
-                                fontWeight: 900,
-                                border: (!details || loading) ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #4ade80',
-                                borderRadius: '8px',
-                                cursor: (!details || loading) ? 'not-allowed' : 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                textShadow: (!details || loading) ? 'none' : '0 2px 4px rgba(0,0,0,0.3)'
-                            }}
-                        >
-                            <motion.div
-                                animate={(!details || loading) ? {} : { x: [0, 3, 0] }}
-                                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                            >
-                                <Send size={15} color={(!details || loading) ? 'var(--text-muted)' : 'white'} />
-                            </motion.div>
-                            SUBMIT
-                        </motion.button>
-
-                        {/* Save to GitHub Button */}
-                        {user?.githubUsername && user?.githubDsaRepo && (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <motion.button
-                                    onClick={handleCommitToGithub}
-                                    disabled={isCommitting || !details || loading}
-                                    whileHover={(isCommitting || !details || loading) ? {} : { scale: 1.05 }}
-                                    whileTap={(isCommitting || !details || loading) ? {} : { scale: 0.95 }}
-                                    style={{
-                                        background: (isCommitting || !details || loading) ? 'var(--bg-main)' : 'rgba(255, 255, 255, 0.1)',
-                                        color: (isCommitting || !details || loading) ? 'var(--text-muted)' : 'white',
-                                        padding: '8px 16px',
-                                        fontSize: '13px',
-                                        fontWeight: 800,
-                                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                                        borderRadius: '8px',
-                                        cursor: (isCommitting || !details || loading) ? 'not-allowed' : 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '6px',
-                                        transition: 'background 0.2s'
-                                    }}
-                                >
-                                    {isCommitting ? (
-                                        <Loader2 size={15} className="spin" />
-                                    ) : (
-                                        <GithubIcon size={15} />
-                                    )}
-                                    SAVE
-                                </motion.button>
-
-                                <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '11px', color: 'var(--text-muted)' }}>
-                                    <input
-                                        type="checkbox"
-                                        checked={autoSyncGithub}
-                                        onChange={(e) => setAutoSyncGithub(e.target.checked)}
-                                        style={{ accentColor: '#22c55e', cursor: 'pointer' }}
-                                    />
-                                    Auto-Sync
-                                </label>
-                            </div>
-                        )}
-
-                        {/* AI Star Button - Disabled in Competition Mode */}
-                        {!isCompetition && (
-                            <button
-                                onClick={() => setAiOpen(!aiOpen)}
-                                className="neo-btn"
-                                style={{
-                                    background: aiOpen ? 'var(--accent)' : 'var(--bg-card)',
-                                    color: aiOpen ? '#000' : 'var(--text-main)',
-                                    padding: '8px 16px',
-                                    fontSize: '13px',
-                                    border: 'var(--border-main)',
-                                    boxShadow: aiOpen ? '0 0 20px rgba(167,139,250,0.4)' : 'var(--shadow-main)',
-                                    position: 'relative',
-                                    overflow: 'visible'
-                                }}
-                            >
-                                <Sparkles size={14} style={{ color: aiOpen ? '#000' : '#a78bfa' }} />
-                                AI
-                                {!aiOpen && (
-                                    <span style={{
-                                        position: 'absolute',
-                                        top: '-4px',
-                                        right: '-4px',
-                                        width: '8px',
-                                        height: '8px',
-                                        background: '#a78bfa',
-                                        borderRadius: '50%',
-                                        boxShadow: '0 0 10px #a78bfa'
-                                    }}></span>
-                                )}
-                            </button>
-                        )}
-                    </div>
-                </div>
-
                 {/* AI Pulse Animation */}
                 <style>{`
                     @keyframes ai-pulse {
-                        0%, 100% { box-shadow: 0 0 10px rgba(167,139,250,0.2); }
-                        50% { box-shadow: 0 0 20px rgba(167,139,250,0.4), 0 0 40px rgba(167,139,250,0.1); }
+                        0%, 100% { box-shadow: 0 0 10px rgba(44,187,93,0.2); }
+                        50% { box-shadow: 0 0 20px rgba(44,187,93,0.4), 0 0 40px rgba(44,187,93,0.1); }
                     }
                     .ai-response-content h1, .ai-response-content h2, .ai-response-content h3 {
                         color: var(--text-main); font-weight: 950; margin: 16px 0 8px 0; text-transform: uppercase;
@@ -998,7 +816,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
                         transition: transform 0.2s;
                     }
                     .ai-code-wrapper:hover {
-                        border-color: rgba(167,139,250,0.3);
+                        border-color: rgba(44,187,93,0.3);
                     }
                     .ai-code-header {
                         display: flex; justify-content: space-between; align-items: center;
@@ -1053,6 +871,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
                     setShowInputSection={setShowInputSection}
                     theme={theme}
                 />
+                </div>
             </div>
 
 

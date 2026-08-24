@@ -306,7 +306,7 @@ function MainApp({ initialRoom }) {
 
 
   return (
-    <div className="app-container" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="app-container" style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
       <Routes>
         <Route path="/connect" element={<><SEO title="Connect LeetCode - AlgoDuel" /><ConnectLeetCode onCheckConnection={checkLogin} /></>} />
         <Route path="/app/*" element={
