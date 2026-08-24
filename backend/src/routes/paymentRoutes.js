@@ -5,7 +5,9 @@ import {
     getPendingRequests, 
     approveRequest, 
     rejectRequest, 
-    getHistory 
+    getHistory,
+    createRazorpayOrder,
+    verifyRazorpayPayment 
 } from '../controllers/paymentController.js';
 
 const router = express.Router();
@@ -35,6 +37,8 @@ const verifyAdmin = async (req, res, next) => {
 };
 
 router.post('/request-topup', verifyToken, requestTopup);
+router.post('/razorpay-order', verifyToken, createRazorpayOrder);
+router.post('/razorpay-verify', verifyToken, verifyRazorpayPayment);
 router.get('/admin/pending', verifyToken, verifyAdmin, getPendingRequests);
 router.post('/admin/approve', verifyToken, verifyAdmin, approveRequest);
 router.post('/admin/reject', verifyToken, verifyAdmin, rejectRequest);

@@ -1319,6 +1319,8 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
             <TopUpModal
                 isOpen={showTopUpModal}
                 onClose={() => setShowTopUpModal(false)}
+                onSuccess={(newCredits) => setCredits(newCredits)}
+                user={user}
             />
         </div>
     );

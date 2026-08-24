@@ -1,5 +1,12 @@
 import PaymentRequest from '../models/PaymentRequest.js';
 import User from '../models/User.js';
+import Razorpay from 'razorpay';
+import crypto from 'crypto';
+
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID || '',
+    key_secret: process.env.RAZORPAY_KEY_SECRET || ''
+});
 
 export const requestTopup = async (req, res) => {
     try {
@@ -87,5 +94,67 @@ export const getHistory = async (req, res) => {
     } catch (error) {
         console.error("Payment History Error:", error);
         res.status(500).json({ error: "Server Error" });
+    }
+};
+
+export const createRazorpayOrder = async (req, res) => {
+    try {
+        const { amount } = req.body;
+        if (!amount) {
+            return res.status(400).json({ error: "Amount is required" });
+        }
+
+        const options = {
+            amount: Math.round(amount * 100), // convert to paise
+            currency: "INR",
+            receipt: `receipt_${Date.now()}`
+        };
+
+        const order = await razorpay.orders.create(options);
+        res.status(201).json(order);
+    } catch (error) {
+        console.error("Razorpay Order Error:", error);
+        res.status(500).json({ error: "Razorpay Order Creation Failed" });
+    }
+};
+
+export const verifyRazorpayPayment = async (req, res) => {
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, credits, amount } = req.body;
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !credits) {
+            return res.status(400).json({ error: "Missing verification details" });
+        }
+
+        const body = razorpay_order_id + "|" + razorpay_payment_id;
+        const expectedSignature = crypto
+            .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || '')
+            .update(body.toString())
+            .digest('hex');
+
+        const isSignatureValid = expectedSignature === razorpay_signature;
+
+        if (isSignatureValid) {
+            const newRequest = new PaymentRequest({
+                userId: req.user._id,
+                transactionId: razorpay_payment_id,
+                amount: amount || (credits === 30 ? 30 : 50),
+                credits: credits,
+                status: 'approved'
+            });
+            await newRequest.save();
+
+            const user = await User.findById(req.user._id);
+            if (user) {
+                user.credits += credits;
+                await user.save();
+            }
+
+            res.json({ success: true, message: "Payment Verified & Credits Added", newCredits: user ? user.credits : 0 });
+        } else {
+            res.status(400).json({ success: false, error: "Invalid payment signature" });
+        }
+    } catch (error) {
+        console.error("Razorpay Verification Error:", error);
+        res.status(500).json({ error: "Razorpay Verification Failed" });
     }
 };
