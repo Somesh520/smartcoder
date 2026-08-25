@@ -13,7 +13,6 @@ import LeetCodePage from './components/LeetCodePage';
 import Documentation from './components/Documentation';
 import AdminDashboard from './components/AdminDashboard';
 import PathPradarshakPage from './components/PathPradarshakPage';
-import PathPardaskPage from './components/PathPardaskPage';
 import Github from './components/Github';
 import LearnPage from './components/LearnPage';
 import PrivacyPolicyPage from './components/PrivacyPolicyPage';
@@ -346,7 +345,6 @@ function MainApp({ initialRoom }) {
                     <Route path="stats" element={<LeetCodePage />} />
                     <Route path="learn" element={<LearnPage />} />
                     <Route path="pathpradarshak" element={<PathPradarshakPage />} />
-                    <Route path="pathpardask" element={<PathPardaskPage user={userInfo} />} />
                     <Route path="github" element={<><SEO title="GitHub Integration - AlgoDuel" /><Github user={userInfo} /></>} />
                     <Route path="docs" element={<Documentation />} />
 
@@ -371,6 +369,7 @@ function MainApp({ initialRoom }) {
             </div>
           </div>
         } />
+        <Route path="*" element={<Navigate to={userInfo?.loggedIn ? "/app" : "/"} replace />} />
       </Routes>
 
       {/* Global Toast Notification */}

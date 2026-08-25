@@ -2,7 +2,6 @@ import { getCurrentUser, logout, BASE_URL } from '../api';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Code2, Swords, TrendingUp, BookOpen, History, LogOut, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, Book, Shield, Star, User, Zap, Sun, Moon, Map, Github } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import ReviewModal from './ReviewModal';
 
 const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
@@ -10,6 +9,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
     const location = useLocation();
     const currentView = location.pathname.includes('/competition') ? 'competition' :
         (location.pathname.includes('/problems') || location.pathname.includes('/workspace')) ? 'list' : 'lobby';
+    const isWorkspaceLikeView = location.pathname.includes('/workspace') || location.pathname.includes('/competition');
 
     const isInBattle = currentView === 'competition';
     const [collapsed, setCollapsed] = useState(false);
@@ -45,7 +45,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                 gap: collapsed ? '0' : '16px',
                 justifyContent: collapsed ? 'center' : 'flex-start',
                 padding: collapsed ? '12px 0' : '12px 20px',
-                background: 'transparent',
+                background: active ? 'rgba(34, 197, 110, 0.1)' : 'transparent',
                 border: 'none',
                 cursor: isInBattle ? 'not-allowed' : 'pointer',
                 color: active ? 'var(--accent)' : 'rgba(255, 255, 255, 0.7)',
@@ -53,72 +53,38 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                 fontWeight: active ? 800 : 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
-                transition: 'color 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                transition: 'background-color 0.2s ease, color 0.2s ease',
                 marginBottom: '4px',
                 opacity: isInBattle ? 0.5 : 1,
                 position: 'relative',
-                overflow: 'hidden'
+                borderRadius: collapsed ? '10px' : '12px'
             }}
             title={collapsed ? label : ''}
             className="sidebar-nav-item"
         >
-            {/* Shared Background Highlight */}
-            {active && (
-                <motion.div
-                    layoutId="nav-highlight"
-                    style={{
-                        position: 'absolute',
-                        inset: '2px 8px',
-                        background: active ? 'rgba(34, 197, 110, 0.1)' : 'transparent',
-                        borderRadius: '12px',
-                        zIndex: 0,
-                        border: '1px solid rgba(34, 197, 110, 0.15)',
-                        boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
-                    }}
-                    transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                />
-            )}
-
-            {/* Active Indicator Bar */}
+            {/* Active indicator bar */}
             {active && !collapsed && (
-                <motion.div
-                    layoutId="active-bar"
+                <div
                     style={{
                         position: 'absolute',
                         left: 0,
-                        width: '4px',
-                        height: '20px',
+                        width: '3px',
+                        height: '18px',
                         background: 'var(--accent)',
-                        borderRadius: '0 4px 4px 0',
-                        boxShadow: '0 0 15px var(--accent)',
-                        zIndex: 1
+                        borderRadius: '0 4px 4px 0'
                     }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                 />
             )}
 
-            <motion.div
-                animate={{
-                    scale: active ? 1.15 : 1,
-                    rotate: active ? [0, -5, 5, 0] : 0
-                }}
-                transition={{ duration: 0.3 }}
-                style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            >
-                <Icon
-                    size={collapsed ? 26 : 20}
-                    color={active ? 'var(--accent)' : (danger ? '#ef4444' : 'currentColor')}
-                    strokeWidth={active ? 2.5 : 2}
-                    style={{ transition: 'all 0.2s' }}
-                />
-            </motion.div>
+            <Icon
+                size={collapsed ? 24 : 19}
+                color={active ? 'var(--accent)' : (danger ? '#ef4444' : 'currentColor')}
+                strokeWidth={active ? 2.4 : 2}
+            />
 
             {!collapsed && (
-                <span style={{ zIndex: 1, position: 'relative' }}>{label}</span>
+                <span>{label}</span>
             )}
-
-            {/* Mouse Hover Glow (optional subtle addition) */}
-            <div className="nav-hover-overlay" />
         </button>
     );
 
@@ -220,12 +186,6 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                         label="History"
                         active={location.pathname.includes('/history')}
                         onClick={() => handleNav(() => navigate('/app/history'))}
-                    />
-                    <NavItem
-                        icon={Map}
-                        label="Pathpadrak"
-                        active={location.pathname.includes('/pathpardask')}
-                        onClick={() => handleNav(() => navigate('/app/pathpardask'))}
                     />
                     <NavItem
                         icon={Github}
@@ -358,7 +318,8 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                     style={{
                         position: 'absolute',
                         right: '-14px',
-                        top: '31px', // Vertically aligned with the center of the logo
+                        // Avoid overlap with Workspace/Competition top header bar.
+                        top: isWorkspaceLikeView ? '72px' : '31px',
                         width: '28px',
                         height: '28px',
                         background: '#1a1a1a',
@@ -397,9 +358,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
                 }} onClick={() => setShowLoginModal(false)}>
 
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                    <div
                         style={{
                             padding: '48px',
                             width: '420px',
@@ -448,7 +407,7 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
                         >
                             Dismiss
                         </button>
-                    </motion.div>
+                    </div>
                 </div>
             )}
 
@@ -463,23 +422,6 @@ const Sidebar = ({ onShowProblemList, onGoDetail, user }) => {
             <style>{`
                 .sidebar-nav-item:hover {
                     color: #fff !important;
-                }
-                .sidebar-nav-item:hover svg {
-                    transform: translateX(4px);
-                    color: var(--accent) !important;
-                }
-                .sidebar-nav-item.collapsed:hover svg {
-                    transform: scale(1.1);
-                }
-                .nav-hover-overlay {
-                    position: absolute;
-                    inset: 0;
-                    background: linear-gradient(90deg, rgba(34, 197, 94, 0.05) 0%, transparent 100%);
-                    opacity: 0;
-                    transition: opacity 0.3s;
-                }
-                .sidebar-nav-item:hover .nav-hover-overlay {
-                    opacity: 1;
                 }
                 .custom-scroll::-webkit-scrollbar {
                     width: 4px;

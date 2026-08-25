@@ -14,7 +14,6 @@ export const socketHandler = (io) => {
   };
 
   io.on("connection", async (socket) => {
-   
     const token = socket.handshake.auth?.token || socket.handshake.query?.token;
     if (token) {
       try {
@@ -63,36 +62,34 @@ export const socketHandler = (io) => {
           const existingUserIndex = existingRoom.users.findIndex(
             (u) => u.userId === userId,
           );
-        
 
-            if (existingUserIndex !== -1) {
-              const existingUser = existingRoom.users[existingUserIndex];
+          if (existingUserIndex !== -1) {
+            const existingUser = existingRoom.users[existingUserIndex];
 
-              // ALWAYS RECLAIM (Whether zombie or active)
-              if (disconnectTimeouts[existingUser.id]) {
-                clearTimeout(disconnectTimeouts[existingUser.id]);
-                delete disconnectTimeouts[existingUser.id];
-              }
+            // ALWAYS RECLAIM (Whether zombie or active)
+            if (disconnectTimeouts[existingUser.id]) {
+              clearTimeout(disconnectTimeouts[existingUser.id]);
+              delete disconnectTimeouts[existingUser.id];
+            }
 
-              // Update ID
-              existingUser.id = socket.id;
-              existingUser.username = username; // Update name just in case
-              existingUser.status = "joined";
-              if (userId) existingUser.userId = userId;
+            // Update ID
+            existingUser.id = socket.id;
+            existingUser.username = username; // Update name just in case
+            existingUser.status = "joined";
+            if (userId) existingUser.userId = userId;
 
-              socket.join(roomId);
-              io.to(roomId).emit("roomUpdate", existingRoom);
+            socket.join(roomId);
+            io.to(roomId).emit("roomUpdate", existingRoom);
 
-              // IF GAME ACTIVE, send gameActive
-              if (
-                existingRoom.status === "active" ||
-                existingRoom.status === "starting"
-              ) {
-                socket.emit("gameActive", existingRoom);
-              }
+            // IF GAME ACTIVE, send gameActive
+            if (
+              existingRoom.status === "active" ||
+              existingRoom.status === "starting"
+            ) {
+              socket.emit("gameActive", existingRoom);
+            }
 
-              return; // Successfully reclaimed
-            
+            return; // Successfully reclaimed
           }
         }
 
