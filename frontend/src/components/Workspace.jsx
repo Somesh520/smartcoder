@@ -3,7 +3,7 @@ import { fetchProblemDetails, runCode, submitCode, pollResult, fetchAIAssist, fe
 import CodeEditor from './CodeEditor';
 import Console from './Console';
 import ModernSpinner from './ModernSpinner';
-import { ArrowLeft, Play, Send, Trophy, Zap, Sparkles, X, Loader2, Lightbulb, Bug, Rocket, Code2, Maximize2, Minimize2, Timer, User, Github as GithubIcon } from 'lucide-react';
+import { ArrowLeft, Play, Send, Trophy, Zap, Sparkles, X, Loader2, Lightbulb, Bug, Rocket, Code2, Maximize2, Minimize2, Timer, User, Github as GithubIcon, GripVertical } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SubmissionSuccess from './SubmissionSuccess';
 
@@ -102,6 +102,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
     // AI Assistant State
     const [aiOpen, setAiOpen] = useState(false);
     const [isAiExpanded, setIsAiExpanded] = useState(false);
+    const [aiPanelWidth, setAiPanelWidth] = useState(460);
     const [aiChatHistory, setAiChatHistory] = useState([
         { role: 'assistant', content: 'Hello! I am SmartCoder AI. How can I help you with your code today? 🚀' }
     ]);
@@ -110,6 +111,25 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
     const [explainLanguage, setExplainLanguage] = useState('english');
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const aiResponseRef = useRef(null);
+
+    const startAiResize = (event) => {
+        event.preventDefault();
+        const startX = event.clientX;
+        const startWidth = aiPanelWidth;
+
+        const resize = (moveEvent) => {
+            const nextWidth = Math.min(760, Math.max(360, startWidth + startX - moveEvent.clientX));
+            setAiPanelWidth(nextWidth);
+        };
+
+        const stopResize = () => {
+            document.removeEventListener('mousemove', resize);
+            document.removeEventListener('mouseup', stopResize);
+        };
+
+        document.addEventListener('mousemove', resize);
+        document.addEventListener('mouseup', stopResize);
+    };
 
     // Auto-scroll to bottom of chat
     useEffect(() => {
@@ -629,37 +649,19 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
                             <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)' }} />
                         </>
                     )}
-                    {!isCompetition && (
-                        <button
-                            onClick={() => setAiOpen(!aiOpen)}
-                            style={{
-                                background: aiOpen ? 'var(--accent)' : 'rgba(255,255,255,0.06)',
-                                color: aiOpen ? '#000' : 'var(--text-main)',
-                                padding: '6px 14px',
-                                fontSize: '13px',
-                                fontWeight: 700,
-                                border: aiOpen ? '1px solid var(--accent)' : '1px solid rgba(255,255,255,0.1)',
-                                borderRadius: '6px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                position: 'relative',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            <Sparkles size={14} />
-                            AI
-                            {!aiOpen && (
-                                <span style={{ position: 'absolute', top: '-3px', right: '-3px', width: '7px', height: '7px', background: 'var(--accent)', borderRadius: '50%', boxShadow: '0 0 8px var(--accent)' }}></span>
-                            )}
-                        </button>
-                    )}
                 </div>
             </div>
 
             {/* ===== MAIN CONTENT AREA ===== */}
-            <div style={{ flex: 1, display: 'flex', overflow: 'hidden', padding: '6px', gap: '6px' }}>
+            <div className="workspace-main-content" style={{
+                flex: 1,
+                display: 'flex',
+                overflow: 'hidden',
+                padding: '6px',
+                paddingRight: aiOpen && !isAiExpanded ? `${aiPanelWidth + 6}px` : '6px',
+                gap: '6px',
+                transition: 'padding-right 0.28s ease'
+            }}>
 
                 {/* LEFT PANEL - Problem Description */}
                 <div style={{
@@ -742,29 +744,52 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
                         borderBottom: '1px solid rgba(255,255,255,0.06)',
                         display: 'flex',
                         alignItems: 'center',
+                        justifyContent: 'space-between',
                         padding: '0 14px',
-                        gap: '10px',
                         background: 'var(--bg-card)'
                     }}>
-                        <Zap size={14} color="var(--accent)" />
-                        <select
-                            value={language}
-                            onChange={handleLanguageChange}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <Zap size={14} color="var(--accent)" />
+                            <select
+                                value={language}
+                                onChange={handleLanguageChange}
+                                style={{
+                                    background: 'transparent',
+                                    color: 'var(--text-main)',
+                                    border: 'none',
+                                    fontSize: '13px',
+                                    cursor: 'pointer',
+                                    outline: 'none',
+                                    fontWeight: 700,
+                                    padding: '4px 0'
+                                }}
+                            >
+                                {availableSnippets.length > 0 ? (
+                                    availableSnippets.map(s => <option key={s.langSlug} value={s.langSlug} style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>{s.lang}</option>)
+                                ) : <option value="cpp">C++</option>}
+                            </select>
+                        </div>
+
+                        <button
+                            onClick={() => setAiOpen(!aiOpen)}
+                            title={aiOpen ? 'Close AI Assistant' : 'Open AI Assistant'}
                             style={{
-                                background: 'transparent',
-                                color: 'var(--text-main)',
-                                border: 'none',
-                                fontSize: '13px',
+                                width: '28px',
+                                height: '28px',
+                                padding: 0,
+                                background: aiOpen ? 'var(--accent)' : 'rgba(255,255,255,0.06)',
+                                color: aiOpen ? '#000' : 'var(--text-main)',
+                                border: aiOpen ? '1px solid var(--accent)' : '1px solid rgba(255,255,255,0.14)',
+                                borderRadius: '6px',
                                 cursor: 'pointer',
-                                outline: 'none',
-                                fontWeight: 700,
-                                padding: '4px 0'
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                transition: 'all 0.2s'
                             }}
                         >
-                            {availableSnippets.length > 0 ? (
-                                availableSnippets.map(s => <option key={s.langSlug} value={s.langSlug} style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>{s.lang}</option>)
-                            ) : <option value="cpp">C++</option>}
-                        </select>
+                            <Sparkles size={14} />
+                        </button>
                     </div>
 
                 {/* AI Pulse Animation */}
@@ -899,23 +924,20 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
             {/* AI Panel - Moved to Root to prevent clipping */}
             {
                 aiOpen && (
-                    <div style={{
-                        position: 'absolute',
-                        top: isAiExpanded ? '10%' : 0,
-                        right: isAiExpanded ? 'auto' : 0,
-                        left: isAiExpanded ? '50%' : 'auto',
-                        bottom: isAiExpanded ? '10%' : 0,
-                        transform: isAiExpanded ? 'translateX(-50%)' : 'none',
-                        width: isAiExpanded ? '70%' : '480px',
-                        maxWidth: isAiExpanded ? '1100px' : '95%',
-                        height: isAiExpanded ? '85vh' : 'auto',
+                    <aside className={`ai-workspace-panel ${isAiExpanded ? 'ai-workspace-panel--focus' : ''}`} style={{
+                        position: isAiExpanded ? 'fixed' : 'absolute',
+                        top: isAiExpanded ? 0 : '48px',
+                        right: 0,
+                        left: isAiExpanded ? 0 : 'auto',
+                        bottom: 0,
+                        width: isAiExpanded ? '100vw' : `${aiPanelWidth}px`,
+                        maxWidth: isAiExpanded ? '100vw' : '95%',
+                        height: isAiExpanded ? '100dvh' : 'auto',
                         zIndex: 100,
                         background: 'var(--bg-card)',
                         backdropFilter: 'blur(20px)',
-                        border: isAiExpanded ? 'var(--border-main)' : 'none',
-                        borderLeft: 'var(--border-main)',
-                        borderBottom: 'var(--border-main)',
-                        borderRadius: '0 0 0 16px',
+                        border: 'var(--border-main)',
+                        borderRadius: isAiExpanded ? 0 : '16px 0 0 16px',
                         display: 'flex',
                         flexDirection: 'column',
                         animation: isAiExpanded ? 'floatIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)' : 'slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -924,14 +946,31 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
                     }}>
                         <style>{`
                         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-                        @keyframes floatIn { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+                        @keyframes floatIn { from { opacity: 0; } to { opacity: 1; } }
+                        .ai-panel-resizer { position: absolute; left: -9px; top: 0; bottom: 0; width: 18px; cursor: col-resize; display: flex; align-items: center; justify-content: center; color: var(--text-muted); z-index: 2; }
+                        .ai-panel-resizer:hover { color: var(--accent); }
+                        .ai-chat-scrollbar::-webkit-scrollbar { width: 6px; }
+                        .ai-chat-scrollbar::-webkit-scrollbar-thumb { background: var(--border-main); border-radius: 20px; }
+                        @media (max-width: 900px) {
+                            .ai-workspace-panel:not(.ai-workspace-panel--focus) { top: auto !important; bottom: 0 !important; right: 0 !important; left: 0 !important; width: 100% !important; height: min(72dvh, 680px) !important; max-width: none !important; border-radius: 18px 18px 0 0 !important; }
+                            .ai-workspace-panel.ai-workspace-panel--focus { top: 0 !important; right: 0 !important; bottom: 0 !important; left: 0 !important; width: 100vw !important; height: 100dvh !important; max-width: 100vw !important; border-radius: 0 !important; }
+                            .workspace-main-content { padding-right: 6px !important; }
+                            .ai-panel-resizer { display: none; }
+                        }
                     `}</style>
+
+                        {!isAiExpanded && (
+                            <div className="ai-panel-resizer" onMouseDown={startAiResize} title="Drag to resize">
+                                <GripVertical size={16} />
+                            </div>
+                        )}
 
                         {/* Header (Same as before) */}
                         <div style={{
                             padding: '12px 18px', borderBottom: 'var(--border-main)',
                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                            background: 'var(--bg-main)'
+                            background: 'var(--bg-main)',
+                            paddingTop: isAiExpanded ? 'max(12px, env(safe-area-inset-top))' : '12px'
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
                                 <Sparkles size={16} color="var(--accent)" style={{ flexShrink: 0 }} />
@@ -1003,7 +1042,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
                         </div>
 
                         {/* Quick Actions Restored */}
-                        <div style={{ padding: '16px 20px', display: 'flex', gap: '10px', flexWrap: 'wrap', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                        <div style={{ padding: '10px 16px', display: 'flex', gap: '7px', flexWrap: 'wrap', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'var(--bg-main)' }}>
                             {[
                                 { label: 'Solve', icon: <Code2 size={12} />, msg: 'Solve this problem completely with the most optimal approach. Give me the full code.', color: '#22c55e' },
                                 { label: 'Hint', icon: <Lightbulb size={12} />, msg: 'Give me a hint for this problem. Explain the logic or approach, but DO NOT write the full code solution. Let me try to implement it.', color: '#f59e0b' },
@@ -1039,8 +1078,8 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
 
                         {/* Chat History Area */}
                         <div ref={aiResponseRef} style={{
-                            flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px'
-                        }}>
+                            flex: 1, overflowY: 'auto', padding: '18px 16px', display: 'flex', flexDirection: 'column', gap: '16px'
+                        }} className="ai-chat-scrollbar">
                             {aiChatHistory.map((msg, idx) => (
                                 <div key={idx} style={{
                                     alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
@@ -1079,9 +1118,12 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
                                             // Let me re-read the full file or at least the beginning of the component to see where I added the state. *latest* assistant message to apply animation
                                             (msg.isNew && idx === aiChatHistory.length - 1) ? (
                                                 <TypewriterEffect text={msg.content} onComplete={() => {
-                                                    // Mark as not new after animation
-                                                    const updated = [...aiChatHistory];
-                                                    updated[idx].isNew = false;
+                                                    // Mark message as rendered to avoid stale "new" state.
+                                                    setAiChatHistory((prev) => {
+                                                        const next = [...prev];
+                                                        if (next[idx]) next[idx] = { ...next[idx], isNew: false };
+                                                        return next;
+                                                    });
                                                 }} />
                                             ) : (
                                                 <div className="ai-response-content">
@@ -1104,23 +1146,28 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
                         </div>
 
                         {/* Input Area */}
-                        <div style={{ padding: '20px', background: 'var(--bg-main)', borderTop: 'var(--border-main)', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <div style={{ padding: isAiExpanded ? '14px 16px max(16px, env(safe-area-inset-bottom))' : '14px 16px 16px', background: 'var(--bg-main)', borderTop: 'var(--border-main)', display: 'flex', gap: '12px', alignItems: 'center' }}>
                             <div style={{ flex: 1, position: 'relative' }}>
-                                <input
-                                    type="text"
+                                <textarea
                                     value={aiMessage}
                                     onChange={(e) => setAiMessage(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && !aiLoading && handleAIAssist()}
-                                    placeholder="ASK_SMARTCODER..."
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && !e.shiftKey && !aiLoading) {
+                                            e.preventDefault();
+                                            handleAIAssist();
+                                        }
+                                    }}
+                                    placeholder="Ask about this problem or your code..."
                                     disabled={aiLoading}
-                                    style={{ width: '100%', background: 'var(--bg-card)', border: 'var(--border-main)', color: 'var(--text-main)', padding: '14px 50px 14px 20px', borderRadius: '0', outline: 'none', fontSize: '14px', fontWeight: 700, transition: 'all 0.2s', boxShadow: 'inset var(--shadow-main)' }}
+                                    rows={2}
+                                    style={{ width: '100%', resize: 'none', background: 'var(--bg-card)', border: 'var(--border-main)', color: 'var(--text-main)', padding: '12px 52px 12px 14px', borderRadius: '10px', outline: 'none', fontSize: '14px', fontWeight: 600, lineHeight: 1.45, transition: 'all 0.2s', boxShadow: 'inset var(--shadow-main)', fontFamily: 'inherit' }}
                                 />
                                 <button onClick={() => handleAIAssist()} disabled={aiLoading || !aiMessage.trim()} className="neo-btn" style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: (aiLoading || !aiMessage.trim()) ? 'var(--bg-main)' : 'var(--accent)', color: (aiLoading || !aiMessage.trim()) ? 'var(--text-muted)' : '#000', border: 'var(--border-main)', width: '32px', height: '32px', borderRadius: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: (aiLoading || !aiMessage.trim()) ? 'not-allowed' : 'pointer', boxShadow: 'none' }}>
                                     <Send size={14} />
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    </aside>
                 )
             }
 

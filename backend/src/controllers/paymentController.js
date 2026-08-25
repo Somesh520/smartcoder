@@ -105,7 +105,7 @@ export const createRazorpayOrder = async (req, res) => {
         }
 
         const options = {
-            amount: Math.round(amount * 100), // convert to paise
+            amount: Math.round(amount * 100)+5, // convert to paise
             currency: "INR",
             receipt: `receipt_${Date.now()}`
         };

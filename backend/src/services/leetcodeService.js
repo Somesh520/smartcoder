@@ -192,6 +192,9 @@ export const checkSubmission = async (id, { slug, auth_session, auth_csrf }) => 
     const headers = getHeaders(slug, auth_session, auth_csrf);
 
     const response = await axios.get(url, { headers });
+    if (response.status !== 200) {
+        throw new Error(`Failed to check submission. Status: ${response.status}`);
+    }
     return response.data;
 };
 

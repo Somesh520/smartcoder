@@ -33,6 +33,7 @@ app.use(compression());
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
+// this is morgan for 
 app.use(morgan("combined"));
 
 // Rate Limiter (Global)
@@ -60,17 +61,28 @@ app.get('/', (req, res) => {
     res.send("LeetCode Local Server is Running! 🚀");
 });
 app.get('/health', (req, res) => res.status(200).send('OK'));
+/// this for review route
 
 app.use('/api/reviews', reviewRoutes);
+// this is for leetcode routes
 app.use('/api/leetcode', leetcodeRoutes);
+// this is for ai routes 
 app.use('/api/ai', aiRoutes);
+// this is for payment routes
 app.use('/api/payment', paymentRoutes);
+// this is admin routes 
 app.use('/api/admin', adminRoutes);
+// this sis tester routes we will delete in future 
 app.use('/api/tester', testerRoutes);
+// this is github routes 
 app.use('/api/github', githubRoutes);
+// this is authentivcation routes for security purposes
 
 app.use('/auth', authRoutes);
+
 app.use('/', problemRoutes);
+// this is for problem routes
+
 
 
 export default app;

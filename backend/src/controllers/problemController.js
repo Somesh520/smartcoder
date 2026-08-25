@@ -1,8 +1,13 @@
 import * as leetcodeService from '../services/leetcodeService.js';
 
+
 export const getProblems = async (req, res) => {
     try {
         const data = await leetcodeService.fetchProblems();
+        
+        if(!data){
+            return res.status(404).json({ error: "Problems Not Found" });
+        }
         res.set('Cache-Control', 'public, max-age=3600'); // Browser Cache for 1 hour
         res.json(data);
     } catch (error) {
@@ -14,6 +19,9 @@ export const getProblemDetails = async (req, res) => {
     try {
         const { id } = req.params;
         const data = await leetcodeService.fetchProblemDetails(id);
+        if(!data){
+            return res.status(404).json({ error: "Problem Not Found" });
+        }
         res.set('Cache-Control', 'public, max-age=86400'); // Browser Cache for 24 hours
         res.json(data);
     } catch (error) {

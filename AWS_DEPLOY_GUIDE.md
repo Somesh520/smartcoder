@@ -2,7 +2,7 @@
 
 Deploying on **AWS EC2** is the best solution for bypassing Cloudflare blocks. Unlike Render, if LeetCode blocks your AWS IP, you can **change your server IP in 10 seconds** by assigning a new **Elastic IP** to your EC2 instance!
 
----
+
 
 ## 🛠️ Step 1: Launch an EC2 Instance (Free Tier)
 1. Log in to your [AWS Console](https://aws.amazon.com/).
