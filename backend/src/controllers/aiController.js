@@ -51,9 +51,8 @@ if (GROQ_API_KEY) {
 
 // 🚀 Primary: Groq Models (Fast & Free-tier friendly)
 const GROQ_MODELS = [
-  "llama-3.3-70b-versatile",
-  "llama-3.1-8b-instant",
-  "mixtral-8x7b-32768"
+  "llama3-70b-8192",
+  "llama3-8b-8192"
 ];
 
 // 🛡️ Fallback: Gemini Models
@@ -72,7 +71,7 @@ const LANGUAGE_INSTRUCTIONS = {
   hinglish:
     "Reply only in Hinglish: Hindi written with the English alphabet. Never use Devanagari and do not add an English translation.",
   bhojpuri:
-    "Reply only in Bhojpuri written with the English alphabet. Never use Devanagari and do not add an English translation.",
+    "Reply only in Bhojpuri written like yee sawal hamre me na hoba . Never use Devanagari and do not add an English translation.",
   hindi:
     "Reply only in formal Hindi using Devanagari script. Do not add an English translation.",
   marathi:
