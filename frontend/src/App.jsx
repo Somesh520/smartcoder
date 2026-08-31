@@ -27,6 +27,8 @@ const socket = io(API_URL, {
   transports: ['websocket'], // Force WebSocket only to avoid polling errors
   reconnectionRequests: 10,
   autoConnect: false,
+  withCredentials: true,
+  path: "/api2/socket.io/" // ADDED SPECIFIC PATH FOR SECOND BACKEND
 });
 
 socket.on("connect", () => {
