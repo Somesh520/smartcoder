@@ -23,7 +23,12 @@ import { io } from 'socket.io-client';
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-const socket = io(API_URL, {
+let socketOrigin = API_URL;
+try {
+  socketOrigin = new URL(API_URL).origin;
+} catch (e) {}
+
+const socket = io(socketOrigin, {
   reconnectionRequests: 10,
   autoConnect: false,
   withCredentials: true,
