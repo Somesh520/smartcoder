@@ -16,8 +16,7 @@ const io = new Server(server, {
         origin: corsOptions.origin,
         methods: ["GET", "POST"],
         credentials: true
-    },
-    path: "/api2/socket.io/" // ADDED SPECIFIC PATH FOR SECOND BACKEND
+    }
 });
 
 // Connect to Database
