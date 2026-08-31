@@ -49,13 +49,7 @@ if (GROQ_API_KEY) {
   groq = new Groq({ apiKey: GROQ_API_KEY });
 }
 
-// 🚀 Primary: Groq Models (Fast & Free-tier friendly)
-const GROQ_MODELS = [
-  "llama3-70b-8192",
-  "llama3-8b-8192"
-];
-
-// 🛡️ Fallback: Gemini Models
+// 🚀 Primary: Gemini Models (Working perfectly for you)
 const GEMINI_MODELS = [
   "gemini-2.5-flash-lite",
   "gemini-2.0-flash-lite",
@@ -202,33 +196,7 @@ export const handleAssist = async (req, res) => {
     let answer = null;
     let lastError = null;
 
-    // 1️⃣ TRY GROQ FIRST
-    if (groq) {
-      for (const model of GROQ_MODELS) {
-        try {
-          console.log(`[AI] Trying Groq: ${model}`);
-          const chatCompletion = await groq.chat.completions.create({
-            messages: messages, // ✅ Pass Full History
-            model: model,
-            temperature: 0.4,
-            max_tokens: 500,
-            top_p: 1,
-            stop: null,
-            stream: false,
-          });
-
-          answer = chatCompletion.choices[0]?.message?.content;
-          if (answer) {
-            console.log(`[AI] Success with Groq (${model})`);
-            break;
-          }
-        } catch (err) {
-          console.warn(`[AI] Groq Failed ${model}: ${err.message}`);
-          lastError = { message: err.message };
-        }
-      }
-    }
-
+    // The Groq models are paywalled for the current key, defaulting immediately to Gemini
     // 2️⃣ FALLBACK TO GEMINI (If Groq failed or not configured)
     if (!answer) {
       console.log("[AI] Switching to Gemini Fallback...");
@@ -352,19 +320,8 @@ ONLY return the JSON object. No extra text.`;
     let answer = null;
 
     if (groq) {
-      try {
-        const completion = await groq.chat.completions.create({
-          messages: messages,
-          model: "llama-3.1-8b-instant",
-          temperature: 0,
-          response_format: { type: "json_object" },
-        });
-        answer = completion.choices[0]?.message?.content;
-      } catch (err) {
-        console.warn("[AI] Groq Complexity Failed:", err.message);
-      }
+      console.log("[AI] Skipping Groq for complexity (models paywalled). Using Gemini.");
     }
-
     if (!answer && GEMINI_API_KEY) {
       const payload = {
         contents: [
