@@ -1,0 +1,42 @@
+name: Deploy Backend to EC2
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**' # Triggers only when there are changes in the backend directory
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Navigate to the repository directory
+            # Replace 'smartcoder' with the actual path to your cloned repo if it's different
+            cd ~/smartcoder
+            
+            # Pull the latest changes from the main branch
+            git pull origin main
+            
+            # Navigate to the backend directory
+            cd backend
+            
+            # Install dependencies
+            npm install
+            
+            # Restart the backend service
+            # Assuming you are using PM2 to manage your Node.js process. 
+            # If you are using something else, replace the command below.
+            # E.g., pm2 restart server.js --name "backend"
+            pm2 restart smartcoder || pm2 start server.js --name "smartcoder"
