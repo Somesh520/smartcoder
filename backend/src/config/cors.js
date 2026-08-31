@@ -5,6 +5,8 @@ export const allowedOrigin = (origin, callback) => {
     if (
         origin.includes('localhost') ||
         origin.endsWith('.vercel.app') ||
+        origin.includes('algoduel.me') ||
+        origin.includes('softskill.duckdns.org') ||
         origin === process.env.CLIENT_URL
     ) {
         callback(null, true);

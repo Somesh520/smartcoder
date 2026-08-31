@@ -11,7 +11,9 @@ async function getAppTab() {
         url.includes("localhost") ||
         url.includes("127.0.0.1") ||
         url.includes(".vercel.app") ||
-        url.includes("onrender.com")
+        url.includes("onrender.com") ||
+        url.includes("algoduel.me") ||
+        url.includes("softskill.duckdns.org")
     ) {
         return currentTab;
     }
