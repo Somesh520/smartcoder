@@ -15,7 +15,7 @@ passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     // Use full URL in production to avoid proxy issues, or relative for local
-    callbackURL: process.env.SERVER_URL ? `${process.env.SERVER_URL}/auth/google/callback` : "/auth/google/callback"
+    callbackURL: process.env.GOOGLE_CALLBACK_URL || (process.env.SERVER_URL ? `${process.env.SERVER_URL}/auth/google/callback` : "/auth/google/callback")
 },
     async (accessToken, refreshToken, profile, done) => {
         try {
