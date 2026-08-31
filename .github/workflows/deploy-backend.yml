@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'backend/**' # Triggers only when there are changes in the backend directory
+  workflow_dispatch: # Allows you to run this manually from the Actions tab
 
 jobs:
   deploy:
