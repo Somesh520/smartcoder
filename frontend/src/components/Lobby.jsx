@@ -178,42 +178,15 @@ const Lobby = ({ socket, onJoin, onPracticeSolo, userInfo }) => {
 
                     {mode === 'create' ? (
                         <>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                <div style={inputGroupStyle}>
-                                    <label style={labelStyle}><Hash size={14} /> TOPIC</label>
-                                    <div style={{ position: 'relative' }}>
-                                        <select value={topic} onChange={e => setTopic(e.target.value)} style={selectStyle}>
-                                            <option value="all">Random</option>
-                                            <option value="array">Arrays</option>
-                                            <option value="string">Strings</option>
-                                            <option value="tree">Trees</option>
-                                            <option value="dynamic">DP</option>
-                                        </select>
-                                        <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#71717a' }}>▼</div>
-                                    </div>
-                                </div>
-                                <div style={inputGroupStyle}>
-                                    <label style={labelStyle}><Target size={14} /> DIFFICULTY</label>
-                                    <div style={{ position: 'relative' }}>
-                                        <select value={difficulty} onChange={e => setDifficulty(e.target.value)} style={selectStyle}>
-                                            <option value="Easy">Easy</option>
-                                            <option value="Medium">Medium</option>
-                                            <option value="Hard">Hard</option>
-                                        </select>
-                                        <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#71717a' }}>▼</div>
-                                    </div>
-                                </div>
-                            </div>
-
                             {/* Specific Problem Input */}
                             <div style={inputGroupStyle}>
-                                <label style={labelStyle}><Code size={14} /> CUSTOM PROBLEM (OPTIONAL)</label>
+                                <label style={labelStyle}><Code size={14} /> QUESTION</label>
                                 <ProblemAutocomplete
                                     onSelect={(slug) => setSpecificProblem(slug)}
                                     initialValue={specificProblem}
                                 />
                                 <div style={{ fontSize: '11px', color: '#71717a', marginTop: '4px' }}>
-                                    Search by name. Leave empty to use AI Random Picker.
+                                    Search for a problem by name
                                 </div>
                             </div>
 
