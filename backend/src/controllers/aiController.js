@@ -196,7 +196,23 @@ export const handleAssist = async (req, res) => {
     let answer = null;
     let lastError = null;
 
-    // The Groq models are paywalled for the current key, defaulting immediately to Gemini
+    if (groq) {
+      try {
+        console.log(`[AI] Trying Groq with model: llama-3.3-70b-versatile`);
+        const chatCompletion = await groq.chat.completions.create({
+          messages: messages,
+          model: "llama-3.3-70b-versatile",
+        });
+        answer = chatCompletion.choices[0]?.message?.content;
+        if (answer) {
+          console.log(`[AI] Success with Groq (llama-3.3-70b-versatile)`);
+        }
+      } catch (err) {
+        console.warn(`[AI] Groq failed:`, err.message);
+        lastError = { message: err.message };
+      }
+    }
+
     // 2️⃣ FALLBACK TO GEMINI (If Groq failed or not configured)
     if (!answer) {
       console.log("[AI] Switching to Gemini Fallback...");
@@ -320,8 +336,21 @@ ONLY return the JSON object. No extra text.`;
     let answer = null;
 
     if (groq) {
-      console.log("[AI] Skipping Groq for complexity (models paywalled). Using Gemini.");
+      try {
+        console.log("[AI] Trying Groq for complexity (llama-3.3-70b-versatile)");
+        const chatCompletion = await groq.chat.completions.create({
+          messages: messages,
+          model: "llama-3.3-70b-versatile",
+        });
+        answer = chatCompletion.choices[0]?.message?.content?.replace(/```json|```/g, "").trim();
+        if (answer) {
+           console.log(`[AI] Success with Groq for complexity`);
+        }
+      } catch (err) {
+        console.warn("[AI] Groq complexity failed:", err.message);
+      }
     }
+
     if (!answer && GEMINI_API_KEY) {
       const payload = {
         contents: [
