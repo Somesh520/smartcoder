@@ -91,6 +91,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
     const [consoleOpen, setConsoleOpen] = useState(false);
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [isFullscreen, setIsFullscreen] = useState(false);
 
     const [autoSyncGithub, setAutoSyncGithubState] = useState(false);
     const autoSyncGithubRef = useRef(false);
@@ -129,6 +130,22 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
 
         document.addEventListener('mousemove', resize);
         document.addEventListener('mouseup', stopResize);
+    };
+
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            setIsFullscreen(!!document.fullscreenElement);
+        };
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    }, []);
+
+    const toggleFullscreen = () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(e => console.error(e));
+        } else {
+            if (document.exitFullscreen) document.exitFullscreen();
+        }
     };
 
     // Auto-scroll to bottom of chat
@@ -770,26 +787,48 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
                             </select>
                         </div>
 
-                        <button
-                            onClick={() => setAiOpen(!aiOpen)}
-                            title={aiOpen ? 'Close AI Assistant' : 'Open AI Assistant'}
-                            style={{
-                                width: '28px',
-                                height: '28px',
-                                padding: 0,
-                                background: aiOpen ? 'var(--accent)' : 'rgba(255,255,255,0.06)',
-                                color: aiOpen ? '#000' : 'var(--text-main)',
-                                border: aiOpen ? '1px solid var(--accent)' : '1px solid rgba(255,255,255,0.14)',
-                                borderRadius: '6px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            <Sparkles size={14} />
-                        </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <button
+                                onClick={toggleFullscreen}
+                                title={isFullscreen ? 'Exit Full Screen' : 'Full Screen'}
+                                style={{
+                                    width: '28px',
+                                    height: '28px',
+                                    padding: 0,
+                                    background: 'rgba(255,255,255,0.06)',
+                                    color: 'var(--text-main)',
+                                    border: '1px solid rgba(255,255,255,0.14)',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                            </button>
+                            <button
+                                onClick={() => setAiOpen(!aiOpen)}
+                                title={aiOpen ? 'Close AI Assistant' : 'Open AI Assistant'}
+                                style={{
+                                    width: '28px',
+                                    height: '28px',
+                                    padding: 0,
+                                    background: aiOpen ? 'var(--accent)' : 'rgba(255,255,255,0.06)',
+                                    color: aiOpen ? '#000' : 'var(--text-main)',
+                                    border: aiOpen ? '1px solid var(--accent)' : '1px solid rgba(255,255,255,0.14)',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                <Sparkles size={14} />
+                            </button>
+                        </div>
                     </div>
 
                 {/* AI Pulse Animation */}
