@@ -198,14 +198,14 @@ export const handleAssist = async (req, res) => {
 
     if (groq) {
       try {
-        console.log(`[AI] Trying Groq with model: llama-3.3-70b-versatile`);
+        console.log(`[AI] Trying Groq with model: llama-3.1-8b-instant`);
         const chatCompletion = await groq.chat.completions.create({
           messages: messages,
-          model: "llama-3.3-70b-versatile",
+          model: "llama-3.1-8b-instant",
         });
         answer = chatCompletion.choices[0]?.message?.content;
         if (answer) {
-          console.log(`[AI] Success with Groq (llama-3.3-70b-versatile)`);
+          console.log(`[AI] Success with Groq (llama-3.1-8b-instant)`);
         }
       } catch (err) {
         console.warn(`[AI] Groq failed:`, err.message);
@@ -337,10 +337,10 @@ ONLY return the JSON object. No extra text.`;
 
     if (groq) {
       try {
-        console.log("[AI] Trying Groq for complexity (llama-3.3-70b-versatile)");
+        console.log("[AI] Trying Groq for complexity (llama-3.1-8b-instant)");
         const chatCompletion = await groq.chat.completions.create({
           messages: messages,
-          model: "llama-3.3-70b-versatile",
+          model: "llama-3.1-8b-instant",
         });
         answer = chatCompletion.choices[0]?.message?.content?.replace(/```json|```/g, "").trim();
         if (answer) {
