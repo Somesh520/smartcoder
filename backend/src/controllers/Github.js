@@ -193,3 +193,24 @@ export const commitToGithub = async (req, res) => {
         });
     }
 };
+export const disconnectGithub = async (req, res) => {
+    try {
+        const userId = req.user?.userId || req.user?._id;
+        const dbUser = await User.findById(userId);
+        if (dbUser) {
+            dbUser.githubAccessToken = "";
+            dbUser.githubUsername = "";
+            dbUser.githubDsaRepo = "";
+            await dbUser.save();
+        }
+        res.clearCookie("github_token", {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+        });
+        res.json({ message: "GitHub disconnected successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to disconnect GitHub" });
+    }
+}

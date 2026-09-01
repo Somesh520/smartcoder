@@ -49,6 +49,12 @@ if (GROQ_API_KEY) {
   groq = new Groq({ apiKey: GROQ_API_KEY });
 }
 
+// Helper: Strip <think>...</think> blocks from reasoning models (e.g. Qwen)
+const stripThinkTags = (text) => {
+  if (!text) return text;
+  return text.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+};
+
 // 🚀 Primary: Gemini Models (Working perfectly for you)
 const GEMINI_MODELS = [
   "gemini-2.5-flash-lite",
@@ -196,40 +202,34 @@ export const handleAssist = async (req, res) => {
     let answer = null;
     let lastError = null;
 
+    // 1️⃣ FIRST: Try Groq
     if (groq) {
       try {
-        console.log(`[AI] Trying Groq with model: llama-3.1-8b-instant`);
+        console.log(`[AI] Trying Groq with model: qwen/qwen3.6-27b`);
         const chatCompletion = await groq.chat.completions.create({
           messages: messages,
-          model: "llama-3.1-8b-instant",
+          model: "qwen/qwen3.6-27b",
         });
-        answer = chatCompletion.choices[0]?.message?.content;
+        answer = stripThinkTags(chatCompletion.choices[0]?.message?.content);
         if (answer) {
-          console.log(`[AI] Success with Groq (llama-3.1-8b-instant)`);
+          console.log(`[AI] ✅ Success with Groq`);
         }
       } catch (err) {
-        console.warn(`[AI] Groq failed:`, err.message);
+        console.warn(`[AI] ❌ Groq failed:`, err.message);
         lastError = { message: err.message };
       }
     }
 
-    // 2️⃣ FALLBACK TO GEMINI (If Groq failed or not configured)
-    if (!answer) {
-      console.log("[AI] Switching to Gemini Fallback...");
+    // 2️⃣ SECOND: Try Gemini (if Groq failed)
+    if (!answer && GEMINI_API_KEY) {
+      console.log("[AI] Groq failed, trying Gemini...");
 
-      if (!GEMINI_API_KEY) {
-        return res.status(500).json({
-          error: "No AI Provider Configured (Groq failed, Gemini Key missing)",
-        });
-      }
-
-      // Construct Gemini Prompt
       let fullPrompt = systemPrompt + "\n\n**Conversation History:**\n";
       messages.forEach((m) => {
         if (m.role !== "system")
           fullPrompt += `\n${m.role.toUpperCase()}: ${m.content}`;
       });
-      fullPrompt += `\nUSER: ${userMessage}\nASSISTANT: `;
+      fullPrompt += `\nASSISTANT: `;
 
       const payload = { contents: [{ parts: [{ text: fullPrompt }] }] };
 
@@ -251,7 +251,6 @@ export const handleAssist = async (req, res) => {
               const errJson = JSON.parse(errText);
               if (response.status === 429) {
                 errMsg = "Quota Exceeded (429)";
-                // Backoff
                 const delay = (i + 1) * 1000;
                 console.warn(
                   `[AI] Failed ${model}: ${errMsg} -> Waiting ${delay}ms...`,
@@ -272,7 +271,7 @@ export const handleAssist = async (req, res) => {
           const data = await response.json();
           answer = data?.candidates?.[0]?.content?.parts?.[0]?.text;
           if (answer) {
-            console.log(`[AI] Success with Gemini (${model})`);
+            console.log(`[AI] ✅ Success with Gemini (${model})`);
             break;
           }
         } catch (fetchErr) {
@@ -282,13 +281,46 @@ export const handleAssist = async (req, res) => {
       }
     }
 
+    // 3️⃣ THIRD: Try Custom Cloud Model (dsa-coder-mini) as last resort
+    if (!answer) {
+      try {
+        console.log(`[AI] Groq & Gemini failed, trying dsa-coder-mini...`);
+        let fullPrompt = systemPrompt + "\n\n**Conversation History:**\n";
+        messages.forEach((m) => {
+          if (m.role !== "system")
+            fullPrompt += `\n${m.role.toUpperCase()}: ${m.content}`;
+        });
+        fullPrompt += `\nASSISTANT: `;
+        const response = await fetch("https://ubunu.up.railway.app/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "dsa-coder-mini",
+            prompt: fullPrompt,
+            stream: false
+          })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          answer = data.response;
+          if (answer) console.log(`[AI] ✅ Success with dsa-coder-mini`);
+        } else {
+          lastError = { message: "Custom model failed" };
+        }
+      } catch (err) {
+        console.warn(`[AI] ❌ dsa-coder-mini failed:`, err.message);
+        lastError = { message: err.message };
+      }
+    }
+
+    // 4️⃣ FINAL: Ghee khatam — all models failed
     if (answer) {
       user.credits = Math.max(0, user.credits - 1);
       await user.save();
       return res.json({ response: answer, credits: user.credits });
     } else {
       return res.status(500).json({
-        response: "AI service busy. Please try again later.",
+        response: "Ghee khatam 🫠 — All AI models failed. Try again later.",
         debug: lastError,
       });
     }
@@ -335,22 +367,24 @@ ONLY return the JSON object. No extra text.`;
     const messages = [{ role: "system", content: systemPrompt }];
     let answer = null;
 
+    // 1️⃣ FIRST: Try Groq
     if (groq) {
       try {
-        console.log("[AI] Trying Groq for complexity (llama-3.1-8b-instant)");
+        console.log("[AI] Trying Groq for complexity (qwen/qwen3.6-27b)");
         const chatCompletion = await groq.chat.completions.create({
           messages: messages,
-          model: "llama-3.1-8b-instant",
+          model: "qwen/qwen3.6-27b",
         });
-        answer = chatCompletion.choices[0]?.message?.content?.replace(/```json|```/g, "").trim();
+        answer = stripThinkTags(chatCompletion.choices[0]?.message?.content)?.replace(/```json|```/g, "").trim();
         if (answer) {
-           console.log(`[AI] Success with Groq for complexity`);
+          console.log(`[AI] ✅ Success with Groq for complexity`);
         }
       } catch (err) {
-        console.warn("[AI] Groq complexity failed:", err.message);
+        console.warn("[AI] ❌ Groq complexity failed:", err.message);
       }
     }
 
+    // 2️⃣ SECOND: Try Gemini
     if (!answer && GEMINI_API_KEY) {
       const payload = {
         contents: [
@@ -366,6 +400,30 @@ ONLY return the JSON object. No extra text.`;
         const data = await response.json();
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
         answer = text?.replace(/```json|```/g, "").trim();
+        if (answer) console.log(`[AI] ✅ Success with Gemini for complexity`);
+      }
+    }
+
+    // 3️⃣ THIRD: Try dsa-coder-mini
+    if (!answer) {
+      try {
+        console.log("[AI] Trying dsa-coder-mini for complexity...");
+        const response = await fetch("https://ubunu.up.railway.app/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "dsa-coder-mini",
+            prompt: systemPrompt + "\nOutput valid JSON.",
+            stream: false
+          })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          answer = data.response?.replace(/```json|```/g, "").trim();
+          if (answer) console.log(`[AI] ✅ Success with dsa-coder-mini for complexity`);
+        }
+      } catch (err) {
+        console.warn("[AI] ❌ dsa-coder-mini complexity failed:", err.message);
       }
     }
 

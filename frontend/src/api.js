@@ -278,12 +278,12 @@ export const fetchUserSkills = async (username) => {
 };
 
 // AI Assistant
-export const fetchAIAssist = async ({ code, language, problemTitle, problemDescription, userMessage, explainLanguage }) => {
+export const fetchAIAssist = async ({ code, language, problemTitle, problemDescription, userMessage, explainLanguage, history = [] }) => {
   try {
     const res = await fetch(`${BASE_URL}/api/ai/assist`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ code, language, problemTitle, problemDescription, userMessage, explainLanguage }),
+      body: JSON.stringify({ code, language, problemTitle, problemDescription, userMessage, explainLanguage, history }),
       credentials: 'include'
     });
     if (!res.ok) {
@@ -425,5 +425,19 @@ export const commitCodeToGithub = async ({ owner, repo, path, code, message, que
   } catch (e) {
     console.error("Github API Error:", e);
     return { success: false, error: e.message };
+  }
+};
+
+export const disconnectGithub = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/github/disconnect`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) throw new Error("Failed to disconnect GitHub");
+    return await res.json();
+  } catch (e) {
+    console.error("Github API Error:", e);
+    return null;
   }
 };

@@ -90,7 +90,7 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                 left: '10%',
                 width: '400px',
                 height: '400px',
-                background: 'radial-gradient(circle, rgba(34, 197, 94, 0.08) 0%, transparent 70%)',
+                background: 'radial-gradient(circle, rgba(255, 161, 22, 0.08) 0%, transparent 70%)',
                 filter: 'blur(60px)',
                 pointerEvents: 'none',
                 zIndex: 0
@@ -119,12 +119,12 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                         <div style={{
                             width: '48px',
                             height: '48px',
-                            background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                            background: 'linear-gradient(135deg, var(--accent) 0%, #d98211 100%)',
                             borderRadius: '12px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            boxShadow: '0 0 20px rgba(34, 197, 94, 0.3)'
+                            boxShadow: '0 0 20px rgba(255, 161, 22, 0.3)'
                         }}>
                             <Code2 size={24} color="#000" />
                         </div>
@@ -323,7 +323,7 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                                         cursor: 'pointer',
                                         borderBottom: 'var(--border-main)',
                                         transition: 'all 0.2s',
-                                        background: isHovered ? 'var(--accent)' : 'transparent',
+                                        background: isHovered ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
                                         position: 'relative'
                                     }}
                                 >
@@ -335,8 +335,8 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                                             top: 0,
                                             bottom: 0,
                                             width: '3px',
-                                            background: 'linear-gradient(to bottom, #3b82f6, #22c55e)',
-                                            boxShadow: '0 0 10px rgba(59, 130, 246, 0.5)'
+                                            background: 'var(--accent)',
+                                            boxShadow: '0 0 10px var(--accent)'
                                         }}></div>
                                     )}
 
@@ -371,7 +371,7 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                                         <span style={{
                                             fontSize: '15px',
                                             fontWeight: 900,
-                                            color: isHovered ? '#000' : 'var(--text-main)',
+                                            color: isHovered ? 'var(--accent)' : 'var(--text-main)',
                                             transition: 'color 0.2s',
                                             textTransform: 'uppercase'
                                         }}>
@@ -404,7 +404,7 @@ const ProblemList = ({ problems, solvedProblems, loading, onRefresh, onSelectPro
                                         opacity: isHovered ? 1 : 0,
                                         transition: 'opacity 0.2s'
                                     }}>
-                                        <ChevronRight size={20} color="#3b82f6" />
+                                        <ChevronRight size={20} color="var(--accent)" />
                                     </div>
                                 </div>
                             );

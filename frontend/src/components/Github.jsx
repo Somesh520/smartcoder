@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchGithubUser, fetchGithubRepos, saveGithubDsaRepo, removeGithubDsaRepo, BASE_URL } from '../api';
+import { fetchGithubUser, fetchGithubRepos, saveGithubDsaRepo, removeGithubDsaRepo, disconnectGithub, BASE_URL } from '../api';
 import { Github as GithubIcon, Users, MapPin, Link as LinkIcon, Star, GitBranch, Terminal, BookOpen, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -30,11 +30,10 @@ const Github = ({ user }) => {
                     const urlParams = new URLSearchParams(window.location.search);
                     if (urlParams.get('just_authorized') === 'true') {
                         setError("cookie_blocked");
-                        setLoading(false);
-                        return;
+                    } else {
+                        setError("not_connected");
                     }
-                    const token = localStorage.getItem('auth_token') || '';
-                    window.location.href = `${BASE_URL}/auth/github?token=${token}`;
+                    setLoading(false);
                     return;
                 }
 
@@ -64,6 +63,18 @@ const Github = ({ user }) => {
         // Redirect to backend auth endpoint
         const token = localStorage.getItem('auth_token') || '';
         window.location.href = `${BASE_URL}/auth/github?token=${token}`;
+    };
+
+    const handleDisconnect = async () => {
+        if (window.confirm("Are you sure you want to disconnect your GitHub account?")) {
+            setLoading(true);
+            await disconnectGithub();
+            setProfile(null);
+            setRepos([]);
+            setCurrentDsaRepo("");
+            setError("not_connected");
+            setLoading(false);
+        }
     };
 
     const handleSetDsaRepo = async (e, repoName) => {
@@ -209,18 +220,32 @@ const Github = ({ user }) => {
                                 </div>
                             </div>
                         </div>
-                        <a
-                            href={profile.html_url} target="_blank" rel="noreferrer"
-                            style={{
-                                padding: '12px 24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
-                                borderRadius: '12px', color: 'white', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px',
-                                transition: 'background 0.2s'
-                            }}
-                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-                            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                        >
-                            <GithubIcon size={18} /> View on GitHub
-                        </a>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <a
+                                href={profile.html_url} target="_blank" rel="noreferrer"
+                                style={{
+                                    padding: '12px 24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
+                                    borderRadius: '12px', color: 'white', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px',
+                                    transition: 'background 0.2s', justifyContent: 'center'
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+                                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                            >
+                                <GithubIcon size={18} /> View on GitHub
+                            </a>
+                            <button
+                                onClick={handleDisconnect}
+                                style={{
+                                    padding: '12px 24px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
+                                    borderRadius: '12px', color: '#ef4444', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px',
+                                    transition: 'all 0.2s', cursor: 'pointer', justifyContent: 'center'
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.2)'}
+                                onMouseLeave={e => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'}
+                            >
+                                Disconnect
+                            </button>
+                        </div>
                     </motion.div>
                 )}
 

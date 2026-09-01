@@ -345,7 +345,7 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
                 problemDescription: details.content || details.questionHtml || '',
                 userMessage: msg,
                 explainLanguage,
-                history: apiHistory // Pass full history
+                history: apiHistory
             });
 
             setAiLoading(false);
@@ -703,26 +703,26 @@ const Workspace = ({ problem, roomId, onBack, onSubmissionSuccess, theme, user, 
                         background: 'var(--bg-card)'
                     }}>
                         <style>{`
-                            .problem-content p { margin: 0 0 16px 0; color: var(--text-main); line-height: 1.7; font-weight: 600; }
-                            .problem-content strong { color: var(--text-main); font-weight: 950; }
-                            .problem-content em { color: var(--accent); font-style: italic; font-weight: 800; }
-                            .problem-content code { color: var(--accent); padding: 2px 8px; border: var(--border-main); border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800; background: var(--bg-main); }
-                            .problem-content pre { background: var(--bg-main); border: var(--border-main); padding: 20px; border-radius: 8px; overflow-x: auto; margin: 20px 0; box-shadow: var(--shadow-main); position: relative; }
-                            .problem-content pre::before { content: 'EXAMPLE'; position: absolute; top: 0; right: 0; background: var(--text-main); color: var(--bg-card); padding: 2px 8px; font-size: 10px; font-weight: 900; border-radius: 0 8px 0 6px; }
-                            .problem-content pre code { background: none; border: none; padding: 0; color: var(--text-main); font-size: 13px; font-weight: 700; line-height: 1.5; }
+                            .problem-content p { margin: 0 0 16px 0; color: var(--text-main); line-height: 1.7; font-weight: 400; }
+                            .problem-content strong { color: var(--text-main); font-weight: 600; }
+                            .problem-content em { color: var(--text-main); font-style: italic; font-weight: 500; }
+                            .problem-content code { color: var(--text-main); padding: 2.5px 6px; border: var(--border-main); border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 13.5px; font-weight: 500; background: rgba(255, 255, 255, 0.05); }
+                            .problem-content pre { background: var(--bg-main); border: var(--border-main); padding: 16px; border-radius: 8px; overflow-x: auto; margin: 20px 0; box-shadow: var(--shadow-main); position: relative; }
+                            .problem-content pre::before { content: 'EXAMPLE'; position: absolute; top: 0; right: 0; background: var(--text-muted); color: var(--bg-main); padding: 2px 8px; font-size: 10px; font-weight: 700; border-radius: 0 8px 0 6px; letter-spacing: 0.5px; }
+                            .problem-content pre code { background: none; border: none; padding: 0; color: var(--text-main); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 13.5px; font-weight: 500; line-height: 1.6; }
                             .problem-content ul, .problem-content ol { margin: 16px 0; padding-left: 24px; color: var(--text-main); }
-                            .problem-content li { margin: 8px 0; color: var(--text-main); font-weight: 600; }
-                            .problem-content h1, .problem-content h2, .problem-content h3 { color: var(--text-main); font-weight: 950; margin: 32px 0 16px 0; line-height: 1.2; text-transform: uppercase; }
+                            .problem-content li { margin: 8px 0; color: var(--text-main); font-weight: 400; }
+                            .problem-content h1, .problem-content h2, .problem-content h3 { color: var(--text-main); font-weight: 700; margin: 32px 0 16px 0; line-height: 1.2; }
                             .problem-content h1 { font-size: 24px; border-bottom: var(--border-main); padding-bottom: 8px; }
-                            .problem-content h2 { font-size: 20px; color: var(--accent); }
+                            .problem-content h2 { font-size: 20px; color: var(--text-main); }
                             .problem-content h3 { font-size: 18px; }
                             .problem-content img { max-width: 100%; border: var(--border-main); margin: 20px 0; box-shadow: var(--shadow-main); border-radius: 8px; }
-                            .problem-content blockquote { border-left: 4px solid var(--accent); background: var(--bg-main); padding: 16px 20px; margin: 20px 0; color: var(--text-main); font-weight: 700; border-radius: 0 8px 8px 0; }
+                            .problem-content blockquote { border-left: 4px solid var(--accent); background: var(--bg-main); padding: 16px 20px; margin: 20px 0; color: var(--text-muted); font-weight: 400; border-radius: 0 8px 8px 0; font-style: italic; }
                             .problem-content table { width: 100%; border-collapse: collapse; margin: 20px 0; border: var(--border-main); border-radius: 8px; overflow: hidden; }
-                            .problem-content th { background: var(--accent); color: #000; padding: 12px; text-align: left; font-weight: 950; border: var(--border-main); }
-                            .problem-content td { padding: 12px; border: var(--border-main); color: var(--text-main); font-weight: 600; }
-                            .problem-content tr:nth-child(even) { background: var(--bg-main); }
-                            .problem-content p strong { display: inline-block; margin-top: 8px; color: var(--accent); text-transform: uppercase; font-size: 13px; letter-spacing: 1px; }
+                            .problem-content th { background: var(--bg-main); color: var(--text-main); padding: 12px; text-align: left; font-weight: 600; border: var(--border-main); }
+                            .problem-content td { padding: 12px; border: var(--border-main); color: var(--text-main); font-weight: 400; }
+                            .problem-content tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+                            .problem-content p strong { display: inline; margin-top: 0; color: var(--text-main); text-transform: none; font-size: inherit; letter-spacing: normal; font-weight: 600; }
                             .problem-content p:has(strong) { margin-bottom: 20px; }
                         `}</style>
                         {details ? (

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Trophy, Flame, CheckCircle2, XCircle, Loader2, Zap, Clock, Code2 } from 'lucide-react';
-import { fetchDailyChallenge, fetchUserSubmissions, fetchUserStats, fetchUserCalendar, fetchUserContest, fetchUserSkills } from '../api';
+import { fetchDailyChallenge, fetchUserSubmissions, fetchUserStats, fetchUserCalendar, fetchUserContest, fetchUserSkills, getCurrentUser } from '../api';
 
 const LeetCodeStats = ({ onSelectProblem }) => {
     const [username, setUsername] = useState('');
@@ -15,11 +15,28 @@ const LeetCodeStats = ({ onSelectProblem }) => {
 
     // Load persisted username on mount
     useEffect(() => {
-        const savedUsername = localStorage.getItem('leetcode_username');
-        if (savedUsername) {
-            setUsername(savedUsername);
-            fetchAllData(savedUsername);
-        }
+        const loadUsername = async () => {
+            let savedUsername = localStorage.getItem('leetcode_username');
+            
+            if (!savedUsername) {
+                try {
+                    const user = await getCurrentUser();
+                    if (user && user.leetcodeUsername) {
+                        savedUsername = user.leetcodeUsername;
+                        localStorage.setItem('leetcode_username', savedUsername);
+                    }
+                } catch (err) {
+                    console.error("Failed to fetch current user:", err);
+                }
+            }
+
+            if (savedUsername) {
+                setUsername(savedUsername);
+                fetchAllData(savedUsername);
+            }
+        };
+
+        loadUsername();
         loadDailyChallenge();
     }, []);
 
